@@ -27,8 +27,14 @@ Run docker compose
 docker-compose up -d
 ```
 
+Run migrations
+
+```bash
+poetry run alembic upgrade head
+```
+
 Run server for testing
 
 ```bash
-uvicorn main:app --host localhost --port 8008 --reload
+poetry run uvicorn main:app --host localhost --port 8008 --reload
 ```
