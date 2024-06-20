@@ -6,6 +6,9 @@ from alembic import context
 
 from app.conf.config import settings
 from app.database.user import User
+from app.database.post import Post
+from app.database.tag import Tag
+from app.database.comment import Comment
 
 
 # this is the Alembic Config object, which provides
