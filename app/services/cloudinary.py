@@ -37,7 +37,7 @@ async def upload_avatar(
     gravatar_url = None
 
     try:
-        res = cloudinary.uploader.upload(
+        res = await cloudinary.uploader.upload(
             img_file, public_id=dest_folder, overwrite=True
         )
     except Exception as err:
@@ -72,25 +72,25 @@ async def upload_photo(
     except Exception as err:
         raise err
 
-    post.photo_id = res.get("public_id", None)
+    post.photo_public_id = res.get("public_id")
     post.photo = res.get("secure_url", None)
 
 
 async def delete_photo(public_id: str) -> dict:
     try:
-        res = cloudinary.uploader.destroy(public_id)
+        res = await cloudinary.uploader.destroy(public_id)
     except Exception as err:
         raise err
     return res
 
 
-def transform_photo(effect: Effect, post: Post) -> str:
+async def transform_photo(effect: Effect, post: Post) -> str:
     transformation = [{"effect": effect.value}]
-    url = cloudinary.CloudinaryImage(post.photo_public_id).build_url(
+    url = await cloudinary.CloudinaryImage(post.photo_public_id).build_url(
         transformation=transformation
     )
     # print(url)
-    post.photo_transform_url = url
+    post.transform_url = url
     # return url
 
 
