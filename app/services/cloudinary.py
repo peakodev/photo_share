@@ -24,6 +24,9 @@ class Effect(enum.Enum):
 
 
 CLOUDINARY_FOLDER = "project_web21"
+# folder structure:
+# avatar: project_web21/user_id/avatar
+# photo: project_web21/user_id/photos/post_id - name phone post_id
 
 
 async def upload_avatar(
@@ -41,10 +44,10 @@ async def upload_avatar(
         gravatar_url = get_gravatar(user.email)
 
     if gravatar_url:
-        user.avatar_id = None
+        # user.avatar_id = None
         user.avatar = gravatar_url
     else:
-        user.avatar_id = res.get("public_id", None)
+        # user.avatar_id = res.get("public_id", None)
         user.avatar = res.get("secure_url", None)
 
 
@@ -60,11 +63,11 @@ async def upload_photo(
     img_file: Path,
     post: Post,
 ):
-    dest_folder = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos"
+    public_id = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos/{post.id}"
 
     try:
         res = await cloudinary.uploader.upload(
-            img_file, public_id=dest_folder, overwrite=True
+            img_file, public_id=public_id, overwrite=True
         )
     except Exception as err:
         raise err
