@@ -4,6 +4,7 @@ from pathlib import Path
 
 import cloudinary
 import cloudinary.uploader
+from fastapi import UploadFile
 
 from app.database.post import Post
 from app.database.user import User
@@ -30,7 +31,7 @@ CLOUDINARY_FOLDER = "project_web21"
 
 
 async def upload_avatar(
-    img_file: Path,
+    img_file: UploadFile,
     user: User,
 ):
     dest_folder = f"{CLOUDINARY_FOLDER}/{user.id}/avatar"
@@ -60,7 +61,7 @@ async def delete_avatar(public_id: str):
 
 
 async def upload_photo(
-    img_file: Path,
+    img_file: UploadFile,
     post: Post,
 ):
     public_id = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos/{post.id}"
