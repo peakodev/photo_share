@@ -1,3 +1,4 @@
+import enum
 import os
 from pathlib import Path
 
@@ -17,7 +18,11 @@ cloudinary.config(
 )
 
 
-# public_id = "project_web21/users/1/avatar"
+class Effect(enum.Enum):
+    sepia = "sepia"
+    grayscale = "grayscale"
+
+
 CLOUDINARY_FOLDER = "project_web21"
 
 
@@ -45,7 +50,7 @@ async def upload_avatar(
 
 async def delete_avatar(public_id: str):
     try:
-        res = cloudinary.uploader.destroy(public_id)
+        res = await cloudinary.uploader.destroy(public_id)
     except Exception as err:
         raise err
     return res
@@ -58,7 +63,7 @@ async def upload_photo(
     dest_folder = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos"
 
     try:
-        res = cloudinary.uploader.upload(
+        res = await cloudinary.uploader.upload(
             img_file, public_id=dest_folder, overwrite=True
         )
     except Exception as err:
@@ -68,12 +73,22 @@ async def upload_photo(
     post.photo = res.get("secure_url", None)
 
 
-async def delete_photo(public_id: str):
+async def delete_photo(public_id: str) -> dict:
     try:
         res = cloudinary.uploader.destroy(public_id)
     except Exception as err:
         raise err
     return res
+
+
+def transform_photo(effect: Effect, post: Post) -> str:
+    transformation = [{"effect": effect.value}]
+    url = cloudinary.CloudinaryImage(post.photo_public_id).build_url(
+        transformation=transformation
+    )
+    # print(url)
+    post.photo_transform_url = url
+    # return url
 
 
 # res = {
