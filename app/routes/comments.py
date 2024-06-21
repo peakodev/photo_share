@@ -18,7 +18,7 @@ async def create_comment(comment: CommentCreate, post_id: int,  db: Session = De
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    return create_comment(db=db, comment=comment, user_id=current_user.id, post_id=post_id)
+    return crud.create_comment(db=db, comment=comment, user_id=current_user.id, post_id=post_id)
 
 
 @router.get("/{comment_id}", response_model=Comment)
@@ -44,7 +44,7 @@ async def update_comment(comment_id: int, comment: CommentUpdate, db: Session = 
     if db_comment.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to edit this comment")
 
-    db_comment = update_comment(db=db, comment_id=comment_id, comment=comment)
+    db_comment = crud.update_comment(db=db, comment_id=comment_id, comment=comment)
     return db_comment
 
 
