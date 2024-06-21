@@ -9,6 +9,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
+from app.database.tag import Tag
+from app.database.comment import Comment
 from app.database.db import Base
 
 post_m2m_tag = Table(

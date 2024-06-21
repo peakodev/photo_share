@@ -1,10 +1,11 @@
 from typing import List
 
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from app.database.tag import Tag
 from app.database.post import Post
-from app.schemas.tags import TagDB
+from app.schemas.tags import TagModel
 
 
 async def get_tags(db: Session, skip: int = 0, limit: int = 100) -> List[Tag]:
@@ -21,12 +22,12 @@ async def get_tags(db: Session, skip: int = 0, limit: int = 100) -> List[Tag]:
     """    
     return db.query(Tag).offset(skip).limit(limit).all()
 
-async def create_tag_in_db(body: TagDB, db: Session) -> Tag:
+async def create_tag_in_db(body: TagModel, db: Session) -> Tag:
     """
     Create a new tag in db.
 
     Args:
-        body (TagDB): TagDB model: {tag: str}
+        body (TagModel): TagModel model: {tag: str}
         db (Session): The database session.
 
     Returns:
@@ -49,7 +50,7 @@ async def get_tag_by_id(tag_id: int, db: Session) -> Tag | None:
     Returns:
         Tag | None: Database object
     """    
-    return db.query(Tag).filter_by(id=tag_id).first()
+    return db.query(Tag).filter(Tag.id == tag_id).first()
 
 async def get_tag_by_text(text: str, db: Session) -> Tag | None:
     """
@@ -73,18 +74,18 @@ async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
     Args:
         string (str): string with tags
         db (Session): The database session.
-
+        
     Returns:
-        list[int] : Returns a list of id tags
+        list[int] : Returns a list of id's tags
     """    
     tag_list = string.split(",")
     result = []
     for item in tag_list:
-        new_tag = await get_tag_by_text(item.strip().lower())
+        new_tag = await get_tag_by_text(item.strip().lower(), db=db)
         if new_tag:
             result.append(new_tag.id)
         else:
-            new_tag = await create_tag_in_db(TagDB(item.strip().lower()),db=db)
+            new_tag = await create_tag_in_db(TagModel(text = item.lower().strip()), db=db)
             result.append(new_tag.id)
         if len(result) == 5:
             break
