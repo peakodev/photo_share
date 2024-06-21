@@ -1,8 +1,8 @@
-"""Models
+"""models
 
-Revision ID: 31040df15e67
+Revision ID: 74794134f2d7
 Revises: d5d76287859d
-Create Date: 2024-06-20 18:44:45.393068
+Create Date: 2024-06-22 00:42:31.694561
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '31040df15e67'
+revision: str = '74794134f2d7'
 down_revision: Union[str, None] = 'd5d76287859d'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,9 +28,13 @@ def upgrade() -> None:
     op.create_table('posts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('photo', sa.String(length=255), nullable=False),
+    sa.Column('photo_url', sa.String(length=255), nullable=True),
+    sa.Column('photo_public_id', sa.Integer(), nullable=True),
+    sa.Column('transform_url', sa.String(length=255), nullable=True),
     sa.Column('description', sa.String(length=255), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('rating', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -43,7 +47,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
