@@ -4,13 +4,11 @@ from datetime import datetime
 
 
 class CommentBase(BaseModel):
-    text: str
-    post_id: int
-    user_id: int
+    pass
 
 
 class CommentCreate(CommentBase):
-    pass
+    text: str
 
 
 class CommentUpdate(BaseModel):
@@ -27,4 +25,6 @@ class CommentInDBBase(CommentBase):
 
 
 class Comment(CommentInDBBase):
-    pass
+    text: str
+    post_id: int
+    user_id: int
