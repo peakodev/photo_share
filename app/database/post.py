@@ -10,6 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from app.database.db import Base
+from app.database.comment import Comment
 
 post_m2m_tag = Table(
     "post_m2m_tag",
