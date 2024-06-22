@@ -9,6 +9,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from app.database.db import Base
+from app.database.post import Post
 
 
 class Comment(Base):
