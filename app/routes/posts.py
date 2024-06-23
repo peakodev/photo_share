@@ -5,8 +5,8 @@ from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-from app.database.db import get_db
-from app.database.user import User
+from app.models import get_db
+from app.models import User
 from app.schemas.post import (
     PostResponse,
     PostCreateResponse,

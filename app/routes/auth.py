@@ -14,7 +14,7 @@ from fastapi.security import (
 )
 from sqlalchemy.orm import Session
 
-from app.database.db import get_db
+from app.models import get_db
 from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
 from app.repository import users as repository_users
 from app.services.auth import auth_service

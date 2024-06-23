@@ -2,8 +2,8 @@ from typing import List
 
 from sqlalchemy.orm import Session
 
-from app.database.tag import Tag
-from app.database.post import Post
+from app.models import Tag
+from app.models import Post
 from app.schemas.tags import TagDB
 
 

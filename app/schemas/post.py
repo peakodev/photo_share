@@ -4,12 +4,13 @@ from datetime import date
 
 
 from app.schemas.user import UserDb
-from app.database.tag import Tag
-# from src.database.models import Role
+from app.models import Tag
+
 
 class TagResponse(BaseModel):
     id: int
     text: str
+
 
 class PostDeleteSchema(BaseModel):
     id: int

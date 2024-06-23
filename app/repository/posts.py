@@ -2,9 +2,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
-from app.database.post import Post
-from app.database.user import User
-from app.database.tag import Tag
+from app.models import Post
+from app.models import User
+from app.models import Tag
 
 
 # return list of posts for curent user
