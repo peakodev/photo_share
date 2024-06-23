@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database.models import Comment
+from app.models import Comment
 from app.schemas.comments import CommentCreate, CommentUpdate
 
 
@@ -29,6 +29,7 @@ async def create_comment(
     comment: CommentCreate, user_id: int, db: AsyncSession
 ) -> Comment:
     db_comment = Comment(**comment.model_dump(exclude_unset=True), user_id=user_id)
+    print(db_comment.post_id)
     db.add(db_comment)
     await db.commit()
     await db.refresh(db_comment)

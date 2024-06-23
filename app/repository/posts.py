@@ -6,6 +6,7 @@ from typing import List
 from app.models import Post
 from app.models import User
 from app.models import Tag
+from app.services.cloudinary import Effect, upload_photo, transform_photo
 
 
 # return list of posts for curent user
@@ -72,19 +73,23 @@ async def check_tags(tags: list[str], db: AsyncSession):
         if tag is None:
             tag = Tag(text=item)
             db.add(tag)
-            await db.commit()
-            await db.refresh(tag)
+            db.commit()
+            db.refresh(tag)
         validated_tags.append(tag)
     return validated_tags
 
 
-async def create_post(
-    url: str, description, tags, user: User, db: AsyncSession
-) -> Post:
+async def create_post(description, tags, file, user: User, db: AsyncSession) -> Post:
 
     tags = await check_tags(tags, db)
-    new_post = Post(description=description, user=user, photo=url, tags=tags)
+
+    new_post = Post(description=description, user=user, tags=tags)
+
     db.add(new_post)
+    await db.commit()
+    await db.refresh(new_post)
+
+    new_post.photo_url, new_post.photo_public_id = upload_photo(file, new_post)
     await db.commit()
     await db.refresh(new_post)
 
@@ -95,11 +100,12 @@ async def create_post(
     )
     p = await db.execute(query)
     current_post = p.scalar_one()
+
     return current_post
 
 
 async def update_post(
-    post_id: int, user: User, db: AsyncSession, description, tags, photo_url
+    post_id: int, user: User, db: AsyncSession, description, tags, effect, file
 ) -> Post | None:
 
     query = (
@@ -112,11 +118,14 @@ async def update_post(
     if post:
         if description:
             post.description = description
-        if photo_url:
-            post.photo = photo_url
+        if file:
+            post.photo_url, post.photo_public_id = upload_photo(file, post)
         # TODO: now it delete old tags and add new from update method.
         if tags:
-            post.tags = await check_tags(tags, db)
+            tags = await check_tags(tags, db)
+            post.tags = tags
+        if effect:
+            post.transform_url = transform_photo(post, effect)
         await db.commit()
         await db.refresh(post)
     return post

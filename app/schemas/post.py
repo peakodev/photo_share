@@ -24,7 +24,7 @@ class PostSchema(BaseModel):
 
 class PostCreateResponse(BaseModel):
     id: int
-    photo: str
+    photo_url: str | None
     user: UserDb
     description: str
     tags: list[TagResponse]
