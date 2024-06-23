@@ -9,15 +9,21 @@ from fastapi import UploadFile
 from app.models import Post
 from app.models import User
 from app.services.gravatar import get_gravatar
-from app.conf import config
+# from app.conf import config
+from app.conf.config import settings
 
+# cloudinary.config(
+#     cloud_name=config.CLOUDINARY_NAME,
+#     api_key=config.CLOUDINARY_KEY,
+#     api_secret=config.CLOUDINARY_SECRET,
+#     secure=True,
+# )
 cloudinary.config(
-    cloud_name=config.CLOUDINARY_NAME,
-    api_key=config.CLOUDINARY_KEY,
-    api_secret=config.CLOUDINARY_SECRET,
+    cloud_name=settings.cloudinary_name,
+    api_key=settings.cloudinary_api_key,
+    api_secret=settings.cloudinary_api_secret,
     secure=True,
 )
-
 
 class Effect(enum.Enum):
     sepia = "sepia"
@@ -60,21 +66,24 @@ async def delete_avatar(public_id: str):
     return res
 
 
-async def upload_photo(
+def upload_photo(
     img_file: UploadFile,
     post: Post,
 ):
     public_id = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos/{post.id}"
 
     try:
-        res = await cloudinary.uploader.upload(
-            img_file, public_id=public_id, overwrite=True
+        res = cloudinary.uploader.upload(
+            img_file.file, public_id=public_id, overwrite=True
         )
     except Exception as err:
         raise err
 
-    post.photo_public_id = res.get("public_id")
-    post.photo = res.get("secure_url", None)
+    # post.photo_public_id = res.get("public_id")
+    # post.photo = res.get("secure_url", None)
+    photo_public_id = res.get("public_id")
+    photo_url = res.get("secure_url", None)
+    return photo_url, photo_public_id
 
 
 async def delete_photo(public_id: str) -> dict:
@@ -87,12 +96,10 @@ async def delete_photo(public_id: str) -> dict:
 
 async def transform_photo(effect: Effect, post: Post) -> str:
     transformation = [{"effect": effect.value}]
-    url = await cloudinary.CloudinaryImage(post.photo_public_id).build_url(
+    transform_url = await cloudinary.CloudinaryImage(post.photo_public_id).build_url(
         transformation=transformation
     )
-    # print(url)
-    post.transform_url = url
-    # return url
+    return transform_url
 
 
 # res = {

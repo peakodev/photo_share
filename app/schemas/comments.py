@@ -7,7 +7,8 @@ class CommentBase(BaseModel):
     pass
 
 
-class CommentCreate(CommentBase):
+class CommentCreate(BaseModel):
+    post_id: int
     text: str
 
 
@@ -21,7 +22,7 @@ class CommentInDBBase(CommentBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True 
 
 
 class Comment(CommentInDBBase):
