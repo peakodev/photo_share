@@ -164,3 +164,4 @@ cython_debug/
 
 postgres-data/
 
+*.db
