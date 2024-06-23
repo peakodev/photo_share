@@ -119,7 +119,7 @@ async def create_post(
 
 @router.put(
     "/{post_id}",
-    response_model=PostCreateResponse,
+    response_model=PostResponse,
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def update_post(

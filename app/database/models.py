@@ -33,8 +33,8 @@ class User(Base):
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
-    # comments = relationship("Comment", back_populates="user")
-    # posts = relationship("Post", back_populates="user")
+    # comments = relationship("Comment")
+    # posts = relationship("Post")
 
 
 class Tag(Base):
@@ -53,12 +53,12 @@ class Post(Base):
     description = Column(String(255), nullable=False)
     created_at = Column('created_at', DateTime, default=func.now())
     updated_at = Column("updated_at", DateTime, default=func.now(), onupdate=func.now())
-    comments = relationship("Comment")
+    # comments = relationship("Comment")
     tags = relationship("Tag", secondary=post_m2m_tag, backref="posts")
     rating = Column(Integer)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="posts", lazy="selectin")
-    # user = relationship('User', backref="posts")
+
 
 class Comment(Base):
     __tablename__= "comments"
@@ -67,10 +67,8 @@ class Comment(Base):
     created_at = Column('created_at', DateTime, default=func.now())
     updated_at = Column("updated_at", DateTime, default=func.now(), onupdate=func.now())
     post_id = Column('post_id', ForeignKey("posts.id", ondelete='CASCADE'), default=None)
-    # post = relationship("Post", backref="comments")
-    # post = relationship("Post", backref="comments", lazy="selectin")
+    post = relationship('Post', backref="comments", lazy="selectin")
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
-    # user = relationship('User', backref="comments")
     user = relationship('User', backref="comments", lazy="selectin")
 
 
