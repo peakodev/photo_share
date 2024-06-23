@@ -1,5 +1,5 @@
-from datetime import datetime
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel
+
 
 class TagDB(BaseModel):
     text: str

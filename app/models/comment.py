@@ -12,8 +12,8 @@ from app.models import Base
 
 
 class Comment(Base):
-    __tablename__= "comments"
-    id= Column(Integer,primary_key=True, index=True)
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True, index=True)
     text = Column(String(255), nullable=False)
     created_at = Column('created_at', DateTime, default=func.now())
     updated_at = Column("updated_at", DateTime, default=func.now(), onupdate=func.now())

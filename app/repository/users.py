@@ -1,14 +1,11 @@
-from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy.orm import Session
 from libgravatar import Gravatar
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import get_db
 from app.models import User
 from app.schemas.user import UserModel
 
 
-async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)) -> User:
+async def get_user_by_email(email: str, db: Session) -> User:
     """
     Get a user by email.
 
@@ -19,14 +16,10 @@ async def get_user_by_email(email: str, db: AsyncSession = Depends(get_db)) -> U
     Returns:
         User: The user, or None if the user does not exist.
     """
-    query = select(User).filter_by(email=email)
-    user = await db.execute(query)
-    user = user.scalar_one_or_none()
-    return user
-    # return db.query(User).filter(User.email == email).first()
+    return db.query(User).filter(User.email == email).first()
 
 
-async def create_user(body: UserModel, db: AsyncSession = Depends(get_db)) -> User:
+async def create_user(body: UserModel, db: Session) -> User:
     """
     Create a new user.
 
@@ -45,12 +38,12 @@ async def create_user(body: UserModel, db: AsyncSession = Depends(get_db)) -> Us
         print(e)
     new_user = User(**body.model_dump(), avatar=avatar)
     db.add(new_user)
-    await db.commit()
-    await db.refresh(new_user)
+    db.commit()
+    db.refresh(new_user)
     return new_user
 
 
-async def update_token(user: User, token: str | None, db: AsyncSession) -> None:
+async def update_token(user: User, token: str | None, db: Session) -> None:
     """
     Update the refresh token for a user.
 
@@ -60,10 +53,10 @@ async def update_token(user: User, token: str | None, db: AsyncSession) -> None:
         db (Session): The database session.
     """
     user.refresh_token = token
-    await db.commit()
+    db.commit()
 
 
-async def confirmed_email(email: str, db: AsyncSession) -> None:
+async def confirmed_email(email: str, db: Session) -> None:
     """
     Confirm the email of a user.
 
@@ -73,10 +66,10 @@ async def confirmed_email(email: str, db: AsyncSession) -> None:
     """
     user = await get_user_by_email(email, db)
     user.confirmed = True
-    await db.commit()
+    db.commit()
 
 
-async def update_avatar(email: str, url: str, db: AsyncSession) -> User:
+async def update_avatar(email: str, url: str, db: Session) -> User:
     """
     Update the avatar of a user.
 
@@ -90,11 +83,11 @@ async def update_avatar(email: str, url: str, db: AsyncSession) -> User:
     """
     user = await get_user_by_email(email, db)
     user.avatar = url
-    await db.commit()
+    db.commit()
     return user
 
 
-async def update_password(user: User, password: str, db: AsyncSession) -> None:
+async def update_password(user: User, password: str, db: Session) -> None:
     """
     Update the password of a user.
 
@@ -104,5 +97,5 @@ async def update_password(user: User, password: str, db: AsyncSession) -> None:
         db (Session): The database session.
     """
     user.password = password
-    await db.commit()
-    await db.refresh(user)
+    db.commit()
+    db.refresh(user)
