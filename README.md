@@ -5,21 +5,18 @@
 The project is structured as follows:
 
 - `app/`: fastapi project folder
+- `bin/`: additional scripts
 - `app/conf/config.py`: class with ability to get .env variables using pydantic_settings
-- `app/database/`: folder with db connections and models
-- `app/routes/`: folder with routes for auth and contacts
+- `app/models/`: folder with db connections and models
+- `app/routes/`: folder with routes like posts, auth, comments
+- `app/repository/`: folder with repositories scripts lilke posts, comments, tags
+- `app/schemas/`: folder with pydentic schemas
+- `src/services/`: folder with services (email, auth, qrcode_gen, cloudinary)
 - `main.py`: fastapi entrypoint
+- `tests/`: folder with tests
 - `bin/cleanup.sh`: Cleaned up __pycache__ directories and .pyc files.
 
-## Prepare env
-
-### Install libs 
-
-```bash
-poetry install
-```
-
-### Running the postgres in Docker container
+## Running the application in Docker
 
 Run docker compose
 
@@ -27,14 +24,16 @@ Run docker compose
 docker-compose up -d
 ```
 
-Run migrations
+Rebuild poetry libs
 
 ```bash
-poetry run alembic upgrade head
+docker-compose up --build
 ```
 
-Run server for testing
+## Tests
+
+@TODO: will run in container
 
 ```bash
-poetry run uvicorn main:app --host localhost --port 8008 --reload
+poetry run pytest -v tests/
 ```
