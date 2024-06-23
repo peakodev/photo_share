@@ -9,7 +9,7 @@ class DatabaseSessionManager:
     def __init__(self, url: str):
         self._engine: AsyncEngine | None = create_async_engine(url)
         self._session_maker: async_sessionmaker = async_sessionmaker(
-            autoflush=False, autocommit=False, bind=self._engine
+            autoflush=False, autocommit=False, bind=self._engine, expire_on_commit=False
         )
 
     @contextlib.asynccontextmanager

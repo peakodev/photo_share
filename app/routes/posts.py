@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 from app.database.db import get_db
-from app.database.user import User
+from app.database.models import User
 from app.schemas.post import (
     PostResponse,
     PostCreateResponse,
