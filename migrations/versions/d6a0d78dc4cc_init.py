@@ -1,8 +1,8 @@
-"""Models
+"""init
 
-Revision ID: 31040df15e67
-Revises: d5d76287859d
-Create Date: 2024-06-20 18:44:45.393068
+Revision ID: d6a0d78dc4cc
+Revises: 
+Create Date: 2024-06-23 21:11:11.498589
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '31040df15e67'
-down_revision: Union[str, None] = 'd5d76287859d'
+revision: str = 'd6a0d78dc4cc'
+down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -25,12 +25,28 @@ def upgrade() -> None:
     sa.Column('text', sa.String(length=32), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email', sa.String(length=250), nullable=False),
+    sa.Column('first_name', sa.String(length=250), nullable=False),
+    sa.Column('last_name', sa.String(length=250), nullable=False),
+    sa.Column('password', sa.String(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('avatar', sa.String(length=255), nullable=True),
+    sa.Column('refresh_token', sa.String(length=255), nullable=True),
+    sa.Column('confirmed', sa.Boolean(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
+    )
     op.create_table('posts',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('photo', sa.String(length=255), nullable=False),
+    sa.Column('photo_url', sa.String(length=255), nullable=True),
+    sa.Column('photo_public_id', sa.String(length=255), nullable=True),
+    sa.Column('transform_url', sa.String(length=255), nullable=True),
     sa.Column('description', sa.String(length=255), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
+    sa.Column('rating', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -43,7 +59,7 @@ def upgrade() -> None:
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.Column('post_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ),
+    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
@@ -66,5 +82,6 @@ def downgrade() -> None:
     op.drop_table('comments')
     op.drop_index(op.f('ix_posts_id'), table_name='posts')
     op.drop_table('posts')
+    op.drop_table('users')
     op.drop_table('tags')
     # ### end Alembic commands ###

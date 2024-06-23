@@ -1,7 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -9,6 +6,8 @@ class Settings(BaseSettings):
         env_file='.env',
         env_file_encoding='utf-8'
     )
+
+    fastapi_port: int = 8000
 
     postgres_db: str = 'test'
     postgres_user: str = 'test'
@@ -38,7 +37,7 @@ class Settings(BaseSettings):
     cloudinary_api_secret: str = 'secret'
 
     def postgres_url(self) -> str:
-        return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}"
+        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}"
 
 
 settings = Settings()

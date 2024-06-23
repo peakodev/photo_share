@@ -1,12 +1,8 @@
 from fastapi import APIRouter, File, HTTPException, Depends, UploadFile, status, Query
 
-# from fastapi_limiter.depends import RateLimiter
-from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-
-from app.models import get_db
-from app.models import User
+from app.models import User, get_db
 from app.schemas.post import (
     PostResponse,
     PostCreateResponse,
@@ -14,7 +10,7 @@ from app.schemas.post import (
 )
 from app.repository import posts as repository_posts
 from app.services.auth import auth_service
-from app.services.cloudinary import cloudinary_upload
+from app.services.cloudinary import Effect, upload_photo, transform_photo
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 # access_to_route_all = RoleAccess([Role.ADMIN])
@@ -28,7 +24,7 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 async def get_posts(
     limit: int = Query(10),
     offset: int = Query(0),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
 
@@ -47,7 +43,7 @@ async def get_posts(
 async def get_all_posts(
     limit: int = Query(10),
     offset: int = Query(0),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
 
@@ -62,7 +58,7 @@ async def get_all_posts(
 )
 async def get_post(
     post_id: int,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
 
@@ -81,7 +77,7 @@ async def get_post(
 )
 async def find_post(
     find_str: str,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
 
@@ -103,49 +99,49 @@ async def create_post(
     description: str,
     tags: str = None,
     file: UploadFile = File(...),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    photo_url = cloudinary_upload(file, user.id)
+    # photo_url = cloudinary_upload(file, user.id)
 
     if tags is None:
         tags = []
     else:
         tags = [tag.strip() for tag in tags.split(",")]
 
-    post = await repository_posts.create_post(photo_url, description, tags, user, db)
-    return post
+    new_post = await repository_posts.create_post(description, tags, file, user, db)
+
+    return new_post
 
 
 @router.put(
     "/{post_id}",
-    response_model=PostCreateResponse,
+    response_model=PostResponse,
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def update_post(
     post_id: int,
     description: str = None,
     tags: str = None,
+    effect: str = None,
     file: UploadFile = File(default=None),
-    # body: PostSchema,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    if file:
-        photo_url = cloudinary_upload(file, user.id)
-    else:
-        photo_url = None
 
     if tags:
         tags = [tag.strip() for tag in tags.split(",")]
+    else:
+        tags = []
 
     post = await repository_posts.update_post(
-        post_id, user, db, description, tags, photo_url
+        post_id, user, db, description, tags, effect, file
     )
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
+
     return post
 
 
@@ -156,7 +152,7 @@ async def update_post(
 )
 async def delete_post(
     post_id: int,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
 
