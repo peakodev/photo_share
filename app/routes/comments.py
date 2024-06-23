@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.database.db import get_db
-from app.database.user import User
-from app.database.post import Post
+from app.models import get_db
+from app.models import User
+from app.models import Post
 from app.services.auth import Auth
 from app.schemas.comments import CommentCreate, CommentUpdate, Comment
 from app.repository import comments_crud as crud

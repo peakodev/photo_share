@@ -4,7 +4,7 @@ from sqlalchemy import (
     String,
 )
 
-from app.database.db import Base
+from app.models import Base
 
 
 class Tag(Base):

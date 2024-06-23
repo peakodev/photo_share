@@ -6,8 +6,8 @@ import cloudinary
 import cloudinary.uploader
 from fastapi import UploadFile
 
-from app.database.post import Post
-from app.database.user import User
+from app.models import Post
+from app.models import User
 from app.services.gravatar import get_gravatar
 from app.conf import config
 
