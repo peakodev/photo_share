@@ -10,6 +10,8 @@ class Settings(BaseSettings):
         env_file_encoding='utf-8'
     )
 
+    fastapi_port: int = 8000
+
     postgres_db: str = 'test'
     postgres_user: str = 'test'
     postgres_password: str = 'test'
