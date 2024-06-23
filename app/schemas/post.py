@@ -4,9 +4,10 @@ from datetime import date
 
 
 from app.schemas.user import UserDb
+from app.models import Tag
+
 from app.schemas.comments import CommentUpdate
-from app.database.models import Tag
-# from src.database.models import Role
+
 
 class TagResponse(BaseModel):
     id: int
@@ -28,7 +29,7 @@ class PostCreateResponse(BaseModel):
     description: str
     tags: list[TagResponse]
     class Config:
-        from_attributes = True    
+        from_attributes = True
 
 
 class PostResponse(PostCreateResponse):

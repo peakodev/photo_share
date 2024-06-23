@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta, UTC
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.db import get_db
+from app.models import get_db
 from app.repository import users as repository_users
 from app.conf.config import settings
 

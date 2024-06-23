@@ -3,7 +3,9 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 
-from app.database.models import Post, User, Tag, Comment
+from app.models import Post
+from app.models import User
+from app.models import Tag
 
 
 # return list of posts for curent user

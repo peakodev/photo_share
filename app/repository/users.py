@@ -3,8 +3,8 @@ from sqlalchemy import select
 from libgravatar import Gravatar
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.db import get_db
-from app.database.models import User
+from app.models import get_db
+from app.models import User
 from app.schemas.user import UserModel
 
 

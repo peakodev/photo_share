@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.db import get_db
-from app.database.models import Post, User
+from app.models import get_db
+from app.models import User
+from app.models import Post
 from app.services.auth import auth_service
 from app.schemas.comments import CommentCreate, CommentUpdate, Comment
 from app.repository import comments as repository_comments
