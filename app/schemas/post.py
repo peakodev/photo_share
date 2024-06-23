@@ -6,11 +6,12 @@ from datetime import date
 from app.schemas.user import UserDb
 from app.models import Tag
 
+from app.schemas.comments import CommentUpdate
+
 
 class TagResponse(BaseModel):
     id: int
     text: str
-
 
 class PostDeleteSchema(BaseModel):
     id: int
@@ -27,10 +28,12 @@ class PostCreateResponse(BaseModel):
     user: UserDb
     description: str
     tags: list[TagResponse]
-    
+    class Config:
+        from_attributes = True
+
 
 class PostResponse(PostCreateResponse):
-    comments: list[str]
+    comments: list[CommentUpdate]
 
     class Config:
         from_attributes = True
