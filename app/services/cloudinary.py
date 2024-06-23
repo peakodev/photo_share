@@ -9,12 +9,12 @@ from fastapi import UploadFile
 from app.models import Post
 from app.models import User
 from app.services.gravatar import get_gravatar
-from app.conf import config
+from app.conf.config import settings as config
 
 cloudinary.config(
-    cloud_name=config.CLOUDINARY_NAME,
-    api_key=config.CLOUDINARY_KEY,
-    api_secret=config.CLOUDINARY_SECRET,
+    cloud_name=config.cloudinary_name,
+    api_key=config.cloudinary_api_key,
+    api_secret=config.cloudinary_api_secret,
     secure=True,
 )
 

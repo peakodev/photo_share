@@ -1,7 +1,7 @@
 from typing import List
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.database.models import Comment
+from app.models import Comment
 from app.schemas.comments import CommentCreate, CommentUpdate
 
 

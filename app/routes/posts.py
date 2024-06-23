@@ -14,7 +14,7 @@ from app.schemas.post import (
 )
 from app.repository import posts as repository_posts
 from app.services.auth import auth_service
-from app.services.cloudinary import cloudinary_upload
+from app.services.cloudinary import upload_photo as cloudinary_upload
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 # access_to_route_all = RoleAccess([Role.ADMIN])
