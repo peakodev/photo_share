@@ -4,8 +4,7 @@ from fastapi import (APIRouter,
                      status)
 from sqlalchemy.orm import Session
 
-from app.database.tag import Tag
-from app.database.db import get_db
+from app.models import Tag, get_db
 from app.repository.tags import (get_tags,
                                  get_tag_by_text,
                                  create_tag_in_db,
@@ -15,6 +14,7 @@ from app.schemas.tags import TagDB, TagModel
 
 router = APIRouter(prefix="/tags", tags=["tags"])
 
+
 @router.get("/all_tags/",response_model=list[TagDB])
 async def get_all_tags(db: Session = Depends(get_db)) -> list[Tag]:
     """
@@ -23,8 +23,9 @@ async def get_all_tags(db: Session = Depends(get_db)) -> list[Tag]:
         db (Session, optional): The database session. Defaults to Depends(get_db).
     Returns:
         list[Tag]: List of database objects Tag
-    """    
+    """
     return await get_tags(db=db)
+
 
 @router.get("/tag_value/{text}",response_model=TagDB)
 async def search_tag_by_text(text:str, db: Session = Depends(get_db)) -> Tag | None:
@@ -38,11 +39,12 @@ async def search_tag_by_text(text:str, db: Session = Depends(get_db)) -> Tag | N
         HTTPException: HTTP_404_NOT_FOUND
     Returns:
         Tag: Database object Tag
-    """    
+    """
     result = await get_tag_by_text(text=text, db=db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Tag not found')
     return result
+
 
 @router.post("",response_model=TagDB)
 async def create_new_tag_in_db(text: str, db: Session = Depends(get_db)) -> Tag:
@@ -53,8 +55,9 @@ async def create_new_tag_in_db(text: str, db: Session = Depends(get_db)) -> Tag:
         db (Session, optional): The database session. Defaults to Depends(get_db).
     Returns:
         Tag: Database object.
-    """    
+    """
     return await create_tag_in_db(TagModel(text=text),db=db)
+
 
 @router.get("/tag_id/{tag_id}", response_model=TagModel)
 async def search_tag_by_id(tag_id: int, db: Session = Depends(get_db)) -> Tag | None:
@@ -67,11 +70,12 @@ async def search_tag_by_id(tag_id: int, db: Session = Depends(get_db)) -> Tag | 
         HTTPException: HTTP_404_NOT_FOUND
     Returns:
         Tag | None: Database object.
-    """    
+    """
     result = await get_tag_by_id(tag_id=tag_id, db=db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Tag not found')
     return result
+
 
 @router.post("/tags_by_string", response_model=list[int])
 async def create_tags_by_string(string: str, db: Session = Depends(get_db)) -> list[int]:
@@ -84,7 +88,6 @@ async def create_tags_by_string(string: str, db: Session = Depends(get_db)) -> l
 
     Returns:
         list[int]: Returns a list of id's tags
-    """    
+    """
     result = await get_list_of_tags_by_string(string=string, db=db)
     return result
-    

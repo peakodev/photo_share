@@ -8,16 +8,16 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from app.database.db import Base
+from app.models import Base
 
 
 class Comment(Base):
-    __tablename__='comments'
-    id= Column(Integer,primary_key=True, index=True)
+    __tablename__ = "comments"
+    id = Column(Integer, primary_key=True, index=True)
     text = Column(String(255), nullable=False)
     created_at = Column('created_at', DateTime, default=func.now())
     updated_at = Column("updated_at", DateTime, default=func.now(), onupdate=func.now())
-    post_id = Column(Integer, ForeignKey("posts.id"))
-    post = relationship("Post", back_populates="comments")
+    post_id = Column('post_id', ForeignKey("posts.id", ondelete='CASCADE'), default=None)
+    post = relationship('Post', backref="comments", lazy="selectin")
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
-    user = relationship('User', backref="comments")
+    user = relationship('User', backref="comments", lazy="selectin")

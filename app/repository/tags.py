@@ -3,8 +3,7 @@ from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
-from app.database.tag import Tag
-from app.database.post import Post
+from app.models import Tag, Post
 from app.schemas.tags import TagModel
 
 
@@ -19,8 +18,9 @@ async def get_tags(db: Session, skip: int = 0, limit: int = 100) -> List[Tag]:
 
     Returns:
         List[Tag]: List of all tags.
-    """    
+    """
     return db.query(Tag).offset(skip).limit(limit).all()
+
 
 async def create_tag_in_db(body: TagModel, db: Session) -> Tag:
     """
@@ -32,13 +32,14 @@ async def create_tag_in_db(body: TagModel, db: Session) -> Tag:
 
     Returns:
         Tag: Database object.
-    """    
+    """
     _tag = Tag(text=body.text)
     db.add(_tag)
     db.commit()
     db.refresh(_tag)
     return _tag
-    
+
+
 async def get_tag_by_id(tag_id: int, db: Session) -> Tag | None:
     """
     Search database object Tag by id.
@@ -52,6 +53,7 @@ async def get_tag_by_id(tag_id: int, db: Session) -> Tag | None:
     """    
     return db.query(Tag).filter(Tag.id == tag_id).first()
 
+
 async def get_tag_by_text(text: str, db: Session) -> Tag | None:
     """
     Search database object Tag by text.
@@ -62,8 +64,9 @@ async def get_tag_by_text(text: str, db: Session) -> Tag | None:
 
     Returns:
         Tag | None: Database object
-    """    
+    """
     return db.query(Tag).filter(Tag.text == text).first()
+
 
 async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
     """
@@ -74,7 +77,7 @@ async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
     Args:
         string (str): string with tags
         db (Session): The database session.
-        
+
     Returns:
         list[int] : Returns a list of id's tags
     """    
@@ -90,5 +93,4 @@ async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
         if len(result) == 5:
             break
     return result
-
 

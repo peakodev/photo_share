@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 import cloudinary
 import cloudinary.uploader
 
-from app.database.db import get_db
-from app.database.user import User
+from app.models import User, get_db
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.conf.config import settings

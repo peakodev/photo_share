@@ -1,14 +1,12 @@
 from logging.config import fileConfig
 
-from sqlalchemy import pool, engine_from_config
+from sqlalchemy import engine_from_config
+from sqlalchemy import pool
 
 from alembic import context
 
 from app.conf.config import settings
-from app.database.user import User
-from app.database.post import Post
-from app.database.tag import Tag
-from app.database.comment import Comment
+from app.models import Base, User, Post, Tag, Comment
 
 
 # this is the Alembic Config object, which provides
@@ -23,7 +21,8 @@ if config.config_file_name is not None:
 config.set_main_option('sqlalchemy.url', settings.postgres_url())
 
 # Put each model's metadata here
-target_metadata = [User.metadata]
+# target_metadata = [User.metadata, Tag.metadata, Comment.metadata, Post.metadata]
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
