@@ -19,6 +19,9 @@ FROM python:3.12-slim
 # Set the working directory
 WORKDIR /app
 
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y postgresql-client
+
 # Install Poetry
 RUN pip install poetry
 
@@ -31,8 +34,11 @@ RUN poetry install --no-root --no-dev
 # Copy the rest of the application code
 COPY . /app
 
+# Make the entrypoint script executable
+RUN chmod +x /app/bin/entrypoint.sh
+
 # Expose the port FastAPI is running on
 EXPOSE 8000
 
-# Command to run the application
-CMD ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Set the entrypoint to the script
+ENTRYPOINT ["/app/bin/entrypoint.sh"]
