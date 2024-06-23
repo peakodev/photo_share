@@ -1,10 +1,9 @@
 from fastapi import APIRouter, Depends, UploadFile, File
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 import cloudinary
 import cloudinary.uploader
 
-from app.models import get_db
-from app.models import User
+from app.models import User, get_db
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.conf.config import settings
@@ -31,7 +30,7 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
 async def update_avatar_user(
     file: UploadFile = File(),
     current_user: User = Depends(auth_service.get_current_user),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     """
     Update the avatar for the current user.

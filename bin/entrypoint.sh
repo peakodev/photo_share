@@ -12,7 +12,7 @@ done
 >&2 echo "Postgres is up - executing command"
 
 # Run Alembic migrations
-poetry run alembic upgrade head
+# poetry run alembic upgrade head
 
 # Start the FastAPI application
 exec poetry run uvicorn main:app --host 0.0.0.0 --port 8000

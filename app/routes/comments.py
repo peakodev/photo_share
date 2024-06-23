@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-from app.models import get_db
-from app.models import User
-from app.models import Post
+from app.models import get_db, User, Post
 from app.services.auth import auth_service
 from app.schemas.comments import CommentCreate, CommentUpdate, Comment
 from app.repository import comments as repository_comments
@@ -15,10 +13,10 @@ router = APIRouter(prefix="/comments", tags=["comments"])
 @router.post("/create", response_model=Comment, status_code=status.HTTP_201_CREATED,)
 async def create_comment(
     body: CommentCreate,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
-    query = select(Post).filter_by(id = body.post_id)
+    query = select(Post).filter_by(id=body.post_id)
     p = await db.execute(query)
     db_post = p.scalar_one_or_none()
 
@@ -30,7 +28,7 @@ async def create_comment(
 
 
 @router.get("/{comment_id}", response_model=Comment)
-async def get_comment_by_id(comment_id: int, db: AsyncSession = Depends(get_db)):
+async def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
     db_comment = await repository_comments.get_comment_by_id(comment_id, db)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -39,7 +37,7 @@ async def get_comment_by_id(comment_id: int, db: AsyncSession = Depends(get_db))
 
 @router.get("/post/{post_id}", response_model=list[Comment])
 async def get_comments_by_post(
-    post_id: int, offset: int = Query(0), limit: int = Query(10), db: AsyncSession = Depends(get_db)
+    post_id: int, offset: int = Query(0), limit: int = Query(10), db: Session = Depends(get_db)
 ):
     comments = await repository_comments.get_comments_by_post(post_id, offset, limit, db)
     return comments
@@ -49,7 +47,7 @@ async def get_comments_by_post(
 async def update_comment(
     comment_id: int,
     comment: CommentUpdate,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
     db_comment = await repository_comments.get_comment_by_id(comment_id, db)
@@ -69,7 +67,7 @@ async def update_comment(
 @router.delete("/{comment_id}", response_model=Comment)
 async def delete_comment(
     comment_id: int,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
     db_comment = await repository_comments.delete_comment(comment_id, db)
