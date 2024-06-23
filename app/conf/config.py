@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     cloudinary_api_secret: str = 'secret'
 
     def postgres_url(self) -> str:
-        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}"
+        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
 
 
 settings = Settings()
