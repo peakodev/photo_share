@@ -1,0 +1,13 @@
+.nav-link{
+    --bs-navbar-active-color: #2B76F5;
+    font-weight: bold;
+
+}
+.nav-link:hover{
+    color: #2B76F5;
+    /* text-decoration: underline; */
+}
+
+.card {
+    box-shadow: 6px 6px 10px #696969;;
+}

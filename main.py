@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 
 from app.routes import auth, users, posts, comments, tags, qrcode
 
@@ -15,4 +16,4 @@ app.include_router(qrcode.router, prefix="/api")
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return RedirectResponse(url="/docs")
