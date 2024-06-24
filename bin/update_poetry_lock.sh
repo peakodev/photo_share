@@ -10,3 +10,4 @@ docker run --rm -v $(pwd):/app fastapi-app poetry lock
 git add poetry.lock
 git commit -m "Add/update poetry.lock"
 git push origin main
+
