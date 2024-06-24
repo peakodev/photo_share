@@ -86,10 +86,10 @@ async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
     for item in tag_list:
         new_tag = await get_tag_by_text(item.strip().lower(), db=db)
         if new_tag:
-            result.append(new_tag.id)
+            result.append(new_tag)
         else:
             new_tag = await create_tag_in_db(TagModel(text = item.lower().strip()), db=db)
-            result.append(new_tag.id)
+            result.append(new_tag)
         if len(result) == 5:
             break
     return result
