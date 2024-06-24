@@ -20,7 +20,7 @@ post_m2m_tag = Table(
 )
 
 
-class Post(Base):
+class Post(Base):  
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True, index=True)
     photo_url = Column(String(255))

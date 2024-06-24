@@ -104,11 +104,6 @@ async def create_post(
 ):
     # photo_url = cloudinary_upload(file, user.id)
 
-    if tags is None:
-        tags = []
-    else:
-        tags = [tag.strip() for tag in tags.split(",")]
-
     new_post = await repository_posts.create_post(description, tags, file, user, db)
 
     return new_post
@@ -129,10 +124,11 @@ async def update_post(
     user: User = Depends(auth_service.get_current_user),
 ):
 
-    if tags:
-        tags = [tag.strip() for tag in tags.split(",")]
-    else:
-        tags = []
+    # Використано функцію з app.reposetory.tags яка буде розділяти за комою
+    # if tags:
+    #     tags = [tag.strip() for tag in tags.split(",")]
+    # else:
+    #     tags = []
 
     post = await repository_posts.update_post(
         post_id, user, db, description, tags, effect, file
