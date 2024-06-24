@@ -35,5 +35,5 @@ docker-compose up --build
 @TODO: will run in container
 
 ```bash
-poetry run pytest -v tests/
+docker-compose run test
 ```
