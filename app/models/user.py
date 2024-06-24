@@ -1,7 +1,21 @@
-from sqlalchemy import Column, Integer, String, func, Boolean
+from enum import Enum
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    func,
+    Boolean,
+    Enum as EnumSQL,
+)
 from sqlalchemy.sql.sqltypes import DateTime
 
 from app.models import Base
+
+
+class Role(str, Enum):
+    user: str = "user"
+    admin: str = "admin"
+    moderator: str = "moderator"
 
 
 class User(Base):
@@ -15,3 +29,4 @@ class User(Base):
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
+    role = Column(EnumSQL(Role), default=Role.user)
