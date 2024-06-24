@@ -12,7 +12,7 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from app.models import get_db
 from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
@@ -31,7 +31,7 @@ async def signup(
     body: UserModel,
     background_tasks: BackgroundTasks,
     request: Request,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
@@ -49,7 +49,7 @@ async def signup(
 @router.post("/login", response_model=TokenModel)
 async def login(
     body: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
@@ -78,7 +78,7 @@ async def login(
 @router.get("/refresh_token", response_model=TokenModel)
 async def refresh_token(
     credentials: HTTPAuthorizationCredentials = Security(security),
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
@@ -102,7 +102,7 @@ async def refresh_token(
 @router.get("/confirmed_email/{token}")
 async def confirmed_email(
     token: str,
-    db: AsyncSession = Depends(get_db)
+    db: Session = Depends(get_db)
 ):
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
@@ -121,7 +121,7 @@ async def request_email(
     body: RequestEmail,
     background_tasks: BackgroundTasks,
     request: Request,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     user = await repository_users.get_user_by_email(body.email, db)
 
@@ -144,7 +144,7 @@ async def forgot_password(
     body: RequestEmail,
     background_tasks: BackgroundTasks,
     request: Request,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     user = await repository_users.get_user_by_email(body.email, db)
 
@@ -165,7 +165,7 @@ async def forgot_password(
 async def reset_password(
     token: str,
     body: UserModel,
-    db: AsyncSession = Depends(get_db),
+    db: Session = Depends(get_db),
 ):
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
