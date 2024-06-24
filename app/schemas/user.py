@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, EmailStr
+from app.models import Role
 
 
 class UserModel(BaseModel):
@@ -16,6 +17,7 @@ class UserDb(BaseModel):
     email: str
     created_at: datetime
     avatar: str
+    role: Role
 
     class Config:
         from_attributes = True
