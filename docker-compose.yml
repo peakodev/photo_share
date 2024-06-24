@@ -21,6 +21,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: development
     ports:
       - "${FASTAPI_PORT}:8000"
     depends_on:
