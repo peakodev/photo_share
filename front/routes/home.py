@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
+from app.models.user import User
+from app.services.auth import auth_service
+
+s
 router = APIRouter()
 templates = Jinja2Templates(directory="front/templates")
 
@@ -15,10 +19,10 @@ templates = Jinja2Templates(directory="front/templates")
 def get_home(
     request: Request,
     # db: Session = Depends(get_db),
-    # user: User = Depends(auth_service.get_current_user),
+    user: User = Depends(auth_service.get_current_user),
 ):
     return templates.TemplateResponse(
-        request=request, name="home.html", context={"request": request}
+        request=request, name="home.html", context={"request": request, "user": user}
     )
     # return templates.TemplateResponse("home.html")
     # return {"Hello": "World"}
@@ -45,9 +49,8 @@ async def signup_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signup.html", context={"request": request}
     )
-    
-    
-    
+
+
 @router.get("/signin", name="signin_page")
 async def signin_page(request: Request):
     return templates.TemplateResponse(

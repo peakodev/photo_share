@@ -52,6 +52,7 @@ async def signup(
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
+    print(f"!!!! post user {body.username=} {body.password=}")
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(

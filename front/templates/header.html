@@ -8,7 +8,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a aria-current="page" href="{{ request.url_for('home_page') }}" 
+              <a aria-current="page" onclick="loadProtectedPage('{{ request.url_for('home_page') }}')" href="{{ request.url_for('home_page') }}" 
                 {% if request.path == "/" %}
                   class="nav-link active" 
                 {% else %} 
