@@ -25,13 +25,6 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 security = HTTPBearer()
 
 
-@router.get("/signup", name="signup_page")
-async def signup_page(request: Request):
-    return templates.TemplateResponse(
-        request=request, name="auth/signup.html", context={"request": request}
-    )
-
-
 @router.post(
     "/signup",
     response_model=UserResponse,
@@ -53,13 +46,6 @@ async def signup(
     new_user = await repository_users.create_user(body, db)
     background_tasks.add_task(send_email, new_user.email, request.base_url)
     return {"user": new_user, "detail": "User successfully created"}
-
-
-@router.get("/signin", name="signin_page")
-async def signin_page(request: Request):
-    return templates.TemplateResponse(
-        request=request, name="auth/signin.html", context={"request": request}
-    )
 
 
 @router.post("/signin", response_model=TokenModel, name="signin_post.html")
