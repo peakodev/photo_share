@@ -38,7 +38,6 @@ async def get_all_posts(
     limit: int = Query(10),
     offset: int = Query(0),
     db: Session = Depends(get_db),
-    # user: User = Depends(auth_service.get_current_user),
 ):
 
     posts = await repository_posts.get_all_posts(limit, offset, db)
