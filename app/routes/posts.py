@@ -143,13 +143,6 @@ async def update_post(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-
-    # Використано функцію з app.reposetory.tags яка буде розділяти за комою
-    # if tags:
-    #     tags = [tag.strip() for tag in tags.split(",")]
-    # else:
-    #     tags = []
-
     post = await repository_posts.update_post(
         post_id, user, db, description, tags, effect, file
     )

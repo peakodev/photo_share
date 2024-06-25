@@ -12,6 +12,7 @@ def role_required(required_role: Role):
         required_role (Role): Role required to access the route
     """
     def role_checker(current_user: User = Depends(auth_service.get_current_user)):
+        print(current_user.role)
         if current_user.role != required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
