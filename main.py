@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.routes import auth, users, posts, comments, tags, qrcode
+from app.routes import auth, users, posts, comments, tags, qrcode, admin
 
 app = FastAPI()
 
@@ -11,6 +11,7 @@ app.include_router(posts.router, prefix="/api")
 app.include_router(comments.router, prefix="/api")
 app.include_router(tags.router, prefix="/api")
 app.include_router(qrcode.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
 
 
 @app.get("/")
