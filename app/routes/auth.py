@@ -48,7 +48,7 @@ async def signup(
     return {"user": new_user, "detail": "User successfully created"}
 
 
-@router.post("/signin", response_model=TokenModel, name="signin_post.html")
+@router.post("/signin", response_model=TokenModel, name="signin_post")
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
