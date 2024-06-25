@@ -1,5 +1,15 @@
-from fastapi import APIRouter, File, HTTPException, Depends, UploadFile, status, Query
+from fastapi import (
+    APIRouter,
+    File,
+    HTTPException,
+    Depends,
+    Request,
+    UploadFile,
+    status,
+    Query,
+)
 
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.models import User, get_db
@@ -12,24 +22,34 @@ from app.repository import posts as repository_posts
 from app.services.auth import auth_service
 from app.services.cloudinary import Effect, upload_photo, transform_photo
 
+from app.conf.config import templates
+
+
 router = APIRouter(prefix="/posts", tags=["posts"])
+
+
 # access_to_route_all = RoleAccess([Role.ADMIN])
 
 
 @router.get(
     "/",
     response_model=list[PostResponse],
+    name="posts_page",
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def get_posts(
     limit: int = Query(10),
     offset: int = Query(0),
+    request=Request,
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-
+    print("get_posts")
     posts = await repository_posts.get_posts(limit, offset, user, db)
-    return posts
+    # return posts
+    return templates.TemplateResponse(
+        request=request, name="home.html", context={"request": request, "posts": posts}
+    )
 
 
 @router.get(

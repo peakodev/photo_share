@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>Quotes List</title>
+{% endblock %}
+
+{% block content %}
+  <div class="container-xxl">
+    <h2>Login user</h2>
+
+    <form method="post" class="col-8">
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div class="small text-center">
+        <a href="/" class="text-center"><i>Forgot Password?</i></a>
+      </div>
+      <button type="reset" class="btn btn-secondary">Reset</button>
+      <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+  </div>
+{% endblock %}

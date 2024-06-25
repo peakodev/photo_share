@@ -2,13 +2,13 @@
   <header class="bg-light mb-4">
     <div class="container-xxl">
       <nav class="navbar navbar-expand-lg navbar-light">
-        <a class="navbar-brand" href="/"><img src="{{ url_for('static', path='/images/logo.svg') }}" alt="Logo" width="30" /></a>
+        <a class="navbar-brand" href="{{ request.url_for('home_page') }}"><img src="/static/images/logo.svg" alt="Logo" width="30" /></a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a aria-current="page" href="/" 
+              <a aria-current="page" href="{{ request.url_for('home_page') }}" 
                 {% if request.path == "/" %}
                   class="nav-link active" 
                 {% else %} 
@@ -17,19 +17,19 @@
               Home</a>
             </li>
               <li class="nav-item">
-                <a {% if request.path == "/posts" %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="/posts">Gallery</a>
+                <a {% if request.path == "{{ request.url_for('posts_page') }}" %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="/api/posts">Gallery</a>
               </li>
           </ul>
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('generate_qr') }}">Logout</a>
+                <a class="nav-link" href="/">Logout</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('generate_qr') }}">Login</a>
+                <a class="nav-link" href="{{ request.url_for('signin_page') }}">Login</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('generate_qr') }}">Register</a>
+                <a class="nav-link" href="{{ request.url_for('signup_page') }}">Register</a>
               </li>
           </ul>
         </div>
