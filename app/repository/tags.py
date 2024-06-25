@@ -68,7 +68,7 @@ async def get_tag_by_text(text: str, db: Session) -> Tag | None:
     return db.query(Tag).filter(Tag.text == text).first()
 
 
-async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
+async def get_list_of_tags_by_string(string: str, db: Session) -> list[Tag]:
     """
     The function accepts a string and divides it by ",".
 
@@ -79,16 +79,19 @@ async def get_list_of_tags_by_string(string: str, db: Session) -> list[int]:
         db (Session): The database session.
 
     Returns:
-        list[int] : Returns a list of id's tags
+        list[Tag] : Returns a list of Tag database model
     """    
     tag_list = string.split(",")
     result = []
     for item in tag_list:
-        new_tag = await get_tag_by_text(item.strip().lower(), db=db)
+        item = item.strip().lower()
+        if item == '':
+            continue
+        new_tag = await get_tag_by_text(item, db=db)
         if new_tag:
             result.append(new_tag)
         else:
-            new_tag = await create_tag_in_db(TagModel(text = item.lower().strip()), db=db)
+            new_tag = await create_tag_in_db(TagModel(text = item), db=db)
             result.append(new_tag)
         if len(result) == 5:
             break

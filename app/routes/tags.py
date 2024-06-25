@@ -77,8 +77,8 @@ async def search_tag_by_id(tag_id: int, db: Session = Depends(get_db)) -> Tag | 
     return result
 
 
-@router.post("/tags_by_string", response_model=list[int])
-async def create_tags_by_string(string: str, db: Session = Depends(get_db)) -> list[int]:
+@router.post("/tags_by_string", response_model=list[TagDB])
+async def create_tags_by_string(string: str, db: Session = Depends(get_db)) -> list[Tag]:
     """
     The function accepts a string and divides it by ",".
     Searches for or creates a new tag if one does not exist yet.
