@@ -73,6 +73,20 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(result, Post)
         self.assertEqual(result.description, "test seccess")
 
+    async def test_create_post_without_tags(self):
+        test_file = UploadFile
+        with open(f"{getcwd()}\\tests\\user-default.png","rb") as file:
+            test_file = UploadFile(file.read())
+        result = await create_post(description="test seccess",
+                                   tags="",
+                                   file=test_file,
+                                   user=self.user,
+                                   db=self.session)
+        
+        self.assertIsInstance(result, Post)
+        self.assertEqual(result.description, "test seccess")
+        self.assertEqual(result.tags, [])
+
     async def test_update_post_description_found(self):
         """
         Test for function: app.repository.posts.update_post()
