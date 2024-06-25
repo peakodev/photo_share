@@ -64,6 +64,16 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(IndexError):
             result[2]
 
+    async def test_three_get_list_of_tag_by_string(self):
+        """
+        Test for function: app.repository.tags.get_list_of_tag_by_string()
+        Test if input string empty
+        """  
+        test_string = ""
+        self.session.query().filter().first.return_value = None
+        result = await get_list_of_tags_by_string(test_string, self.session)
+        self.assertEqual(result, [])
+
     async def test_get_tag_by_id_found(self):
         """
         Test for function: app.repository.tags.get_tag_by_id()
