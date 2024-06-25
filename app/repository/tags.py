@@ -68,7 +68,7 @@ async def get_tag_by_text(text: str, db: Session) -> Tag | None:
     return db.query(Tag).filter(Tag.text == text).first()
 
 
-async def get_list_of_tags_by_string(string: str, db: Session) -> list[Tag]:
+async def get_list_of_tags_by_string(string: str | None, db: Session) -> list[Tag]:
     """
     The function accepts a string and divides it by ",".
 
@@ -81,6 +81,8 @@ async def get_list_of_tags_by_string(string: str, db: Session) -> list[Tag]:
     Returns:
         list[Tag] : Returns a list of Tag database model
     """    
+    if not string:
+        return []
     tag_list = string.split(",")
     result = []
     for item in tag_list:
