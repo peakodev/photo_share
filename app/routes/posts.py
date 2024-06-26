@@ -56,6 +56,7 @@ async def get_posts(
 @router.get(
     "/all",
     response_model=list[PostResponse],
+    name="get_all_posts",
     dependencies=[
         # Depends(access_to_route_all),
         # Depends(RateLimiter(times=1, seconds=10)),
@@ -75,6 +76,7 @@ async def get_all_posts(
 @router.get(
     "/{post_id}",
     response_model=PostResponse,
+    name="get_post_by_id",
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def get_post(
@@ -93,6 +95,7 @@ async def get_post(
 
 @router.get(
     "/find/",
+    name="find_posts",
     response_model=list[PostResponse],
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
@@ -112,6 +115,7 @@ async def find_post(
 
 @router.post(
     "/create",
+    name="create_post",
     response_model=PostCreateResponse,
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
     status_code=status.HTTP_201_CREATED,
@@ -133,6 +137,7 @@ async def create_post(
 @router.put(
     "/{post_id}",
     response_model=PostResponse,
+    name="update_post",
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def update_post(
@@ -157,6 +162,7 @@ async def update_post(
 
 @router.delete(
     "/{post_id}",
+    name="delete_post",
     response_model=PostDeleteSchema,
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )

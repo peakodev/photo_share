@@ -1,12 +1,18 @@
+from typing import Annotated
+import httpx
+from pydantic import BaseModel
 import requests
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 from app.models.user import User
 from app.schemas.user import TokenModel
 from app.services.auth import auth_service
+
+from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
+from sqlalchemy.orm import Session
 
 # app = FastAPI()
 
@@ -116,6 +122,91 @@ def get_all_posts(
 
 @router.get("/signup", name="signup_page")
 async def signup_page(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="auth/signup.html", context={"request": request}
+    )
+
+
+# class UserSignupFormSchema(BaseModel):
+#     # first_name: str = Annotated[str, Form()]
+#     # last_name = (Form(),)
+#     email: Annotated[str, Form()]
+#     # email: str = (Form(),)
+#     # password = (Form(),)
+
+
+@router.post(
+    "/signup",
+    name="signup_post_page",
+    response_model=UserResponse,
+)
+async def fe_signup(
+    request: Request,
+    firstname: Annotated[str, Form()],
+    lastname: Annotated[str, Form()],
+    email: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+):
+    from main import app
+
+    form_data = {
+        "first_name": firstname,
+        "last_name": lastname,
+        "email": email,
+        "password": password,
+    }
+    # print("!!!!!!! formdata", email)
+    print("!!!!!!! formdata", form_data)
+
+    api_path = app.url_path_for("auth_post_signup")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    api_url = "http://localhost:8000/api/auth/signup"
+    print(f"{api_url=}")
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(api_url, json=form_data)
+    except Exception as err:
+        print("!!!!! error", err)
+        return {"err": err}
+    print(f"{response=}")
+    # response = requests.post(api_url, json=form_data)
+    if response.status_code != 201:
+        # response_json = response.json()
+        print(
+            f"!#F_Route - ERROR - signup user, res: \
+                \n {response.status_code=}\
+                \n {response.reason_phrase=}\
+                \n {response.json()=}\
+                \n {response.content=}\
+                \n {response.text=}\
+                \n {response=}"
+        )
+
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/signup.html",
+            context={"request": request, "message": response},
+        )
+        # TODO изменить на возврат авторизации с Message
+        raise HTTPException(
+            status_code=response.status_code, detail="Failed to fetch posts"
+        )
+    print("@@@@@@@@@@@@@@@@@@@@@@")
+    # return {"response": response}
+    # redirect_url = request.app.url_path_for("signin_page")
+    redirect_url = request.app.url_path_for("home_page")
+    # return RedirectResponse(url=redirect_url, status_code=303)
+    # return {"user": new_user, "detail": "User successfully created"}
+    # return {"user": response.user, "detail": response.detail}
+    return templates.TemplateResponse(
+        request=request,
+        name="auth/signup.html",
+        context={"request": request, "message": response},
+        )
+
+
+async def signup_post_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signup.html", context={"request": request}
     )

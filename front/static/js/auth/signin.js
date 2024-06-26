@@ -8,10 +8,14 @@ const markFormOnSubmit = () => {
         console.log("markFormOnSubmite: ", e)
         const formData = new FormData(e.target);
         console.log("formData=", formData)
-        // const response = await fetch('/api/auth/signin', {
-        //     method: 'POST',
-        //     body: new FormData(e.target) 
-        // });
+        for (let [name, value] of formData.entries()) {
+            console.log(`${name}: ${value}`);
+        }
+
+        const response = await fetch('/api/auth/signin', {
+            method: 'POST',
+            body: new FormData(e.target)
+        });
         await fetch('/api/auth/login', {
             method: 'POST',
             body: formData
@@ -24,6 +28,7 @@ const markFormOnSubmit = () => {
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
 
+                window.location.href = redirect_url;
             };
         }).catch(async (error) => {
             console.log(error)

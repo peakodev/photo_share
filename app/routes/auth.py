@@ -25,7 +25,10 @@ security = HTTPBearer()
 
 
 @router.post(
-    "/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED
+    "/signup",
+    response_model=UserResponse,
+    name="auth_post_signup",
+    status_code=status.HTTP_201_CREATED,
 )
 async def signup(
     body: UserModel,
@@ -33,6 +36,7 @@ async def signup(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
         raise HTTPException(
@@ -44,7 +48,7 @@ async def signup(
     return {"user": new_user, "detail": "User successfully created"}
 
 
-@router.post("/login", response_model=TokenModel)
+@router.post("/login", name="auth_signin", response_model=TokenModel)
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
@@ -72,7 +76,7 @@ async def login(
     }
 
 
-@router.get("/refresh_token", response_model=TokenModel)
+@router.get("/refresh_token", name="refresh_token", response_model=TokenModel)
 async def refresh_token(
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: Session = Depends(get_db),
@@ -96,7 +100,10 @@ async def refresh_token(
     }
 
 
-@router.get("/confirmed_email/{token}")
+@router.get(
+    "/confirm_email/{token}",
+    name="confirm_email",
+)
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
@@ -110,7 +117,7 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
     return {"message": "Email confirmed"}
 
 
-@router.post("/request_email")
+@router.post("/resend_confirm_email", name="resend_confirm_email")
 async def request_email(
     body: RequestEmail,
     background_tasks: BackgroundTasks,

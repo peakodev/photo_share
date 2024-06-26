@@ -25,6 +25,11 @@
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
   </div>
+  <script>
+    const redirect_url = "{{ url_for('home_page') }}"
+    const api_login = "{{ url_for('auth_signin') }}"
+    const is_login = True
+  </script>
 {% endblock %}
 
 {% block scripts %}
