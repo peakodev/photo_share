@@ -5,7 +5,8 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Table,
-    func
+    func,
+    Float
 )
 from sqlalchemy.orm import relationship
 
@@ -31,6 +32,6 @@ class Post(Base):
     updated_at = Column("updated_at", DateTime, default=func.now(), onupdate=func.now())
     # comments = relationship("Comment")
     tags = relationship("Tag", secondary=post_m2m_tag, backref="posts", lazy="selectin")
-    rating = Column(Integer)
+    rating = Column(Float)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="posts", lazy="selectin")

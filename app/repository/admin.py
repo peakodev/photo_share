@@ -21,7 +21,7 @@ async def update_post_by_id(post_id: int,
                             created_at: datetime = None,
                             updated_at: datetime = None,
                             tags: str = None,
-                            rating: int = None
+                            rating: float = None
                                                     ) -> Post | None:
     post = db.query(Post).filter_by(id=post_id).first()
     if post:
