@@ -46,10 +46,10 @@ async def get_posts(
 ):
     print("get_posts")
     posts = await repository_posts.get_posts(limit, offset, user, db)
-    # return posts
-    return templates.TemplateResponse(
-        request=request, name="home.html", context={"request": request, "posts": posts}
-    )
+    return posts
+    # return templates.TemplateResponse(
+    #     request=request, name="home.html", context={"request": request, "posts": posts}
+    # )
 
 
 @router.get(
