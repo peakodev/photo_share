@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Request
+import requests
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
@@ -7,6 +8,7 @@ from app.models.user import User
 from app.schemas.user import TokenModel
 from app.services.auth import auth_service
 
+# app = FastAPI()
 
 router = APIRouter()
 templates = Jinja2Templates(directory="front/templates")
@@ -40,6 +42,7 @@ def get_home(
 @router.get(
     "/my_posts",
     name="my_posts_page",
+    response_class=HTMLResponse,
     # response_model=TokenModel,
 )
 def get_my_posts(
@@ -50,10 +53,25 @@ def get_my_posts(
 ):
     # print(f"request = {request}")
     print(f"Received token: {token}")
+    from main import app
+
+    api_path = app.url_path_for("get_posts")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    print(f"Requesting URL: {api_url}")
+    print(f"Headers: {headers}")
+
+    response = requests.get(api_url, headers=headers)
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code, detail="Failed to fetch posts"
+        )
+
     return templates.TemplateResponse(
         request=request,
         name="posts_my.html",
-        context={"request": request, "token": token},
+        context={"request": request, "token": token, "posts": response.json()},
     )
     # return templates.TemplateResponse("home.html")
     # return {"Hello": "World"}

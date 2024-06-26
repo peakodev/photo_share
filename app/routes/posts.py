@@ -34,7 +34,7 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 @router.get(
     "/",
     response_model=list[PostResponse],
-    name="my_posts_page",
+    name="get_posts",
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def get_posts(
