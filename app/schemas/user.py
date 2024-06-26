@@ -18,6 +18,8 @@ class UserDb(BaseModel):
     created_at: datetime
     avatar: str
     role: Role
+    posts_number: int
+    comments_number: int
 
     class Config:
         from_attributes = True

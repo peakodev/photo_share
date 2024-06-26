@@ -17,7 +17,7 @@ async def create_comment(
     current_user: User = Depends(auth_service.get_current_user),
 ):
     query = select(Post).filter_by(id=body.post_id)
-    p = await db.execute(query)
+    p = db.execute(query)
     db_post = p.scalar_one_or_none()
 
     if db_post is None:
