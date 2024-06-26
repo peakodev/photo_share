@@ -38,23 +38,17 @@ async def create_comment(
 
 async def update_comment(
     comment_id: int, comment: CommentUpdate, db: Session
-) -> Comment | None:
-    query = select(Comment).filter_by(id=comment_id)
-    db_comment = db.execute(query)
-    db_comment = db_comment.scalar_one_or_none()
-    if db_comment:
-        for key, value in comment.model_dump(exclude_unset=True).items():
-            setattr(db_comment, key, value)
-        db.commit()
-        db.refresh(db_comment)
+) -> Comment:
+    db_comment = db.query(Comment).filter_by(id=comment_id).first()
+    for key, value in comment.model_dump(exclude_unset=True).items():
+        setattr(db_comment, key, value)
+    db.commit()
+    db.refresh(db_comment)
     return db_comment
 
 
-async def delete_comment(comment_id: int, db: Session) -> Comment | None:
-    query = select(Comment).filter_by(id=comment_id)
-    db_comment = db.execute(query)
-    db_comment = db_comment.scalar_one_or_none()
-    if db_comment:
-        db.delete(db_comment)
-        db.commit()
-    return db_comment
+async def delete_comment(comment_id: int, db: Session) -> Comment:
+    comment = db.query(Comment).filter_by(id=comment_id).first()
+    db.delete(comment)
+    db.commit()
+    return comment
