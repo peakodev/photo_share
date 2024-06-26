@@ -6,7 +6,7 @@ from datetime import date
 from app.schemas.user import UserDb
 from app.models import Tag
 
-from app.schemas.comments import CommentUpdate
+from app.schemas.comments import Comment, CommentUpdate
 
 
 class TagResponse(BaseModel):
@@ -33,7 +33,7 @@ class PostCreateResponse(BaseModel):
 
 
 class PostResponse(PostCreateResponse):
-    comments: list[CommentUpdate]
+    comments: list[Comment]
 
     class Config:
         from_attributes = True
