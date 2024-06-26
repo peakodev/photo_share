@@ -1,5 +1,8 @@
 async function loadProtectedPage(page) {
+    // e.preventDefault();
+    // print(e, page);
     const token = localStorage.getItem('access_token');
+    // console.log("Start loadProtectedPage...")
     if (token) {
         try {
             const response = await fetch(`${page}`, {
@@ -13,8 +16,9 @@ async function loadProtectedPage(page) {
                 document.open();
                 document.write(html);
                 document.close();
+                window.history.pushState({}, '', page);
             } else {
-                console.error('Error:', response.status, response.statusText);
+                console.error('!!!Error:', response.status, response.statusText);
             }
         } catch (error) {
             console.error('Error:', error);

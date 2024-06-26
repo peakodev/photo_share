@@ -12,9 +12,7 @@ from app.repository.tags import get_list_of_tags_by_string
 
 
 # return list of posts for curent user
-async def get_posts(
-    limit: int, offset: int, user: User, db: Session
-) -> List[Post]:
+def get_posts(limit: int, offset: int, user: User, db: Session) -> List[Post]:
     return db.query(Post).filter_by(user=user).offset(offset).limit(limit).all()
 
 
@@ -29,10 +27,16 @@ async def get_post(post_id: int, user: User, db: Session) -> Post | None:
 
 
 async def find_posts(find_str: str, user: User, db: Session) -> List[Post]:
-    return db.query(Post).filter(and_(Post.description.like(f'%{find_str}%'),Post.user==user)).all()
+    return (
+        db.query(Post)
+        .filter(and_(Post.description.like(f"%{find_str}%"), Post.user == user))
+        .all()
+    )
 
 
-async def create_post(description: str, tags: str, file: UploadFile, user: User, db: Session) -> Post:
+async def create_post(
+    description: str, tags: str, file: UploadFile, user: User, db: Session
+) -> Post:
 
     tags = await get_list_of_tags_by_string(tags, db)
 
@@ -49,8 +53,15 @@ async def create_post(description: str, tags: str, file: UploadFile, user: User,
     return new_post
 
 
-async def update_post(post_id: int, user: User, db: Session, description: str = None,
-                      tags: str = None, effect=None, file: UploadFile = None) -> Post | None:
+async def update_post(
+    post_id: int,
+    user: User,
+    db: Session,
+    description: str = None,
+    tags: str = None,
+    effect=None,
+    file: UploadFile = None,
+) -> Post | None:
     post = db.query(Post).filter_by(id=post_id, user=user).first()
 
     if post:

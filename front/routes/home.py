@@ -51,18 +51,19 @@ def get_my_posts(
     # db: Session = Depends(get_db),
     # user: User = Depends(auth_service.get_current_user),
 ):
-    # print(f"request = {request}")
-    print(f"Received token: {token}")
+    # print(f"#R-get_my_posts --- Received token: {token}")
     from main import app
 
     api_path = app.url_path_for("get_posts")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
     headers = {"Authorization": f"Bearer {token}"}
 
-    print(f"Requesting URL: {api_url}")
-    print(f"Headers: {headers}")
+    print(f"#R-get_my_posts --- Requesting URL: {api_url}")
+    print(f"#R-get_my_posts --- Headers: {headers}")
 
     response = requests.get(api_url, headers=headers)
+    res = response.json()
+    print(f"#R-get_my_posts --- recived posts")
     if response.status_code != 200:
         raise HTTPException(
             status_code=response.status_code, detail="Failed to fetch posts"
@@ -71,7 +72,43 @@ def get_my_posts(
     return templates.TemplateResponse(
         request=request,
         name="posts_my.html",
-        context={"request": request, "token": token, "posts": response.json()},
+        context={"request": request, "token": token, "posts": res},
+    )
+    # return templates.TemplateResponse("home.html")
+    # return {"Hello": "World"}
+
+
+@router.get(
+    "/posts",
+    name="posts_page",
+    response_class=HTMLResponse,
+    # response_model=TokenModel,
+)
+def get_all_posts(
+    request: Request,
+    token: str = Depends(oauth2_scheme),
+):
+    from main import app
+
+    api_path = app.url_path_for("get_all_posts")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # print(f"#R-get_my_posts --- Requesting URL: {api_url}")
+    # print(f"#R-get_my_posts --- Headers: {headers}")
+
+    response = requests.get(api_url, headers=headers)
+    res = response.json()
+    # print(f"#R-get_my_posts --- recived posts")
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=response.status_code, detail="Failed to fetch posts"
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="posts.html",
+        context={"request": request, "token": token, "posts": res},
     )
     # return templates.TemplateResponse("home.html")
     # return {"Hello": "World"}

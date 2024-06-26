@@ -40,12 +40,13 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 async def get_posts(
     limit: int = Query(10),
     offset: int = Query(0),
-    request=Request,
+    # request=Request,
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    print("get_posts")
-    posts = await repository_posts.get_posts(limit, offset, user, db)
+    print("#R-BE get_posts --- get_posts")
+    posts = repository_posts.get_posts(limit, offset, user, db)
+    print("#R-BE get_posts --- recived posts and return from router get_posts")
     return posts
     # return templates.TemplateResponse(
     #     request=request, name="home.html", context={"request": request, "posts": posts}
