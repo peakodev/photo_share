@@ -12,7 +12,7 @@ const markFormOnSubmit = () => {
         //     method: 'POST',
         //     body: new FormData(e.target) 
         // });
-        await fetch('/api/auth/signin', {
+        await fetch('/api/auth/login', {
             method: 'POST',
             body: formData
         }).then(async response => {
