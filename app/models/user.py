@@ -30,3 +30,6 @@ class User(Base):
     refresh_token = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
     role = Column(EnumSQL(Role), default=Role.user)
+    posts_number = 0
+    comments_number = 0
+    
