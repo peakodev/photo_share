@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from libgravatar import Gravatar
 
-from app.models import User
+from app.models import User, Post, Comment
 from app.schemas.user import UserModel
 
 
