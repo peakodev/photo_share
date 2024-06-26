@@ -20,7 +20,7 @@ class UserDb(BaseModel):
     role: Role
     posts_number: int
     comments_number: int
-    
+
     class Config:
         from_attributes = True
 

@@ -32,4 +32,3 @@ class User(Base):
     role = Column(EnumSQL(Role), default=Role.user)
     posts_number = 0
     comments_number = 0
-    

@@ -27,7 +27,7 @@ async def user_posts_comments_number(user: User, db: Session) -> int:
     comments_number = db.query(Comment).filter(Comment.user_id == user.id).count()
     return posts_number, comments_number
 
-    
+
 async def create_user(body: UserModel, db: Session) -> User:
     """
     Create a new user.

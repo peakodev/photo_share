@@ -26,7 +26,6 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
     posts_number, comments_number = await repository_users.user_posts_comments_number(current_user, db)
     current_user.posts_number = posts_number
     current_user.comments_number = comments_number
-    
     return current_user
 
 
