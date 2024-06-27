@@ -13,7 +13,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me/", response_model=UserDb)
-async def read_users_me(current_user: User = Depends(auth_service.get_current_user)):
+async def read_users_me(current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
     """
     Get the current user.
 
@@ -23,6 +23,9 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
     Returns:
         _type_: The current user.
     """
+    posts_number, comments_number = await repository_users.user_posts_comments_number(current_user, db)
+    current_user.posts_number = posts_number
+    current_user.comments_number = comments_number
     return current_user
 
 

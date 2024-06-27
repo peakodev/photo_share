@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from libgravatar import Gravatar
 
-from app.models import User
+from app.models import User, Post, Comment
 from app.schemas.user import UserModel
 
 
@@ -17,6 +17,15 @@ async def get_user_by_email(email: str, db: Session) -> User:
         User: The user, or None if the user does not exist.
     """
     return db.query(User).filter(User.email == email).first()
+
+
+async def user_posts_comments_number(user: User, db: Session) -> int:
+    """
+    Get the number of posts and comments for a user.
+    """
+    posts_number = db.query(Post).filter(Post.user_id == user.id).count()
+    comments_number = db.query(Comment).filter(Comment.user_id == user.id).count()
+    return posts_number, comments_number
 
 
 async def create_user(body: UserModel, db: Session) -> User:
