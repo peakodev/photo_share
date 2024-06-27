@@ -2,14 +2,22 @@
 
 {% block content %}
   <main>
-    <div class="container-xxl mt-5">
-      <h1>My Posts</h1>
-      {% if message %}
-        <div class="messages my-4">
-          <span class="text-primary">{{ message.json().detail }}</span>
+    <section>
+      <div class="container-xxl">
+        <div class="container-xxl mt-5">
+          <h1>My Posts</h1>
+          {% if message %}
+            <div class="messages my-4">
+              <span class="text-primary">{{ message.json().detail }}</span>
+            </div>
+          {% endif %}
+          {% if posts %}
+            {% for post in posts %}
+              {% include 'partials/post_card.html' %}
+            {% endfor %}
+          {% endif %}
         </div>
-      {% endif %}
-      {{ posts }}
-    </div>
+      </div>
+    </section>
   </main>
 {% endblock %}
