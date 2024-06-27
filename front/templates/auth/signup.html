@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  <title>SignUp</title>
+{% endblock %}
+
+{% block content %}
+  <div class="container-xxl">
+    <h2>Register user</h2>
+    {% if message %}
+      <div class="messages my-4">
+        <span class="text-primary">{{ message.json().detail }}</span>
+      </div>
+    {% endif %}
+    <form id="form-signup" action="/signup/" method="post">
+      <div class="mb-3">
+        <label class="form-label">First name</label>
+        <input type="text" id="firstname" name="firstname" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Last name</label>
+        <input type="text" id="lastname" name="lastname" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">email</label>
+        <input type="text" id="email" name="email" required />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Repeat Password</label>
+        <input type="password" id="repassword" name="repassword" required />
+      </div>
+
+      <button type="reset" class="btn btn-secondary">Reset</button>
+      <button type="submit" class="btn btn-primary">Create User</button>
+    </form>
+  </div>
+  <script>
+    const redirect_url = "{{ url_for('home_page') }}"
+    const api_signup = "{{ url_for('signup_post_page') }}"
+    
+    const is_login = True
+  </script>
+{% endblock %}
+
+{% block scripts %}
+  {# <script src="/static/js/auth/signup.js"></script> #}
+{% endblock %}
