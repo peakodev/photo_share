@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 import httpx
 from pydantic import BaseModel
 import requests
@@ -20,6 +20,28 @@ router = APIRouter()
 templates = Jinja2Templates(directory="front/templates")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+# oauth2_scheme = OAuth2PasswordBearer()
+
+
+async def get_token_optional(request: Request) -> Optional[str]:
+    authorization: str = request.headers.get("Authorization")
+    if authorization:
+        scheme, token = authorization.split()
+        if scheme.lower() == "bearer":
+            return token
+    return None
+
+
+async def log_response(response):
+    print(
+        f"!#F_Route - ERROR - signup user, res: \
+        \n {response.status_code=}\
+        \n {response.reason_phrase=}\
+        \n {response.json()=}\
+        \n {response.content=}\
+        \n {response.text=}\
+        \n {response=}"
+    )
 
 
 @router.get(
@@ -51,9 +73,10 @@ def get_home(
     response_class=HTMLResponse,
     # response_model=TokenModel,
 )
-def get_my_posts(
+async def get_my_posts(
     request: Request,
-    token: str = Depends(oauth2_scheme),
+    token: Optional[str] = Depends(get_token_optional),
+    # token: str = Depends(oauth2_scheme),
     # db: Session = Depends(get_db),
     # user: User = Depends(auth_service.get_current_user),
 ):
@@ -62,15 +85,29 @@ def get_my_posts(
 
     api_path = app.url_path_for("get_posts")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    headers = {"Authorization": f"Bearer {token}"}
+    if token:
+        headers = {"Authorization": f"Bearer {token}"}
+    else:
+        headers = request.headers
 
     print(f"#R-get_my_posts --- Requesting URL: {api_url}")
     print(f"#R-get_my_posts --- Headers: {headers}")
 
-    response = requests.get(api_url, headers=headers)
-    res = response.json()
-    print(f"#R-get_my_posts --- recived posts")
+    # response = requests.get(api_url, headers=headers)
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=headers)
+    except Exception as err:
+        ...
+    print(f"@@@@@@@@@@@{response=}")
+    # print(f"#R-get_my_posts --- recived posts")
+
     if response.status_code != 200:
+        return templates.TemplateResponse(
+            request=request,
+            name="posts_my.html",
+            context={"request": request, "message": response},
+        )
         raise HTTPException(
             status_code=response.status_code, detail="Failed to fetch posts"
         )
@@ -78,7 +115,7 @@ def get_my_posts(
     return templates.TemplateResponse(
         request=request,
         name="posts_my.html",
-        context={"request": request, "token": token, "posts": res},
+        context={"request": request, "posts": response.json()},
     )
     # return templates.TemplateResponse("home.html")
     # return {"Hello": "World"}
@@ -90,34 +127,49 @@ def get_my_posts(
     response_class=HTMLResponse,
     # response_model=TokenModel,
 )
-def get_all_posts(
+async def get_all_posts(
     request: Request,
-    token: str = Depends(oauth2_scheme),
+    token: Optional[str] = Depends(get_token_optional),
 ):
     from main import app
 
+    print("!!!!!!!!!!!!!!!!!!")
     api_path = app.url_path_for("get_all_posts")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    headers = {"Authorization": f"Bearer {token}"}
+
+    if token:
+        headers = {"Authorization": f"Bearer {token}"}
+    else:
+        headers = request.headers
 
     # print(f"#R-get_my_posts --- Requesting URL: {api_url}")
     # print(f"#R-get_my_posts --- Headers: {headers}")
 
-    response = requests.get(api_url, headers=headers)
-    res = response.json()
-    # print(f"#R-get_my_posts --- recived posts")
+    # response = requests.get(api_url, headers=headers)
+    # res = response.json()
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=headers)
+    except Exception as err:
+        print("!!!!! error", err)
+        return {"err": err}
+
+    print(f"{response=}")
+    # response = requests.post(api_url, json=form_data)
     if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code, detail="Failed to fetch posts"
+        return templates.TemplateResponse(
+            request=request,
+            name="posts.html",
+            context={"request": request, "message": response},
         )
 
+    await log_response(response)
     return templates.TemplateResponse(
         request=request,
         name="posts.html",
-        context={"request": request, "token": token, "posts": res},
+        context={"request": request, "posts": response.json()},
     )
-    # return templates.TemplateResponse("home.html")
-    # return {"Hello": "World"}
 
 
 @router.get("/signup", name="signup_page")
@@ -203,7 +255,7 @@ async def fe_signup(
         request=request,
         name="auth/signup.html",
         context={"request": request, "message": response},
-        )
+    )
 
 
 async def signup_post_page(request: Request):
