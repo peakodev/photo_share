@@ -31,7 +31,7 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 
 @router.get(
     "/",
-    response_model=list[PostResponse],
+    response_model=list[PostResponse] | None,
     name="get_posts",
     # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
@@ -43,8 +43,11 @@ async def get_posts(
     user: User = Depends(auth_service.get_current_user),
 ):
     print("#R-BE get_posts --- get_posts")
-    posts = repository_posts.get_posts(limit, offset, user, db)
-    print("#R-BE get_posts --- recived posts and return from router get_posts")
+    posts = await repository_posts.get_posts(limit, offset, user, db)
+    print(
+        f"#R-BE get_posts --- recived posts and return from router get_posts {posts=}"
+    )
+
     return posts
 
 
@@ -115,11 +118,11 @@ async def create_post(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
- 
+
     if user_email and user.role != Role.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You can't create this post for user {user_email}"
+            detail=f"You can't create this post for user {user_email}",
         )
     if user_email and user.role == Role.admin:
         user = await repository_users.get_user_by_email(user_email, db)
@@ -159,9 +162,9 @@ async def update_post(
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You can't update  post for user {post.user.email}"
+            detail=f"You can't update  post for user {post.user.email}",
         )
-    
+
     return post
 
 
@@ -186,7 +189,7 @@ async def delete_post(
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient permissions to delete this post"
+            detail="Insufficient permissions to delete this post",
         )
 
     return post

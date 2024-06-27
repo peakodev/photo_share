@@ -4,6 +4,11 @@
   <main>
     <div class="container-xxl mt-5">
       <h1>My Posts</h1>
+      {% if message %}
+        <div class="messages my-4">
+          <span class="text-primary">{{ message.json().detail }}</span>
+        </div>
+      {% endif %}
       {{ posts }}
     </div>
   </main>

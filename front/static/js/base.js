@@ -24,7 +24,9 @@ async function loadProtectedPage(page) {
             console.error('Error:', error);
         }
     } else {
-        console.error('Token not found');
+        console.error('Token not found in local storage');
+        window.location.href = page;
+        // window.history.pushState({}, '', page);
     }
 }
 
