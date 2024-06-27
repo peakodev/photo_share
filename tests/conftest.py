@@ -10,10 +10,8 @@ from sqlalchemy.orm import sessionmaker
 # Add the parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
 from main import app
 from app.models import Base, User, get_db
-
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
@@ -65,6 +63,25 @@ def token(client, user, session, monkeypatch):
     client.post("/api/auth/signup", json=user)
     current_user: User = session.query(User).filter(User.email == user.get('email')).first()
     current_user.confirmed = True
+    session.commit()
+    response = client.post(
+        "/api/auth/login",
+        data={"username": user.get('email'), "password": user.get('password')},
+    )
+    data = response.json()
+    return data["access_token"]
+
+
+@pytest.fixture()
+def admin_token(client, user, session, monkeypatch):
+    # change email to avoid db issues
+    user['email'] = 'admin@example.com'
+    mock_send_email = MagicMock()
+    monkeypatch.setattr("app.routes.auth.send_email", mock_send_email)
+    client.post("/api/auth/signup", json=user)
+    current_user: User = session.query(User).filter(User.email == user.get('email')).first()
+    current_user.confirmed = True
+    current_user.role = 'admin'  # Elevate to admin
     session.commit()
     response = client.post(
         "/api/auth/login",

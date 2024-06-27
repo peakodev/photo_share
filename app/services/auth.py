@@ -1,7 +1,5 @@
-import pickle
 from typing import Optional
 
-import redis
 from jose import JWTError, jwt
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -19,7 +17,6 @@ class Auth:
     SECRET_KEY = settings.secret_key
     ALGORITHM = settings.algorithm
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-    r = redis.Redis(host=settings.redis_host, port=settings.redis_port, db=0)
 
     def verify_password(self, plain_password, hashed_password) -> bool:
         """
@@ -46,7 +43,9 @@ class Auth:
         """
         return self.pwd_context.hash(password)
 
-    async def create_access_token(self, data: dict, expires_delta: Optional[float] = None) -> str:
+    async def create_access_token(
+        self, data: dict, expires_delta: Optional[float] = None
+    ) -> str:
         """
         Create a new access token
 
@@ -57,9 +56,13 @@ class Auth:
         Returns:
             str: The JWT token
         """
-        return await self.__create_token(data, 150, scope='access_token', expires_delta=expires_delta)
+        return await self.__create_token(
+            data, 150, scope="access_token", expires_delta=expires_delta
+        )
 
-    async def create_refresh_token(self, data: dict, expires_delta: Optional[float] = None) -> str:
+    async def create_refresh_token(
+        self, data: dict, expires_delta: Optional[float] = None
+    ) -> str:
         """
         Create a new refresh token
 
@@ -70,7 +73,9 @@ class Auth:
         Returns:
             str: The JWT token
         """
-        return await self.__create_token(data, 10080, scope='refresh_token', expires_delta=expires_delta)
+        return await self.__create_token(
+            data, 10080, scope="refresh_token", expires_delta=expires_delta
+        )
 
     async def create_email_token(self, data: dict) -> str:
         """
@@ -85,11 +90,11 @@ class Auth:
         return await self.__create_token(data, 10080)
 
     async def __create_token(
-            self,
-            data: dict,
-            default_delta: int,
-            scope: Optional[str] = None,
-            expires_delta: Optional[float] = None
+        self,
+        data: dict,
+        default_delta: int,
+        scope: Optional[str] = None,
+        expires_delta: Optional[float] = None,
     ) -> str:
         to_encode = data.copy()
         if expires_delta:
@@ -115,15 +120,25 @@ class Auth:
             str: The email
         """
         try:
-            payload = jwt.decode(refresh_token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            if payload['scope'] == 'refresh_token':
-                email = payload['sub']
+            payload = jwt.decode(
+                refresh_token, self.SECRET_KEY, algorithms=[self.ALGORITHM]
+            )
+            if payload["scope"] == "refresh_token":
+                email = payload["sub"]
                 return email
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid scope for token')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid scope for token",
+            )
         except JWTError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate credentials')
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
 
-    async def get_current_user(self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    async def get_current_user(
+        self, token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    ):
         """
         Get the current user from token
 
@@ -145,8 +160,9 @@ class Auth:
 
         try:
             # Decode JWT
+            print(f"#S get_current_user --- start decode token")
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            if payload['scope'] == 'access_token':
+            if payload["scope"] == "access_token":
                 email = payload["sub"]
                 if email is None:
                     raise credentials_exception
@@ -155,15 +171,9 @@ class Auth:
         except JWTError:
             raise credentials_exception
 
-        user = self.r.get(f"user:{email}")
-        if user is None:
-            user = await repository_users.get_user_by_email(email, db)
-            if user is None:
-                raise credentials_exception
-            self.r.set(f"user:{email}", pickle.dumps(user))
-            self.r.expire(f"user:{email}", settings.redis_cache_time)
-        else:
-            user = pickle.loads(user)
+        print("#S get_current_user --- start get_user_by_email")
+        user = await repository_users.get_user_by_email(email, db)
+        print(f"#S get_current_user --- user: {user.email}")
 
         return user
 
@@ -186,8 +196,10 @@ class Auth:
             return email
         except JWTError as e:
             print(e)
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                                detail="Invalid token for email verification")
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Invalid token for email verification",
+            )
 
 
 auth_service = Auth()
