@@ -21,10 +21,7 @@ from app.schemas.post import (
 from app.repository import posts as repository_posts
 from app.repository import users as repository_users
 from app.services.auth import auth_service
-from app.services.cloudinary import Effect, upload_photo, transform_photo
-
-from app.conf.config import templates
-
+from app.services.cloudinary import Effect
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
@@ -136,8 +133,7 @@ async def update_post(
     post_id: int,
     description: str = None,
     tags: str = None,
-    effect: str = None,
-    # user_email: str = None,
+    effect: Effect = None,
     file: UploadFile = File(default=None),
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),

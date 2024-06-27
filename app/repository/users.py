@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session
 from libgravatar import Gravatar
 
 from app.models import User, Post, Comment
-from app.schemas.user import UserModel
+from app.schemas.user import UserModel, UserUpdateModel
+from app.services.gravatar import get_gravatar
 
 
 async def get_user_by_email(email: str, db: Session) -> User:
@@ -17,6 +18,20 @@ async def get_user_by_email(email: str, db: Session) -> User:
         User: The user, or None if the user does not exist.
     """
     return db.query(User).filter(User.email == email).first()
+
+
+async def get_user_by_id(id: str, db: Session) -> User:
+    """
+    Get a user by id.
+
+    Args:
+        id (int): The id of the user to get.
+        db (Session): The database session.
+
+    Returns:
+        User: The user, or None if the user does not exist.
+    """
+    return db.query(User).filter(User.id == id).first()
 
 
 async def user_posts_comments_number(user: User, db: Session) -> int:
@@ -41,8 +56,7 @@ async def create_user(body: UserModel, db: Session) -> User:
     """
     avatar = None
     try:
-        g = Gravatar(body.email)
-        avatar = g.get_image()
+        avatar = await get_gravatar(body.email)
     except Exception as e:
         print(e)
     new_user = User(**body.model_dump(), avatar=avatar)
@@ -50,6 +64,15 @@ async def create_user(body: UserModel, db: Session) -> User:
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+async def update_user(user_id: int, body: UserUpdateModel, db: Session) -> User:
+    user = db.query(User).filter_by(id=user_id).first()
+    for key, value in body.model_dump(exclude_none=True).items():
+        setattr(user, key, value)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 async def update_token(user: User, token: str | None, db: Session) -> None:

@@ -40,22 +40,19 @@ async def upload_avatar(
     img_file: UploadFile,
     user: User,
 ):
-    dest_folder = f"{CLOUDINARY_FOLDER}/{user.id}/avatar"
-    gravatar_url = None
+    public_id = f"{CLOUDINARY_FOLDER}/{user.id}/avatar"
 
     try:
-        res = await cloudinary.uploader.upload(
-            img_file, public_id=dest_folder, overwrite=True
+        res = cloudinary.uploader.upload(
+            img_file.file, public_id=public_id, overwrite=True
+        )
+        gravatar_url = cloudinary.CloudinaryImage(public_id).build_url(
+            width=250, height=250, crop="fill", version=res.get("version")
         )
     except Exception as err:
-        gravatar_url = get_gravatar(user.email)
+        gravatar_url = await get_gravatar(user.email)
 
-    if gravatar_url:
-        # user.avatar_id = None
-        user.avatar = gravatar_url
-    else:
-        # user.avatar_id = res.get("public_id", None)
-        user.avatar = res.get("secure_url", None)
+    return gravatar_url
 
 
 async def delete_avatar(public_id: str):
