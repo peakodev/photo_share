@@ -39,6 +39,17 @@
   background-color: #ffc107;
 }
 
+/* v2 */
+/* .card-comments, .card-tags {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.card-comments i, .card-tags i {
+  margin-right: 5px;
+} */
+
 .card-comments, .card-tags {
   display: flex;
   align-items: center;
@@ -47,4 +58,20 @@
 
 .card-comments i, .card-tags i {
   margin-right: 5px;
+}
+
+/* Additional styles for comments count */
+.card-comments {
+  color: #6c757d; /* Bootstrap's text-muted color */
+  font-size: 1rem; /* Adjust font size as needed */
+}
+
+.card-comments i {
+  margin-right: 5px;
+  color: #007bff; /* Bootstrap's primary color */
+}
+
+.card-comments span {
+  margin-left: 5px;
+  font-weight: bold; /* Make the count bold */
 }
