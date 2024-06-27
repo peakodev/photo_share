@@ -1,7 +1,6 @@
 from typing import Annotated, Optional
 import httpx
-from pydantic import BaseModel
-import requests
+
 from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
@@ -12,7 +11,6 @@ from app.schemas.user import TokenModel
 from app.services.auth import auth_service
 
 from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
-from sqlalchemy.orm import Session
 
 # app = FastAPI()
 
@@ -78,7 +76,7 @@ async def get_my_posts(
     token: Optional[str] = Depends(get_token_optional),
     # token: str = Depends(oauth2_scheme),
     # db: Session = Depends(get_db),
-    # user: User = Depends(auth_service.get_current_user),
+    # user: Optional[User] = Depends(auth_service.get_current_user) | None,
 ):
     # print(f"#R-get_my_posts --- Received token: {token}")
     from main import app
@@ -130,6 +128,7 @@ async def get_my_posts(
 async def get_all_posts(
     request: Request,
     token: Optional[str] = Depends(get_token_optional),
+    # user: Optional[User] = Depends(auth_service.get_current_user) | None,
 ):
     from main import app
 
