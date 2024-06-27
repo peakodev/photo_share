@@ -27,3 +27,10 @@ async function loadProtectedPage(page) {
         console.error('Token not found');
     }
 }
+
+const logoutSite = async () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('token_type');
+    window.location.href = '/';
+}
