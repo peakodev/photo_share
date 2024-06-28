@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import (
     APIRouter,
     File,
@@ -64,10 +65,9 @@ async def get_all_posts(
 async def get_post(
     post_id: int,
     db: Session = Depends(get_db),
-    user: User = Depends(auth_service.get_current_user),
+    # user: Optional[User] = Depends(auth_service.get_current_user),
 ):
-
-    post = await repository_posts.get_post(post_id, user, db)
+    post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
