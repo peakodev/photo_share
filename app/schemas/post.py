@@ -3,7 +3,7 @@ from typing import Optional
 from datetime import datetime
 
 
-from app.schemas.user import UserDb
+from app.schemas.user import UserDb, UserUpdateModel
 from app.models import Tag
 
 from app.schemas.comments import Comment, CommentUpdate
@@ -35,8 +35,10 @@ class PostCreateResponse(BaseModel):
 class PostResponse(PostCreateResponse):
     created_at: str
     updated_at: str
+    comments_count: int
     tags: list[str]
     comments: list[Comment]
+    user: UserUpdateModel
 
     @field_validator("created_at", mode="before")
     def parse_created_at(cls, value:datetime):

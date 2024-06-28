@@ -1,33 +1,68 @@
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from typing import List
 from fastapi import UploadFile
 
 from app.models import Post
 from app.models import User
+from app.models import Comment
 from app.services.cloudinary import upload_photo, transform_photo
 from app.repository.tags import get_list_of_tags_by_string
 
 
-async def post_comments_number(post: Post, db: Session) -> int:
-    return db.query(Post).filter(Post.id == post.id).count()
-
-
-# return list of posts for curent user
-async def get_posts(limit: int, offset: int, user: User, db: Session) -> List[Post]:
-    return db.query(Post).filter_by(user=user).offset(offset).limit(limit).all()
-
-
-# return list of posts of all users
 async def get_all_posts(limit: int, offset: int, db: Session) -> List[Post]:
-    return db.query(Post).offset(offset).limit(limit).all()
+    # Query to get post id and its corresponding comment count
+    comments_count_subquery = db.query(
+        Comment.post_id,
+        func.count(Comment.id).label("comment_count")
+    ).group_by(Comment.post_id).subquery()
+    
+    # Query to join posts with the comment counts
+    posts_with_comments_count = db.query(
+        Post,
+        func.coalesce(comments_count_subquery.c.comment_count, 0).label("comment_count")
+    ).outerjoin(
+        comments_count_subquery, Post.id == comments_count_subquery.c.post_id
+    ).offset(offset).limit(limit).all()
+
+    for post, comments_count in posts_with_comments_count:
+        post.comments_count = comments_count
+    posts = [post for post, comments_count in posts_with_comments_count]
+
+    return posts
+
+
+async def get_posts(limit: int, offset: int, user: User, db: Session) -> List[Post]:
+    # Query to get post id and its corresponding comment count
+    comments_count_subquery = db.query(
+        Comment.post_id,
+        func.count(Comment.id).label("comment_count")
+    ).group_by(Comment.post_id).subquery()
+    
+    # Query to join posts with the comment counts
+    posts_with_comments_count = db.query(
+        Post,
+        func.coalesce(comments_count_subquery.c.comment_count, 0).label("comment_count")
+    ).outerjoin(
+        comments_count_subquery, Post.id == comments_count_subquery.c.post_id
+    ).filter(Post.user == user).offset(offset).limit(limit).all()
+    
+    for post, comments_count in posts_with_comments_count:
+        post.comments_count = comments_count
+    posts = [post for post, comments_count in posts_with_comments_count]
+
+    return posts
 
 
 # return post by id for current user
 async def get_post(post_id: int, user: User, db: Session) -> Post | None:
-    return db.query(Post).filter_by(id=post_id, user=user).first()
+    post = db.query(Post).filter_by(id=post_id, user=user).first()
+    if post:
+        comments_count = db.query(Comment).filter(Comment.post_id == post_id).count()
+        post.comments_count = comments_count
+    return post
 
 
 async def get_post_by_id(post_id: int, db: Session) -> Post | None:

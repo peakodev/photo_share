@@ -34,4 +34,4 @@ class Post(Base):
     rating = Column(Integer)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="posts", lazy="selectin")
-    post_comments_count = 0
+    comments_count = 0
