@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 
+from app.schemas.user import UserDb
+
 
 class CommentBase(BaseModel):
     pass
@@ -28,4 +30,6 @@ class CommentInDBBase(CommentBase):
 class Comment(CommentInDBBase):
     text: str
     post_id: int
-    user_id: int
+    user: UserDb
+
+
