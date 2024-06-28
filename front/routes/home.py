@@ -96,6 +96,7 @@ async def get_my_posts(
         async with httpx.AsyncClient() as client:
             response = await client.get(api_url, headers=headers)
     except Exception as err:
+        print(f"##### Exception {err=}")
         ...
     print(f"@@@@@@@@@@@{response=}")
     # print(f"#R-get_my_posts --- recived posts")

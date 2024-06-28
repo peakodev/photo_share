@@ -1,0 +1,77 @@
+.photo-container {
+  width: 100%;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  position: relative;
+}
+
+.card-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-user-avatar {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-right: 15px;
+}
+
+.card-user-wrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.card-info-wrap {
+  margin-top: 15px;
+}
+
+.card-rating {
+  font-size: 1rem;
+}
+
+.card-rating .badge {
+  font-size: 1rem;
+  background-color: #ffc107;
+}
+
+/* v2 */
+/* .card-comments, .card-tags {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.card-comments i, .card-tags i {
+  margin-right: 5px;
+} */
+
+.card-comments, .card-tags {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+}
+
+.card-comments i, .card-tags i {
+  margin-right: 5px;
+}
+
+/* Additional styles for comments count */
+.card-comments {
+  color: #6c757d; /* Bootstrap's text-muted color */
+  font-size: 1rem; /* Adjust font size as needed */
+}
+
+.card-comments i {
+  margin-right: 5px;
+  color: #007bff; /* Bootstrap's primary color */
+}
+
+.card-comments span {
+  margin-left: 5px;
+  font-weight: bold; /* Make the count bold */
+}

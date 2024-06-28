@@ -1,0 +1,32 @@
+<div class="card mb-3 p-3">
+  <div class="row g-0">
+    <div class="col-md-4 d-flex align-items-center position-relative">
+      <img src="{{ post.photo_url }}" class="card-img" alt="post img" style="width: 100%; height: 100%; object-fit: cover;">
+      <div class="card-rating position-absolute top-0 end-0 m-2">
+        <span class="badge bg-warning text-dark">★ 4.8</span>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <div class="card-user-wrap d-flex align-items-center mb-3">
+          <img src="{{ post.user.avatar }}" alt="{{ post.user.firstname }}" class="card-user-avatar rounded-circle" style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;">
+          <div>
+            <h5 class="card-user-firstname mb-1">{{ post.user.first_name }} {{ post.user.last_name }}</h5>
+            <p class="card-user-created-post text-muted mb-0">{{ post.created_at }}</p>
+          </div>
+        </div>
+        <div class="card-info-wrap">
+          <div class="card-tags mb-2">
+            <i class="fas fa-tags"></i> #{{ post.tags|join(', ') }}
+          </div>
+          <p class="card-comments mb-2">
+            <i class="fas fa-comments"></i> {{ post.comments_count }} comments
+          </p>
+          <div class="card-description">
+            <p>{{ post.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
