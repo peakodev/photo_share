@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block styles_page %}
+  <link rel="stylesheet" href="/static/css/partials/post_id.css" />
+{% endblock %}
+{% block content %}
+  <main>
+    <section>
+      <div class="container-xxl">
+        <div class="container-xxl mt-5">
+          <h1>Post detail</h1>
+          {% if message %}
+            <div class="messages my-4">
+              <span class="text-primary">{{ message.json().detail }}</span>
+            </div>
+          {% endif %}
+          {% if post %}
+            {% include 'partials/post_detail.html' %}
+            {% include 'partials/post_detail_comments.html' %}
+          {% endif %}
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}

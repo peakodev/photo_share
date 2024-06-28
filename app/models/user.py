@@ -29,6 +29,7 @@ class User(Base):
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
     confirmed = Column(Boolean, default=False)
-    role = Column(EnumSQL(Role), default=Role.user)
+    role = Column(EnumSQL(Role), default=Role.user, nullable=False)
+    banned = Column(Boolean, default=False, nullable=False)
     posts_number = 0
     comments_number = 0
