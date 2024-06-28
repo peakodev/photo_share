@@ -22,12 +22,13 @@
           <i class="fas fa-tags"></i> #{{ post.tags|join(', ') }}
         </div>
         <p class="mb-2 comments">
-          <i class="fas fa-comments"></i> {{ post.comments_count }} comments
+          <i class="fas fa-comments"></i> {{ post.comments_count }}
         </p>
         <p class="mb-3">{{ post.description }}</p>
       </div>
-      <div class="mt-auto">
-        <a href="/posts" class="btn btn-primary">Назад к постам</a>
+      <div class="d-flex align-items-end mt-auto">
+        <a href="/posts" class="btn btn-primary">Return</a>
+        <p class="ms-auto card-user-created-post text-muted mb-0 fs-6">Created {{ post.created_at }}</p>
       </div>
     </div>
   </div>
