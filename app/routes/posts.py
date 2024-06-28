@@ -30,7 +30,6 @@ router = APIRouter(prefix="/posts", tags=["posts"])
     "/",
     response_model=list[PostResponse] | None,
     name="get_posts",
-    # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def get_posts(
     limit: int = Query(10),
