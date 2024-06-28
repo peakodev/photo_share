@@ -27,7 +27,13 @@
       </div>
       <div class="d-flex align-items-end mt-auto">
         <a href="/posts" class="btn btn-primary">Return</a>
-        <p class="ms-auto card-user-created-post text-muted mb-0 fs-6">Created {{ post.created_at }}</p>
+        <p class="ms-auto card-user-created-post text-muted mb-0 fs-6">
+          {% if post.updated_at %}
+            Updated: {{ post.updated_at }}
+          {% else %}
+            Created: {{ post.created_at }}
+          {% endif %}
+        </p>
       </div>
     </div>
   </div>
