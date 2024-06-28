@@ -9,7 +9,6 @@ from fastapi import (
     Query,
 )
 
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.models import User, Role, get_db
@@ -17,6 +16,7 @@ from app.schemas.post import (
     PostResponse,
     PostCreateResponse,
     PostDeleteSchema,
+    PostSearchSchema
 )
 from app.repository import posts as repository_posts
 from app.repository import users as repository_users
@@ -38,13 +38,7 @@ async def get_posts(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    print("#R-BE get_posts --- get_posts")
-    posts = await repository_posts.get_posts(limit, offset, user, db)
-    print(
-        f"#R-BE get_posts --- recived posts and return from router get_posts {posts=}"
-    )
-
-    return posts
+    return await repository_posts.get_posts(limit, offset, user, db)
 
 
 @router.get(
@@ -81,23 +75,16 @@ async def get_post(
     return post
 
 
-@router.get(
-    "/find/",
-    name="find_posts",
+@router.post(
+    "/search",
+    name="search_posts_by_query",
     response_model=list[PostResponse],
 )
-async def find_post(
-    find_str: str,
-    db: Session = Depends(get_db),
-    user: User = Depends(auth_service.get_current_user),
+async def search_posts(
+    search_schema: PostSearchSchema,
+    db: Session = Depends(get_db)
 ):
-
-    posts = await repository_posts.find_posts(find_str, user, db)
-    if len(posts) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=" Post not found"
-        )
-    return posts
+    return await repository_posts.search_posts_by_inputs(search_schema, db)
 
 
 @router.post(
