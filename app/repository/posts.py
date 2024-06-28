@@ -60,16 +60,20 @@ async def get_posts(limit: int, offset: int, user: User, db: Session) -> List[Po
 
 
 # return post by id for current user
-async def get_post(post_id: int, user: User, db: Session) -> Post | None:
-    post = db.query(Post).filter_by(id=post_id, user=user).first()
+async def get_post_by_id(post_id: int, db: Session) -> Post | None:
+    post = db.query(Post).filter_by(id=post_id).first()
     if post:
         comments_count = db.query(Comment).filter(Comment.post_id == post_id).count()
         post.comments_count = comments_count
     return post
 
 
-async def get_post_by_id(post_id: int, db: Session) -> Post | None:
-    return db.query(Post).filter_by(id=post_id).first()
+async def find_posts(find_str: str, user: User, db: Session) -> List[Post]:
+    return (
+        db.query(Post)
+        .filter(and_(Post.description.like(f"%{find_str}%"), Post.user == user))
+        .all()
+    )
 
 
 async def search_posts_by_inputs(input: PostSearchSchema, db: Session) -> List[Post]:
