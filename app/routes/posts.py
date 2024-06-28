@@ -1,10 +1,8 @@
-from typing import Optional
 from fastapi import (
     APIRouter,
     File,
     HTTPException,
     Depends,
-    Request,
     UploadFile,
     status,
     Query,
@@ -35,7 +33,6 @@ router = APIRouter(prefix="/posts", tags=["posts"])
 async def get_posts(
     limit: int = Query(10),
     offset: int = Query(0),
-    # request=Request,
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
@@ -65,7 +62,6 @@ async def get_all_posts(
 async def get_post(
     post_id: int,
     db: Session = Depends(get_db),
-    # user: Optional[User] = Depends(auth_service.get_current_user),
 ):
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:

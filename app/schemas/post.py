@@ -60,7 +60,6 @@ class PostResponse(PostCreateResponse):
 class OrderByEnum(str, Enum):
     created_at = "created_at"
     rating = "rating"
-    date = "date"
 
 
 class OrderEnum(str, Enum):
@@ -74,9 +73,9 @@ class PostFilterSchema(BaseModel):
 
 
 class PostSearchSchema(BaseModel):
-    query: Optional[str] = Field(min_length=3, max_length=255)
+    query: Optional[str] = Field(None, min_length=3, max_length=255)
     limit: int = 20
     offset: int = 0
-    order: OrderEnum = OrderEnum.desc
-    order_by: OrderByEnum = OrderByEnum.created_at
+    order: Optional[OrderEnum] = OrderEnum.desc
+    order_by: Optional[OrderByEnum] = OrderByEnum.created_at
     filter: Optional[PostFilterSchema]
