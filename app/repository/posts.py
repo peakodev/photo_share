@@ -11,6 +11,10 @@ from app.services.cloudinary import upload_photo, transform_photo
 from app.repository.tags import get_list_of_tags_by_string
 
 
+async def post_comments_number(post: Post, db: Session) -> int:
+    return db.query(Post).filter(Post.id == post.id).count()
+
+
 # return list of posts for curent user
 async def get_posts(limit: int, offset: int, user: User, db: Session) -> List[Post]:
     return db.query(Post).filter_by(user=user).offset(offset).limit(limit).all()
