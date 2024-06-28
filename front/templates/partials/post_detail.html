@@ -1,0 +1,34 @@
+<div class="post-details">
+  <div class="row g-0 mb-3">
+    <div class="col-md-4 d-flex align-items-center position-relative">
+      <div class="photo-container position-relative" style="width: 100%; padding-top: 100%;">
+        <img src="{{ post.photo_url }}" class="position-absolute top-0 start-0 w-100 h-100" alt="post img" style="object-fit: cover;" />
+        <div class="position-absolute top-0 end-0 m-2">
+          <span class="badge bg-warning text-dark">★ {{ post.rating }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8 pt-3 px-3 d-flex flex-column">
+      <div class="d-flex align-items-center mb-3">
+        <img src="{{ post.user.avatar }}" alt="{{ post.user.firstname }}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover; margin-right: 15px;" />
+        <div>
+          <h5 class="mb-1">{{ post.user.first_name }} {{ post.user.last_name }}</h5>
+        </div>
+      </div>
+      <div class="flex-grow-1">
+        <h3 class="mb-2">{{ post.title }}</h3>
+        <div class="mb-2">
+          <i class="fas fa-tags"></i> #{{ post.tags|join(', ') }}
+        </div>
+        <p class="mb-2 comments">
+          <i class="fas fa-comments"></i> {{ post.comments_count }}
+        </p>
+        <p class="mb-3">{{ post.description }}</p>
+      </div>
+      <div class="d-flex align-items-end mt-auto">
+        <a href="/posts" class="btn btn-primary">Return</a>
+        <p class="ms-auto card-user-created-post text-muted mb-0 fs-6">Created {{ post.created_at }}</p>
+      </div>
+    </div>
+  </div>
+</div>
