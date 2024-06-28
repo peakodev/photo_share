@@ -10,14 +10,15 @@ from app.repository.users import (
     update_token,
     confirmed_email,
     update_avatar,
-    update_password
+    update_password,
+    ban_user
 )
 
 
 class TestUserRepository(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.db = MagicMock(spec=Session)
-        self.user = User(id=1, first_name="nazar", last_name="test",
+        self.user = User(id=1, first_name="nazar", last_name="test", banned=False,
                          email="test@example.com", password="hashedpassword", confirmed=False)
         self.user_data = UserModel(first_name="nazar", last_name="test",
                                    email="test@example.com", password="hashedpassword")
@@ -79,6 +80,14 @@ class TestUserRepository(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(self.user.password, new_password)
         self.db.commit.assert_called_once()
         self.db.refresh.assert_called_once_with(self.user)
+
+    async def test_ban_user(self):
+        self.db.query.return_value.filter.return_value.first.return_value = self.user
+
+        res_user = await ban_user(self.user.id, True, self.db)
+
+        self.assertEqual(res_user.banned, True)
+        self.db.commit.assert_called_once()
 
 
 if __name__ == '__main__':

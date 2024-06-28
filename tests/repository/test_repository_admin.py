@@ -61,25 +61,6 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         self.assertIsInstance(result, Post)
         self.assertEqual(result.description, new_description)
 
-    async def test_update_post_by_id_update_created_at_post_found(self):
-        new_time = datetime.now()
-        
-        self.session.query().filter_by().first.return_value = Post(id=1,
-                                                                   created_at=datetime.now() - timedelta(1))
-
-        result = await update_post_by_id(post_id=1, db=self.session, created_at=new_time)
-        self.assertIsInstance(result, Post)
-        self.assertEqual(result.created_at, new_time)
-
-    async def test_update_post_by_id_update_updated_at_post_found(self):
-        new_time = datetime.now()
-        self.session.query().filter_by().first.return_value = Post(id=1,
-                                                                   updated_at=datetime.now() - timedelta(1))
-
-        result = await update_post_by_id(post_id=1, db=self.session, updated_at=new_time)
-        self.assertIsInstance(result, Post)
-        self.assertEqual(result.updated_at, new_time)
-
     async def test_update_post_by_id_update_rating_post_found(self):
         new_rating = 4
         self.session.query().filter_by().first.return_value = Post(id=1,

@@ -22,6 +22,7 @@ class UserSignupSchema(BaseModel):
     email: str = EmailStr
     password: str = Field(min_length=6, max_length=25)
 
+
 class UserDb(BaseModel):
     id: int
     first_name: str
@@ -30,6 +31,7 @@ class UserDb(BaseModel):
     created_at: datetime
     avatar: str
     role: Role
+    banned: bool
     posts_number: int
     comments_number: int
 

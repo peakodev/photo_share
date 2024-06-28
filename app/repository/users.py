@@ -131,3 +131,19 @@ async def update_password(user: User, password: str, db: Session) -> None:
     user.password = password
     db.commit()
     db.refresh(user)
+
+
+async def ban_user(user_id: int, is_ban: bool, db: Session) -> None:
+    """
+    Ban or unban a user.
+
+    Args:
+        user_id (int): The id of the user to ban or unban.
+        is_ban (bool): True to ban the user, False to unban the user.
+        db (Session): The database session.
+    """
+    user = db.query(User).filter_by(id=user_id).first()
+    user.banned = is_ban
+    db.commit()
+    db.refresh(user)
+    return user
