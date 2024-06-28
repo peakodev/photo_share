@@ -1,13 +1,13 @@
 <div class="comments-section mt-5">
-  <h4>Комментарии</h4>
+  <h4>Comments</h4>
   <div class="list-group">
     {% for comment in post.comments %}
       <div class="list-group-item">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">{{ comment.user.first_name }} {{ comment.user.last_name }}</h5>
+          <h5 class="mb-1">{{ comment.user_id }} {{ comment.user_id }} @{{ post.first_name }} {{ post.last_name }}</h5>
           <small class="text-muted">{{ comment.created_at }}</small>
         </div>
-        <p class="mb-1">{{ comment.content }}</p>
+        <p class="mb-1">{{ comment.text }}</p>
       </div>
     {% endfor %}
   </div>
