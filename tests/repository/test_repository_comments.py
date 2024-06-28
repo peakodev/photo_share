@@ -36,10 +36,9 @@ class TestCommentsRepository(unittest.IsolatedAsyncioTestCase):
         )
 
     async def test_get_comment_by_id(self):
-        comment_id = 1
         self.session.execute.return_value.scalar_one_or_none = MagicMock(return_value=self.test_comment)
 
-        result = await comments.get_comment_by_id(comment_id, self.session)
+        result = await comments.get_comment_by_id(self.test_comment.id, self.session)
 
         self.assertIsNotNone(result)
         self.assertEqual(result, self.test_comment)
