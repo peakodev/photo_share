@@ -62,6 +62,10 @@ async def login(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not confirmed"
         )
+    if user.banned:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+        )
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password"
@@ -85,6 +89,10 @@ async def refresh_token(
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_email(email, db)
+    if user.banned:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+        )
     if user.refresh_token != token:
         await repository_users.update_token(user, None, db)
         raise HTTPException(
