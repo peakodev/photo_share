@@ -1,15 +1,18 @@
 from datetime import datetime
 
-from sqlalchemy.orm import Session
-from sqlalchemy import and_, func
+from sqlalchemy.orm import Session, aliased
+from sqlalchemy import and_, or_, func, desc, asc, Date, cast
 from typing import List
 from fastapi import UploadFile
 
-from app.models import Post
-from app.models import User
-from app.models import Comment
+from app.models import Post, User, Comment, Tag, post_m2m_tag
 from app.services.cloudinary import upload_photo, transform_photo
-from app.repository.tags import get_list_of_tags_by_string
+from app.repository.tags import (
+    get_list_of_tags_by_string,
+    search_tags_by_query,
+    get_tags_by_name
+)
+from app.schemas.post import PostSearchSchema, OrderByEnum, OrderEnum
 
 
 async def get_all_posts(limit: int, offset: int, db: Session) -> List[Post]:
@@ -69,12 +72,33 @@ async def get_post_by_id(post_id: int, db: Session) -> Post | None:
     return db.query(Post).filter_by(id=post_id).first()
 
 
-async def find_posts(find_str: str, user: User, db: Session) -> List[Post]:
-    return (
-        db.query(Post)
-        .filter(and_(Post.description.like(f"%{find_str}%"), Post.user == user))
-        .all()
-    )
+async def search_posts_by_inputs(input: PostSearchSchema, db: Session) -> List[Post]:
+    query = db.query(Post)
+
+    # Handle the search query and tags filtering
+    if input.query:
+        tags_queried = await search_tags_by_query(input.query, db)
+        expr_post = Post.description.ilike(f"%{input.query}%")
+        if tags_queried:
+            expr_post = or_(expr_post, Post.tags.any(Tag.id.in_([tag.id for tag in tags_queried])))
+        if input.filter.tags:
+            tags = await get_tags_by_name(input.filter.tags, db)
+            expr_post = and_(expr_post, Post.tags.any(Tag.id.in_([tag.id for tag in tags])))
+
+        query = query.filter(expr_post)
+
+    # Handle ordering
+    order_func = desc if input.order == OrderEnum.desc else asc
+    if input.order_by == OrderByEnum.rating:
+        query = query.order_by(order_func(Post.rating))
+    elif input.order_by == OrderByEnum.created_at:
+        query = query.order_by(order_func(Post.created_at))
+
+    # Filter by show_date if provided
+    if input.filter.show_date:
+        query = query.filter(cast(Post.created_at, Date) == input.filter.show_date)
+
+    return query.all()
 
 
 async def create_post(
