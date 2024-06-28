@@ -65,10 +65,6 @@ async def get_post_by_id(post_id: int, db: Session) -> Post | None:
     return post
 
 
-# async def get_post_by_id(post_id: int, db: Session) -> Post | None:
-#     return db.query(Post).filter_by(id=post_id).first()
-
-
 async def find_posts(find_str: str, user: User, db: Session) -> List[Post]:
     return (
         db.query(Post)
