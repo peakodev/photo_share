@@ -102,10 +102,11 @@ async def refresh_token(
 
 
 @router.get(
-    "/confirm_email/{token}",
-    name="confirm_email",
+    "/confirmed_email/{token}",
+    name="confirmed_email",
 )
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
+
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
