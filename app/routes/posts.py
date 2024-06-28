@@ -3,13 +3,11 @@ from fastapi import (
     File,
     HTTPException,
     Depends,
-    Request,
     UploadFile,
     status,
     Query,
 )
 
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.models import User, Role, get_db
@@ -17,35 +15,28 @@ from app.schemas.post import (
     PostResponse,
     PostCreateResponse,
     PostDeleteSchema,
+    PostSearchSchema
 )
 from app.repository import posts as repository_posts
 from app.repository import users as repository_users
 from app.services.auth import auth_service
-from app.services.cloudinary import Effect, upload_photo, transform_photo
-
-from app.conf.config import templates
-
+from app.services.cloudinary import Effect
 
 router = APIRouter(prefix="/posts", tags=["posts"])
 
 
 @router.get(
     "/",
-    response_model=list[PostResponse],
+    response_model=list[PostResponse] | None,
     name="get_posts",
-    # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
 )
 async def get_posts(
     limit: int = Query(10),
     offset: int = Query(0),
-    # request=Request,
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
-    print("#R-BE get_posts --- get_posts")
-    posts = repository_posts.get_posts(limit, offset, user, db)
-    print("#R-BE get_posts --- recived posts and return from router get_posts")
-    return posts
+    return await repository_posts.get_posts(limit, offset, user, db)
 
 
 @router.get(
@@ -71,10 +62,8 @@ async def get_all_posts(
 async def get_post(
     post_id: int,
     db: Session = Depends(get_db),
-    user: User = Depends(auth_service.get_current_user),
 ):
-
-    post = await repository_posts.get_post(post_id, user, db)
+    post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
@@ -82,23 +71,16 @@ async def get_post(
     return post
 
 
-@router.get(
-    "/find/",
-    name="find_posts",
+@router.post(
+    "/search",
+    name="search_posts_by_query",
     response_model=list[PostResponse],
 )
-async def find_post(
-    find_str: str,
-    db: Session = Depends(get_db),
-    user: User = Depends(auth_service.get_current_user),
+async def search_posts(
+    search_schema: PostSearchSchema,
+    db: Session = Depends(get_db)
 ):
-
-    posts = await repository_posts.find_posts(find_str, user, db)
-    if len(posts) == 0:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=" Post not found"
-        )
-    return posts
+    return await repository_posts.search_posts_by_inputs(search_schema, db)
 
 
 @router.post(
@@ -115,11 +97,11 @@ async def create_post(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
- 
+
     if user_email and user.role != Role.admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You can't create this post for user {user_email}"
+            detail=f"You can't create this post for user {user_email}",
         )
     if user_email and user.role == Role.admin:
         user = await repository_users.get_user_by_email(user_email, db)
@@ -136,8 +118,7 @@ async def update_post(
     post_id: int,
     description: str = None,
     tags: str = None,
-    effect: str = None,
-    # user_email: str = None,
+    effect: Effect = None,
     file: UploadFile = File(default=None),
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
@@ -159,9 +140,9 @@ async def update_post(
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You can't update  post for user {post.user.email}"
+            detail=f"You can't update  post for user {post.user.email}",
         )
-    
+
     return post
 
 
@@ -186,7 +167,7 @@ async def delete_post(
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Insufficient permissions to delete this post"
+            detail="Insufficient permissions to delete this post",
         )
 
     return post

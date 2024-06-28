@@ -174,6 +174,13 @@ class Auth:
         print("#S get_current_user --- start get_user_by_email")
         user = await repository_users.get_user_by_email(email, db)
         print(f"#S get_current_user --- user: {user.email}")
+        if user is None:
+            raise credentials_exception
+        if user.banned:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are banned from the system",
+            )
 
         return user
 

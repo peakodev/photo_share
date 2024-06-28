@@ -10,10 +10,18 @@ class UserModel(BaseModel):
     password: str = Field(min_length=6, max_length=25)
 
 
+class UserUpdateModel(BaseModel):
+    first_name: str | None
+    last_name: str | None
+    email: str | None
+    avatar: str | None
+
+
 class UserSignupSchema(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     email: str = EmailStr
     password: str = Field(min_length=6, max_length=25)
+
 
 class UserDb(BaseModel):
     id: int
@@ -23,6 +31,7 @@ class UserDb(BaseModel):
     created_at: datetime
     avatar: str
     role: Role
+    banned: bool
     posts_number: int
     comments_number: int
 

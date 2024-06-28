@@ -52,6 +52,7 @@ async def signup(
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
+    print(f"#R_Login - verifying email: {body.username}")
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
         raise HTTPException(
@@ -60,6 +61,10 @@ async def login(
     if not user.confirmed:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Email not confirmed"
+        )
+    if user.banned:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
         )
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
@@ -84,6 +89,10 @@ async def refresh_token(
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_email(email, db)
+    if user.banned:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+        )
     if user.refresh_token != token:
         await repository_users.update_token(user, None, db)
         raise HTTPException(

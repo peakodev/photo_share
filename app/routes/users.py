@@ -1,63 +1,54 @@
-from fastapi import APIRouter, Depends, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
-import cloudinary
-import cloudinary.uploader
+from typing import Optional
 
 from app.models import User, get_db
 from app.repository import users as repository_users
 from app.services.auth import auth_service
-from app.conf.config import settings
-from app.schemas.user import UserDb
+from app.services.cloudinary import upload_avatar
+from app.schemas.user import UserDb, UserUpdateModel
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me/", response_model=UserDb)
-async def read_users_me(current_user: User = Depends(auth_service.get_current_user), db: Session = Depends(get_db)):
-    """
-    Get the current user.
+@router.get("/{user_id}/",
+            response_model=UserDb,
+            dependencies=[Depends(auth_service.get_current_user)])
+async def get_user_info(
+    user_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+):
+    user = await repository_users.get_user_by_id(user_id, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    posts_number, comments_number = await repository_users.user_posts_comments_number(
+        user, db
+    )
+    user.posts_number = posts_number
+    user.comments_number = comments_number
+    return user
 
-    Args:
-        current_user (User, optional): The current user. Defaults to Depends(auth_service.get_current_user).
 
-    Returns:
-        _type_: The current user.
-    """
-    posts_number, comments_number = await repository_users.user_posts_comments_number(current_user, db)
-    current_user.posts_number = posts_number
-    current_user.comments_number = comments_number
-    return current_user
-
-
-@router.patch("/avatar", response_model=UserDb)
-async def update_avatar_user(
-    file: UploadFile = File(),
+@router.put("/", response_model=UserDb)
+async def update_user_info(
+    first_name: str = None,
+    last_name: str = None,
+    email: str = None,
+    avatar: UploadFile = File(default=None),
     current_user: User = Depends(auth_service.get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Update the avatar for the current user.
+    if avatar:
+        avatar = await upload_avatar(avatar, current_user)
 
-    Args:
-        file (UploadFile, optional): The file to upload. Defaults to File().
-        current_user (User, optional): The current user. Defaults to Depends(auth_service.get_current_user).
-        db (Session, optional): The database session. Defaults to Depends(get_db).
+    body = UserUpdateModel(
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        avatar=avatar
+    )
+    updated_user = await repository_users.update_user(current_user.id, body, db)
+    return updated_user
 
-    Returns:
-        _type_: The updated user.
-    """
-    cloudinary.config(
-        cloud_name=settings.cloudinary_name,
-        api_key=settings.cloudinary_api_key,
-        api_secret=settings.cloudinary_api_secret,
-        secure=True,
-    )
-
-    r = cloudinary.uploader.upload(
-        file.file, public_id=f"ContactsApp/{current_user.id}", overwrite=True
-    )
-    src_url = cloudinary.CloudinaryImage(f"ContactsApp/{current_user.id}").build_url(
-        width=250, height=250, crop="fill", version=r.get('version')
-    )
-    user = await repository_users.update_avatar(current_user.email, src_url, db)
-    return user

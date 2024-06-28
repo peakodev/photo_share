@@ -1,0 +1,14 @@
+<div class="comments-section mt-5">
+  <h4>Comments</h4>
+  <div class="list-group">
+    {% for comment in post.comments %}
+      <div class="list-group-item">
+        <div class="d-flex w-100 align-items-center justify-content-between">
+          <h5 class="mb-1 fs-5"><img src="{{ comment.user.avatar }}" alt="{{ comment.user.first_name }}" class="rounded-circle" style="width: 20px; height: 20px; object-fit: cover; margin-right: 15px;" />{{ comment.user.first_name }} {{ comment.user.last_name }}</h5>
+          <small class="text-muted">{{ comment.created_at }}</small>
+        </div>
+        <p class="mb-1">{{ comment.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>

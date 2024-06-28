@@ -16,6 +16,7 @@ def get_db():
     try:
         yield db
     # except Exception as err:
+    #     print("get_db !!!!!!!!!!!!!!!!!!")
     #     raise err
     finally:
         db.close()

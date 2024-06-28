@@ -20,7 +20,7 @@ post_m2m_tag = Table(
 )
 
 
-class Post(Base):  
+class Post(Base):
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True, index=True)
     photo_url = Column(String(255))
@@ -34,3 +34,4 @@ class Post(Base):
     rating = Column(Integer)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="posts", lazy="selectin")
+    comments_count = 0

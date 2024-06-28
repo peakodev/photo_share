@@ -80,7 +80,7 @@ async def get_list_of_tags_by_string(string: str | None, db: Session) -> list[Ta
 
     Returns:
         list[Tag] : Returns a list of Tag database model
-    """    
+    """
     if not string:
         return []
     tag_list = string.split(",")
@@ -93,9 +93,36 @@ async def get_list_of_tags_by_string(string: str | None, db: Session) -> list[Ta
         if new_tag:
             result.append(new_tag)
         else:
-            new_tag = await create_tag_in_db(TagModel(text = item), db=db)
+            new_tag = await create_tag_in_db(TagModel(text=item), db=db)
             result.append(new_tag)
         if len(result) == 5:
             break
     return result
 
+
+async def search_tags_by_query(query: str, db: Session) -> List[Tag]:
+    """
+    Search tags by query.
+
+    Args:
+        query (str): search query
+        db (Session): The database session.
+
+    Returns:
+        List[Tag]: List of tags.
+    """
+    return db.query(Tag).filter(Tag.text.ilike(f"%{query}%")).all()
+
+
+async def get_tags_by_name(tags: List[str], db: Session) -> List[Tag]:
+    """
+    Search tags by name.
+
+    Args:
+        tags (List[str]): List of tags
+        db (Session): The database session.
+
+    Returns:
+        List[Tag]: List of tags.
+    """
+    return db.query(Tag).filter(Tag.text.in_(tags)).all()

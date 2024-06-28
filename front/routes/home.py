@@ -1,18 +1,17 @@
-from typing import Annotated
+from typing import Annotated, Optional
 import httpx
-from pydantic import BaseModel
-import requests
+
 from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 
 from app.models.user import User
+from app.schemas.post import PostResponse
 from app.schemas.user import TokenModel
 from app.services.auth import auth_service
 
 from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
-from sqlalchemy.orm import Session
 
 # app = FastAPI()
 
@@ -20,104 +19,170 @@ router = APIRouter()
 templates = Jinja2Templates(directory="front/templates")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+# oauth2_scheme = OAuth2PasswordBearer()
+
+
+async def get_token_optional(request: Request) -> Optional[str]:
+    authorization: str = request.headers.get("Authorization")
+    if authorization:
+        scheme, token = authorization.split()
+        if scheme.lower() == "bearer":
+            return token
+    return None
+
+
+async def log_response(response):
+    print(
+        f"!#F_Route - ERROR - signup user, res: \
+        \n {response.status_code=}\
+        \n {response.reason_phrase=}\
+        \n {response.json()=}\
+        \n {response.content=}\
+        \n {response.text=}\
+        \n {response=}"
+    )
 
 
 @router.get(
     "/",
-    # response_model=list[PostResponse],
-    # response_model=TokenModel,
-    # dependencies=[Depends(RateLimiter(times=1, seconds=10))],
     name="home_page",
 )
 def get_home(
     request: Request,
-    # body: OAuth2PasswordRequestForm = Depends(),
-    # db: Session = Depends(get_db),
-    # user: User = Depends(auth_service.get_current_user) ,
 ):
-    # print(f"request = {request}")
     return templates.TemplateResponse(
         request=request,
         name="home.html",
         context={},
     )
-    # return templates.TemplateResponse("home.html")
-    # return {"Hello": "World"}
 
 
 @router.get(
     "/my_posts",
     name="my_posts_page",
     response_class=HTMLResponse,
-    # response_model=TokenModel,
 )
-def get_my_posts(
+async def get_my_posts_page(
     request: Request,
-    token: str = Depends(oauth2_scheme),
-    # db: Session = Depends(get_db),
-    # user: User = Depends(auth_service.get_current_user),
+    token: Optional[str] = Depends(get_token_optional),
 ):
-    # print(f"#R-get_my_posts --- Received token: {token}")
     from main import app
 
     api_path = app.url_path_for("get_posts")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    headers = {"Authorization": f"Bearer {token}"}
+    if token:
+        headers = {"Authorization": f"Bearer {token}"}
+    else:
+        headers = request.headers
 
-    print(f"#R-get_my_posts --- Requesting URL: {api_url}")
-    print(f"#R-get_my_posts --- Headers: {headers}")
+    # print(f"#R-get_my_posts --- Requesting URL: {api_url}")
+    # print(f"#R-get_my_posts --- Headers: {headers}")
 
-    response = requests.get(api_url, headers=headers)
-    res = response.json()
-    print(f"#R-get_my_posts --- recived posts")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=headers)
+    except Exception as err:
+        print(f"##### Exception {err=}")
+        ...
+    # print(f"#R-get_my_posts --- recived posts")
+
     if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code, detail="Failed to fetch posts"
+        return templates.TemplateResponse(
+            request=request,
+            name="posts_my.html",
+            context={"request": request, "message": response},
         )
 
     return templates.TemplateResponse(
         request=request,
         name="posts_my.html",
-        context={"request": request, "token": token, "posts": res},
+        context={"request": request, "posts": response.json()},
     )
-    # return templates.TemplateResponse("home.html")
-    # return {"Hello": "World"}
 
 
 @router.get(
     "/posts",
     name="posts_page",
     response_class=HTMLResponse,
-    # response_model=TokenModel,
 )
-def get_all_posts(
+async def get_all_posts_page(
     request: Request,
-    token: str = Depends(oauth2_scheme),
+    token: Optional[str] = Depends(get_token_optional),
 ):
     from main import app
 
     api_path = app.url_path_for("get_all_posts")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    headers = {"Authorization": f"Bearer {token}"}
+
+    if token:
+        headers = {"Authorization": f"Bearer {token}"}
+    else:
+        headers = request.headers
 
     # print(f"#R-get_my_posts --- Requesting URL: {api_url}")
     # print(f"#R-get_my_posts --- Headers: {headers}")
 
-    response = requests.get(api_url, headers=headers)
-    res = response.json()
-    # print(f"#R-get_my_posts --- recived posts")
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=headers)
+    except Exception as err:
+        print("!!!!! error", err)
+        return {"err": err}
+
+    print(f"{response=}")
     if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code, detail="Failed to fetch posts"
+        return templates.TemplateResponse(
+            request=request,
+            name="posts.html",
+            context={"request": request, "message": response},
+        )
+
+    # await log_response(response)
+    return templates.TemplateResponse(
+        request=request,
+        name="posts.html",
+        context={"request": request, "posts": response.json()},
+    )
+
+
+@router.get(
+    "/posts/{post_id}",
+    # response_model=PostResponse,
+    name="post_id_page",
+)
+async def get_post_page(
+    post_id: int,
+    request: Request,
+    # user: User = Depends(auth_service.get_current_user),
+):
+    from main import app
+
+    # print(f"{request.headers}")
+    print(f"{post_id=}")
+    api_path = app.url_path_for("get_post_by_id", post_id=post_id)
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=request.headers)
+    except Exception as err:
+        print("!!!!! error", err)
+        return {"err": err}
+
+    if response.status_code != 200:
+        return templates.TemplateResponse(
+            request=request,
+            name="post_id.html",
+            context={"request": request, "message": response},
         )
 
     return templates.TemplateResponse(
         request=request,
-        name="posts.html",
-        context={"request": request, "token": token, "posts": res},
+        name="post_id.html",
+        context={"request": request, "post": response.json()},
     )
-    # return templates.TemplateResponse("home.html")
-    # return {"Hello": "World"}
+
+    # return f"{request.headers}"
 
 
 @router.get("/signup", name="signup_page")
@@ -203,7 +268,7 @@ async def fe_signup(
         request=request,
         name="auth/signup.html",
         context={"request": request, "message": response},
-        )
+    )
 
 
 async def signup_post_page(request: Request):
