@@ -161,7 +161,6 @@ async def get_all_posts_page(
 )
 async def get_create_post_page(
     request: Request,
-    token: Optional[str] = Depends(get_token_optional),
 ):
 
     return templates.TemplateResponse(
@@ -178,33 +177,43 @@ async def get_create_post_page(
 )
 async def post_create_post_page(
     request: Request,
-    description: Annotated[str, Form()],
-    tags: Annotated[str, Form()],
-    # file: UploadFile = File(...),
+    description: str = Form(),
+    tags: Optional[str] = Form(None),
+    photo: UploadFile = File(...),
+    token: Optional[str] = Depends(get_token_optional),
 ):
     print("@@@@@@@")
     from main import app
 
-    api_path = app.url_path_for("create_post")
-    # print(f"{api_path=}")
-    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{request.headers}")
+    headers = {}
+    headers["Authorization"] = f"Bearer {token}"
 
-    # file_content = await file.read()
-    # # params = {"description": description, "tags": tags}
-    params = {}
-    # files = {"file": (file.filename, file_content, file.content_type)}
+    if token:
+        api_path = app.url_path_for("create_post")
+        # print(f"{api_path=}")
+        api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(api_url, params=params)
-        # response = await client.post(api_url, params=params, files=files)
+        file_content = await photo.read()
 
-    if response.status_code != 201:
-        return templates.TemplateResponse(
-            request=request,
-            name="post_create.html",
-            context={"request": request, "message": response},
-        )
-    combined_response = {**response.json(), "detail": "Post created succesfully"}
+        params = {"description": description, "tags": tags}
+        # params = {}
+        file = {"file": (photo.filename, file_content, photo.content_type)}
+
+        async with httpx.AsyncClient() as client:
+            # response = await client.post(api_url, params=params)
+            response = await client.post(
+                api_url, params=params, files=file, headers=headers
+            )
+
+        if response.status_code != 201:
+            return templates.TemplateResponse(
+                request=request,
+                name="post_create.html",
+                context={"request": request, "message": response},
+            )
+        combined_response = {**response.json(), "detail": "Post created succesfully"}
+
     return templates.TemplateResponse(
         request=request,
         name="post_id.html",

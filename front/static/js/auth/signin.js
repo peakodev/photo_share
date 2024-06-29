@@ -27,7 +27,7 @@ const markFormOnSubmit = () => {
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
-                // localStorage.setItem('user_id', data.user.id);
+                localStorage.setItem('user_id', 1);
 
 
                 window.location.href = redirect_url;
@@ -36,6 +36,22 @@ const markFormOnSubmit = () => {
             console.log(error)
             // Завершился ошибкой
         })
+
+        // const response_user = await fetch(`${/}`, {
+        //     headers: {
+        //         'Authorization': `Bearer ${token}`
+        //     }
+        // });
+
+        // if (response.ok) {
+        //     const html = await response.text();
+        //     document.open();
+        //     document.write(html);
+        //     document.close();
+        //     window.history.pushState({}, '', page);
+        // } else {
+        //     console.error('!!!Error:', response.status, response.statusText);
+        // }
 
         // const result = await response.json();
         // console.log(result);

@@ -5,10 +5,10 @@ async function loadProtectedPage(page) {
     // console.log("Start loadProtectedPage...")
     if (token) {
         try {
+            const headers = new Headers();
+            headers.append('Authorization', `Bearer ${token}`);
             const response = await fetch(`${page}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                headers: headers
             });
 
             if (response.ok) {

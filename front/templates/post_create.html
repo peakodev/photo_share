@@ -9,11 +9,13 @@
       <div class="container-xxl">
         <div class="container-xxl mt-5">
           <h1>Post Create</h1>
-          {% if message %}
-            <div class="messages my-4">
-              <span class="text-primary">{{ message.detail }}</span>
-            </div>
-          {% endif %}
+          <div class="messages my-4">
+            <span id="messages" class="messages-text text-primary">
+              {% if message %}
+                {{ message.detail }}
+              {% endif %}
+            </span>
+          </div>
           {% if post %}
             {% include 'partials/post_create_form.html' %}
           {% else %}

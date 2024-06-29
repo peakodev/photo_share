@@ -1,5 +1,11 @@
 
 const formRef = document.querySelector('form');
+// const formMessagesRef = document.getElementById('messages');
+const formMessagesRef = document.querySelector('.messages-text');
+
+
+console.log("formMessagesRef: ", formMessagesRef)
+console.log("formRef: ", formRef)
 
 const markFormOnSubmit = () => {
     document.querySelector('form').onsubmit = async e => {
@@ -8,9 +14,9 @@ const markFormOnSubmit = () => {
         console.log(e)
         const token = localStorage.getItem('access_token');
         if (token) {
-            headers = {
-                'Authorization': `Bearer ${token}`,
-            }
+            const headers = new Headers();
+            headers.append('Authorization', `Bearer ${token}`);
+
             const formData = new FormData(e.target);
             for (let [name, value] of formData.entries()) {
                 console.log(`${name}: ${value}`);
@@ -27,6 +33,7 @@ const markFormOnSubmit = () => {
                 else {
                     console.log("Error")
                     console.log(response)
+                    formMessagesRef.textContent = response.status + ": " + response.statusText
                 }
 
 
