@@ -27,6 +27,7 @@ const markFormOnSubmit = () => {
                     body: formData,
                     headers: headers
                 });
+                console.log("response: ", response)
                 if (response.ok) {
                     window.location.href = redirect_url;
                 }

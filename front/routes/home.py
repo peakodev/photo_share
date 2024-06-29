@@ -180,19 +180,28 @@ async def post_create_post_page(
     description: str = Form(),
     tags: Optional[str] = Form(None),
     photo: UploadFile = File(...),
-    token: Optional[str] = Depends(get_token_optional),
+    # token: Optional[str] = Depends(get_token_optional),
 ):
     print("@@@@@@@")
     from main import app
 
     print(f"{request.headers}")
     headers = {}
-    headers["Authorization"] = f"Bearer {token}"
+    is_token = False
+    if "authorization" in request.headers:
+        headers["Authorization"] = request.headers["Authorization"]
+        is_token = True
+    # headers["Authorization"] = f"Bearer {token}"
+    # headers["Authorization"] = f"Bearer {token}"
 
-    if token:
+    if is_token:
+        print(f'request.url_for("create_post"): {request.url_for("create_post")}')
         api_path = app.url_path_for("create_post")
-        # print(f"{api_path=}")
         api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+
+        api_url = str(request.url_for("create_post"))
+        print(f"______ {api_url=}")
+        print(f"______ {str(api_url)=}")
 
         file_content = await photo.read()
 
@@ -205,8 +214,9 @@ async def post_create_post_page(
             response = await client.post(
                 api_url, params=params, files=file, headers=headers
             )
-
+        print(f"{response.status_code=}")
         if response.status_code != 201:
+            print(f"create error:{response.status_code=}")
             return templates.TemplateResponse(
                 request=request,
                 name="post_create.html",
