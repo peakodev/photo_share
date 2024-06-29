@@ -56,6 +56,9 @@ class PostResponse(PostCreateResponse):
     class Config:
         from_attributes = True
 
+class RatingResponce(BaseModel):
+    post_id: int
+    rating: float
 
 class OrderByEnum(str, Enum):
     created_at = "created_at"
