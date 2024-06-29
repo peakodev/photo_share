@@ -1,0 +1,16 @@
+<h2>Добавить новый пост</h2>
+<form id="form-post" method="post" enctype="multipart/form-data">
+  <div class="mb-3">
+    <label for="description" class="form-label">Описание</label>
+    <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+  </div>
+  <div class="mb-3">
+    <label for="tags" class="form-label">Теги (через запятую)</label>
+    <input type="text" class="form-control" id="tags" name="tags" />
+  </div>
+  <div class="mb-3">
+    <label for="photo" class="form-label">Фото</label>
+    <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required />
+  </div>
+  <button type="submit" class="btn btn-primary">Добавить пост</button>
+</form>

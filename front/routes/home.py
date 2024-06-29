@@ -1,7 +1,16 @@
 from typing import Annotated, Optional
 import httpx
 
-from fastapi import APIRouter, Depends, FastAPI, Form, HTTPException, Request
+from fastapi import (
+    APIRouter,
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    UploadFile,
+)
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -146,8 +155,65 @@ async def get_all_posts_page(
 
 
 @router.get(
+    "/post_create",
+    name="posts_create_page",
+    response_class=HTMLResponse,
+)
+async def get_create_post_page(
+    request: Request,
+    token: Optional[str] = Depends(get_token_optional),
+):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="post_create.html",
+        context={"request": request},
+    )
+
+
+@router.post(
+    "/post_create",
+    name="posts_create_page",
+    response_class=HTMLResponse,
+)
+async def post_create_post_page(
+    request: Request,
+    description: Annotated[str, Form()],
+    tags: Annotated[str, Form()],
+    # file: UploadFile = File(...),
+):
+    print("@@@@@@@")
+    from main import app
+
+    api_path = app.url_path_for("create_post")
+    # print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+
+    # file_content = await file.read()
+    # # params = {"description": description, "tags": tags}
+    params = {}
+    # files = {"file": (file.filename, file_content, file.content_type)}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, params=params)
+        # response = await client.post(api_url, params=params, files=files)
+
+    if response.status_code != 201:
+        return templates.TemplateResponse(
+            request=request,
+            name="post_create.html",
+            context={"request": request, "message": response},
+        )
+    combined_response = {**response.json(), "detail": "Post created succesfully"}
+    return templates.TemplateResponse(
+        request=request,
+        name="post_id.html",
+        context={"request": request, "post": combined_response},
+    )
+
+
+@router.get(
     "/posts/{post_id}",
-    # response_model=PostResponse,
     name="post_id_page",
 )
 async def get_post_page(
