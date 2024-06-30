@@ -14,7 +14,7 @@ from app.models.tag import Tag
 from app.models.post import Post
 from app.repository.posts import (create_post,
                                   find_posts,
-                                  get_post,
+                                  get_post_by_id,
                                   get_all_posts,
                                   get_posts,
                                   update_post,
@@ -64,27 +64,27 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         test_file = UploadFile
         with open(f"{getcwd()}\\tests\\user-default.png","rb") as file:
             test_file = UploadFile(file.read())
-        result = await create_post(description="test seccess",
+        result = await create_post(description="test success",
                                    tags="test, new, help",
                                    file=test_file,
                                    user=self.user,
                                    db=self.session)
         
         self.assertIsInstance(result, Post)
-        self.assertEqual(result.description, "test seccess")
+        self.assertEqual(result.description, "test success")
 
     async def test_create_post_without_tags(self):
         test_file = UploadFile
         with open(f"{getcwd()}\\tests\\user-default.png","rb") as file:
             test_file = UploadFile(file.read())
-        result = await create_post(description="test seccess",
+        result = await create_post(description="test success",
                                    tags="",
                                    file=test_file,
                                    user=self.user,
                                    db=self.session)
         
         self.assertIsInstance(result, Post)
-        self.assertEqual(result.description, "test seccess")
+        self.assertEqual(result.description, "test success")
         self.assertEqual(result.tags, [])
 
     async def test_update_post_description_found(self):
@@ -92,7 +92,7 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         Test for function: app.repository.posts.update_post()
         Update description
         """ 
-        new_description = "Seccess"
+        new_description = "Success"
         post = Post()
         self.session.query().filter_by().first.return_value = post
         self.session.commit.return_value = post
@@ -165,11 +165,11 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
 
     async def test_get_post_by_id(self):
         """
-        Test for function: app.repository.posts.get_post()
+        Test for function: app.repository.posts.get_post_by_id()
         """ 
         post = Post()
         self.session.query().filter_by().first.return_value = post
-        result = await get_post(post_id=1, user=self.user, db=self.session)
+        result = await get_post_by_id(post_id=1, db=self.session)
         self.assertEqual(result, post)
 
     async def test_get_all_posts_of_all_users(self):
