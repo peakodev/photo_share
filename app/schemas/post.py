@@ -49,7 +49,7 @@ class PostResponse(PostCreateResponse):
         if value:
             value = value.strftime('%d-%m-%Y %H:%M:%S')
         return value
-        
+
     @field_validator("tags", mode="before")
     def convert_tags_to_string(cls, value: list[Tag]):
         return [tag.text for tag in value]
@@ -57,9 +57,11 @@ class PostResponse(PostCreateResponse):
     class Config:
         from_attributes = True
 
+
 class RatingResponce(BaseModel):
     post_id: int
     rating: float
+
 
 class OrderByEnum(str, Enum):
     created_at = "created_at"
@@ -72,6 +74,7 @@ class OrderEnum(str, Enum):
 
 
 class PostFilterSchema(BaseModel):
+    rating: Optional[int] = Field(None, ge=1, le=5)
     tags: Optional[List[str]] = []
     show_date: Optional[date] = None
 
