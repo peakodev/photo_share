@@ -33,7 +33,7 @@ class PostCreateResponse(BaseModel):
 
 class PostResponse(PostCreateResponse):
     created_at: str
-    updated_at: str
+    updated_at: str | None
     comments_count: int
     tags: List[str]
     comments: List[Comment]
@@ -45,10 +45,11 @@ class PostResponse(PostCreateResponse):
         return value_str
 
     @field_validator("updated_at", mode="before")
-    def parse_updated_at(cls, value: datetime):
-        value_str = value.strftime('%d-%m-%Y %H:%M:%S')
-        return value_str
-
+    def parse_updated_at(cls, value: datetime | None):
+        if value:
+            value = value.strftime('%d-%m-%Y %H:%M:%S')
+        return value
+        
     @field_validator("tags", mode="before")
     def convert_tags_to_string(cls, value: list[Tag]):
         return [tag.text for tag in value]
