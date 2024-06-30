@@ -1,3 +1,4 @@
+from datetime import date
 from sqlalchemy import (
     Column,
     Integer,
@@ -5,9 +6,10 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Table,
-    func
+    func,
+    Float
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import  Mapped, mapped_column, relationship
 
 from app.models import Base
 
@@ -28,10 +30,9 @@ class Post(Base):
     transform_url = Column(String(255))
     description = Column(String(255), nullable=False)
     created_at = Column('created_at', DateTime, default=func.now())
-    updated_at = Column("updated_at", DateTime, default=func.now(), onupdate=func.now())
-    # comments = relationship("Comment")
+    updated_at = Column("updated_at", DateTime, default=None, nullable=True, onupdate=func.now())
     tags = relationship("Tag", secondary=post_m2m_tag, backref="posts", lazy="selectin")
-    rating = Column(Integer)
+    rating = Column(Float)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="posts", lazy="selectin")
     comments_count = 0

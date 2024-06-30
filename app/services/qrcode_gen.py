@@ -3,7 +3,7 @@ import qrcode
 from qrcode.image.svg import SvgImage
 
 
-def qrcode_generator(url):
+async def qrcode_generator(url):
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
