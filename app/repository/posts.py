@@ -112,12 +112,9 @@ async def create_post(
     tags = await get_list_of_tags_by_string(tags, db)
 
     new_post = Post(description=description, user=user, tags=tags)
+    new_post.photo_url, new_post.photo_public_id = upload_photo(file, new_post)
 
     db.add(new_post)
-    db.commit()
-    db.refresh(new_post)
-
-    new_post.photo_url, new_post.photo_public_id = upload_photo(file, new_post)
     db.commit()
     db.refresh(new_post)
 
