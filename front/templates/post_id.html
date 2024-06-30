@@ -8,6 +8,11 @@
     <section>
       <div class="container-xxl">
         <div class="container-xxl mt-5">
+          user: {{ user.id }}
+          post.user_id: {{ post }}
+          {% if user.id == post.user_id %}
+            {% include 'partials/post_service_btn.html' %}
+          {% endif %}
           <h1>Post detail</h1>
           {% if message %}
             <div class="messages my-4">
@@ -17,6 +22,7 @@
           {% if post %}
             {% include 'partials/post_detail.html' %}
             {% include 'partials/post_detail_comments.html' %}
+            {% include 'partials/post_create_form.html' %}
           {% endif %}
         </div>
       </div>

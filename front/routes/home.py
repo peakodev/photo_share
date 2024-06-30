@@ -14,7 +14,9 @@ from fastapi import (
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
+from httpx import AsyncClient
 
+from app.middlewares.middlewares import AuthMiddleware
 from app.models.user import User
 from app.schemas.post import PostResponse
 from app.schemas.user import TokenModel
@@ -38,6 +40,30 @@ async def get_token_optional(request: Request) -> Optional[str]:
         if scheme.lower() == "bearer":
             return token
     return None
+
+
+async def get_user_from_request(request: Request) -> Optional[User]:
+    from main import app
+
+    token = request.headers.get("Authorization")
+    user = None
+    if token:
+        scheme, token = token.split()
+        if scheme.lower() == "bearer":
+            headers = {"authorization": f"Bearer {token}"}
+            api_path = app.url_path_for("get_user")
+            api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+
+            print(f'"!!!!!!!!!!  {request.headers=}"')
+            print(f'"!!!!!!!!!!  {headers=}"')
+
+            async with AsyncClient() as client:
+                response = await client.get(api_url, headers=headers)
+                response_json = response.json()
+                print(f"!!!!!!!!!!  {response_json=}")
+                if response.status_code == 200:
+                    user = User(**response_json)
+    return user
 
 
 async def log_response(response):
@@ -74,6 +100,7 @@ def get_home(
 async def get_my_posts_page(
     request: Request,
     token: Optional[str] = Depends(get_token_optional),
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     from main import app
 
@@ -84,8 +111,8 @@ async def get_my_posts_page(
     else:
         headers = request.headers
 
-    # print(f"#R-get_my_posts --- Requesting URL: {api_url}")
-    # print(f"#R-get_my_posts --- Headers: {headers}")
+    print(f"***** /my_posts --- {user.id=} {user.first_name=} {user.email=}")
+    print(f"***** /my_posts --- {api_url=}")
 
     try:
         async with httpx.AsyncClient() as client:
@@ -93,19 +120,26 @@ async def get_my_posts_page(
     except Exception as err:
         print(f"##### Exception {err=}")
         ...
-    # print(f"#R-get_my_posts --- recived posts")
 
     if response.status_code != 200:
         return templates.TemplateResponse(
             request=request,
             name="posts_my.html",
-            context={"request": request, "message": response},
+            context={
+                "request": request,
+                "message": response,
+            },
         )
 
     return templates.TemplateResponse(
         request=request,
         name="posts_my.html",
-        context={"request": request, "posts": response.json()},
+        context={
+            "request": request,
+            "posts": response.json(),
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
@@ -117,6 +151,7 @@ async def get_my_posts_page(
 async def get_all_posts_page(
     request: Request,
     token: Optional[str] = Depends(get_token_optional),
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     from main import app
 
@@ -143,7 +178,12 @@ async def get_all_posts_page(
         return templates.TemplateResponse(
             request=request,
             name="posts.html",
-            context={"request": request, "message": response},
+            context={
+                "request": request,
+                "message": response,
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
 
     # await log_response(response)
@@ -166,7 +206,9 @@ async def get_create_post_page(
     return templates.TemplateResponse(
         request=request,
         name="post_create.html",
-        context={"request": request},
+        context={
+            "request": request,
+        },
     )
 
 
@@ -180,6 +222,7 @@ async def post_create_post_page(
     description: str = Form(),
     tags: Optional[str] = Form(None),
     photo: UploadFile = File(...),
+    user: Optional[User] = Depends(get_user_from_request),
     # token: Optional[str] = Depends(get_token_optional),
 ):
     print("@@@@@@@")
@@ -234,7 +277,7 @@ async def post_create_post_page(
 async def get_post_page(
     post_id: int,
     request: Request,
-    # user: User = Depends(auth_service.get_current_user),
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     from main import app
 
@@ -260,7 +303,12 @@ async def get_post_page(
     return templates.TemplateResponse(
         request=request,
         name="post_id.html",
-        context={"request": request, "post": response.json()},
+        context={
+            "request": request,
+            "post": response.json(),
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
     # return f"{request.headers}"

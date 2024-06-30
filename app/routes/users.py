@@ -11,12 +11,12 @@ from app.schemas.user import UserDb, UserUpdateModel
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/",
-            response_model=UserDb)
+@router.get("/", response_model=UserDb, name="get_user")
 async def get_me(
     current_user: User = Depends(auth_service.get_current_user),
     db: Session = Depends(get_db),
 ):
+    print("#########################")
     if not current_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
@@ -29,8 +29,7 @@ async def get_me(
     return current_user
 
 
-@router.get("/{user_id}/",
-            response_model=UserDb)
+@router.get("/{user_id}/", response_model=UserDb, name="get_user_by_id")
 async def get_user_info(
     user_id: Optional[int] = None,
     db: Session = Depends(get_db),
@@ -48,7 +47,7 @@ async def get_user_info(
     return user
 
 
-@router.put("/", response_model=UserDb)
+@router.put("/", response_model=UserDb, name="update_user")
 async def update_user_info(
     first_name: str = None,
     last_name: str = None,
@@ -61,11 +60,7 @@ async def update_user_info(
         avatar = await upload_avatar(avatar, current_user)
 
     body = UserUpdateModel(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        avatar=avatar
+        first_name=first_name, last_name=last_name, email=email, avatar=avatar
     )
     updated_user = await repository_users.update_user(current_user.id, body, db)
     return updated_user
-
