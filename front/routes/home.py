@@ -191,8 +191,6 @@ async def post_create_post_page(
     if "authorization" in request.headers:
         headers["Authorization"] = request.headers["Authorization"]
         is_token = True
-    # headers["Authorization"] = f"Bearer {token}"
-    # headers["Authorization"] = f"Bearer {token}"
 
     if is_token:
         print(f'request.url_for("create_post"): {request.url_for("create_post")}')
@@ -206,11 +204,9 @@ async def post_create_post_page(
         file_content = await photo.read()
 
         params = {"description": description, "tags": tags}
-        # params = {}
         file = {"file": (photo.filename, file_content, photo.content_type)}
 
         async with httpx.AsyncClient() as client:
-            # response = await client.post(api_url, params=params)
             response = await client.post(
                 api_url, params=params, files=file, headers=headers
             )
