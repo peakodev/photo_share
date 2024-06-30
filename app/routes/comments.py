@@ -19,10 +19,10 @@ async def create_comment(
     query = select(Post).filter_by(id=body.post_id)
     p = db.execute(query)
     db_post = p.scalar_one_or_none()
-
+    if not body.text.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Comment can't be empty")
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
-
     db_comment = await repository_comments.create_comment(body, current_user.id, db)
     return db_comment
 
@@ -53,7 +53,8 @@ async def update_comment(
     comment_db = await repository_comments.get_comment_by_id(comment_id, db)
     if comment_db is None:
         raise HTTPException(status_code=404, detail="Comment not found")
-
+    if not comment.text.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Comment can't be empty")
     if user.id == comment_db.user_id:
         comment = await repository_comments.update_comment(comment_id, comment, db)
     else:

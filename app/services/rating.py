@@ -25,9 +25,7 @@ async def add_rate_to_post(user: User,
 async def calculate_avarage_rating(post: Post, db: Session):
     average_rate_query = db.query(func.avg(Rating.rate).label('average_rate')).filter(Rating.post_id == post.id).first()
     average_rate = average_rate_query.average_rate
-    print(average_rate)
     post.rating = float(round(average_rate, 2))
-    print(post.rating)
     db.add(post)
     db.commit()
     db.refresh(post)
