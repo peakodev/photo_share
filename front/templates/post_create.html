@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block styles_page %}
+  <link rel="stylesheet" href="/static/css/partials/post_id.css" />
+{% endblock %}
+{% block content %}
+  <main>
+    <section>
+      <div class="container-xxl">
+        <div class="container-xxl mt-5">
+          <h1>Post Create</h1>
+          <div class="messages my-4">
+            <span id="messages" class="messages-text text-primary">
+              {% if message %}
+                {{ message.detail }}
+              {% endif %}
+            </span>
+          </div>
+          {% if post %}
+            {% include 'partials/post_create_form.html' %}
+          {% else %}
+            {% include 'partials/post_create_form.html' %}
+          {% endif %}
+        </div>
+      </div>
+    </section>
+    <script>
+      const redirect_url = "{{ url_for('home_page')}}"
+      const api_login = "{{ url_for('auth_signin') }}"
+      const is_login = True
+    </script>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/static/js/posts/create_post.js"></script>
+{% endblock %}

@@ -4,6 +4,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.middlewares.middlewares import AuthMiddleware
 from app.routes import auth, users, posts, comments, tags, qrcode, admin
 from front.routes import home
 
@@ -23,6 +24,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# app.add_middleware(AuthMiddleware)
 
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
 
@@ -39,5 +41,3 @@ app.include_router(home.router)
 @app.get("/test")
 def read_root():
     return {"Hello": "PHotoShare API is working!"}
-
-
