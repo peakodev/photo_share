@@ -52,6 +52,18 @@ async def get_all_posts(
     offset: int = Query(0),
     db: Session = Depends(get_db),
 ):
+    """
+    Get all posts.
+
+    :param limit: Limit, defaults to Query(10)
+    :type limit: int, optional
+    :param offset: Offset, defaults to Query(0)
+    :type offset: int, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :return: List of Database objects Post.
+    :rtype: List[Post]
+    """    
 
     posts = await repository_posts.get_all_posts(limit, offset, db)
     return posts
@@ -66,6 +78,17 @@ async def get_post(
     post_id: int,
     db: Session = Depends(get_db),
 ):
+    """
+    Get post by id.
+
+    :param post_id: Database object Post.id to search.
+    :type post_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database object Post.
+    :rtype: Post | None
+    """    
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
@@ -83,6 +106,38 @@ async def search_posts(
     search_schema: PostSearchSchema,
     db: Session = Depends(get_db)
 ):
+    """
+    Search posts by inputs.
+
+    PostSearchSchema schema {
+                            query: Optional[str] = Field(None)\n
+                            limit: int = 20\n
+                            offset: int = 0\n
+                            order: Optional[OrderEnum] = OrderEnum.desc\n
+                            order_by: Optional[OrderByEnum] = OrderByEnum.created_at\n
+                            filter: Optional[PostFilterSchema]\n
+                            }
+    OrderByEnum schema {
+                        created_at = "created_at"\n
+                        rating = "rating"\n
+                        }
+    OrderEnum schema {
+                      asc = "asc"\n
+                      desc = "desc"
+                      }
+    PostFilterSchema schema {
+                            rating: Optional[int] = Field(None, ge=1, le=5)
+                            tags: Optional[List[str]] = []
+                            show_date: Optional[date] = None
+                            }
+
+    :param input: Schema.
+    :type input: PostSearchSchema
+    :param db: The database session.
+    :type db: Session
+    :return: List of Database objects Post.
+    :rtype: List[Post]
+    """    
     return await repository_posts.search_posts_by_inputs(search_schema, db)
 
 
@@ -100,6 +155,25 @@ async def create_post(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    Create new post
+
+    :param description: Description for Post.
+    :type description: str
+    :param tags: Tags for Post.
+    :type tags: str, optional
+    :param user_email: Admin can create a post for a specified user. 
+    :type user_email: str, optional
+    :param file: Photo for Post.
+    :type file: UploadFile, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :param user: Current user.
+    :type user: User, optional
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :return: Database object Post.
+    :rtype: Post
+    """    
 
     if user_email and user.role != Role.admin:
         raise HTTPException(
@@ -126,6 +200,30 @@ async def update_post(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    Update post by id.
+
+    Parameters are optional.
+
+    :param post_id: Database object Post.id to update.
+    :type post_id: int
+    :param description: New description for post. 
+    :type description: str, optional
+    :param tags: New tag\s for post.
+    :type tags: str, optional
+    :param effect: New effect to picture in Post.
+    :type effect: Effect, optional
+    :param file: New picture for post.
+    :type file: UploadFile, optional
+    :param db: he database session.
+    :type db: Session, optional
+    :param user: Current user.
+    :type user: User, optional
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Updated database object Post.
+    :rtype: Post
+    """    
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
@@ -159,6 +257,20 @@ async def delete_post(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    Delete post by id.
+
+    :param post_id: Database object Post.id to delete.
+    :type post_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :param user: Current user.
+    :type user: User, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :return: Database object Post.
+    :rtype: Post
+    """    
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
@@ -178,26 +290,25 @@ async def delete_post(
 @router.post('/rate/{post_id}',response_model=RatingResponce)
 async def rate_post(post_id: int, rating: int, db: Session = Depends(get_db), user: User = Depends(auth_service.get_current_user)):
     """
-    The user rates the post from 1 to 5.
-    Calculates the average rating from all ratings for this post.
-    The rating of the post is updated in database object Post.rating
+    rate_post _summary_
 
-    Args:
-        post_id (int): id of post to rate.
-        rating (int): Score from 1 to 5
-        db (Session, optional): The database session
-        user (User, optional): The user to rate post
+    _extended_summary_
 
-    Raises:
-        HTTPException: HTTP_403_FORBIDDEN - User not authorizated.
-        HTTPException: HTTP_406_NOT_ACCEPTABLE - Rating values in range 1-5.
-        HTTPException: HTTP_404_NOT_FOUND - Post not found.
-        HTTPException: HTTP_409_CONFLICT - Owner can't rate his post.
-        HTTPException: HTTP_409_CONFLICT - Post already rated.
-
-    Returns:
-        _type_: _description_
-    """    
+    :param post_id: Database object Post.id to rate.
+    :type post_id: int
+    :param rating: Score from 1 to 5
+    :type rating: int
+    :param db: The database session.
+    :type db: Session, optional
+    :param user: Current user
+    :type user: User, optional
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :raises HTTPException: HTTP_406_NOT_ACCEPTABLE
+    :raises HTTPException: HTTP_409_CONFLICT
+    :return: {post_id: int, rating: float}
+    :rtype: json
+    """
     if rating not in range(1,6):
            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Rating values in range 1-5")
     post = db.query(Post).filter_by(id=post_id).first()
