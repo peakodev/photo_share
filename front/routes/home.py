@@ -195,26 +195,25 @@ async def get_all_posts_page(
 
 
 @router.get(
-    "/post_create",
-    name="posts_create_page",
+    "/post",
+    name="post_create_page",
     response_class=HTMLResponse,
 )
 async def get_create_post_page(
     request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
 ):
 
     return templates.TemplateResponse(
         request=request,
         name="post_create.html",
-        context={
-            "request": request,
-        },
+        context={"request": request, "user": user},
     )
 
 
 @router.post(
-    "/post_create",
-    name="posts_create_page",
+    "/post",
+    name="post_create_page",
     # response_class=HTMLResponse,
 )
 async def post_create_post_page(
@@ -225,7 +224,7 @@ async def post_create_post_page(
     user: Optional[User] = Depends(get_user_from_request),
     # token: Optional[str] = Depends(get_token_optional),
 ):
-    print("@@@@@@@")
+    print("@@@@@@@ Post CREATE PAGE")
     from main import app
 
     print(f"{request.headers}")
@@ -242,7 +241,7 @@ async def post_create_post_page(
 
         api_url = str(request.url_for("create_post"))
         # print(f"______ {api_url=}")
-        # print(f"______ {str(api_url)=}")
+        print(f"______ {str(api_url)=}")
 
         file_content = await photo.read()
 
@@ -279,6 +278,79 @@ async def post_create_post_page(
             "request": request,
             "post": response_json_py,
             "message": {"detail": "Post created succesfully"},
+            "user": user,
+        },
+    )
+
+
+@router.put(
+    "/post/{post_id}",
+    name="posts_update_page",
+    # response_class=HTMLResponse,
+)
+async def post_update_post_page(
+    request: Request,
+    post_id: int,
+    description: str = Form(),
+    tags: Optional[str] = Form(None),
+    photo: UploadFile = File(default=None),
+    user: Optional[User] = Depends(get_user_from_request),
+):
+    print("@@@@@@@ Post UPDATE PAGE")
+    from main import app
+
+    print(f"{request.headers}")
+    headers = {}
+    is_token = False
+    if "authorization" in request.headers:
+        headers["Authorization"] = request.headers["Authorization"]
+        is_token = True
+
+    if is_token:
+        print(
+            f'request.url_for("update_post"): {request.url_for("update_post", post_id=post_id)}'
+        )
+        api_path = app.url_path_for("update_post", post_id=post_id)
+        api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+
+        api_url = str(request.url_for("update_post", post_id=post_id))
+        # print(f"______ {api_url=}")
+        # print(f"______ {str(api_url)=}")
+
+        # if photo is None and photo.filename:
+        if True:
+            print(f"############# file {photo}")
+            file_content = await photo.read()
+            params = {"description": description, "tags": tags}
+            file = {"file": (photo.filename, file_content, photo.content_type)}
+            async with httpx.AsyncClient() as client:
+                response = await client.put(
+                    api_url, params=params, files=file, headers=headers
+                )
+
+        print(f"{response.status_code=}")
+        response_json_py = response.json()
+        print(f"+++++++++ {response_json_py=}")
+        if response.status_code != 200:
+            print(f"create error:{response.status_code=}")
+            return templates.TemplateResponse(
+                request=request,
+                name="post_create.html",
+                context={"request": request, "message": response_json_py},
+            )
+        # combined_response = {
+        #     **response_json,
+        # }
+        print("Return ")
+        return JSONResponse(content=response_json_py, status_code=status.HTTP_200_OK)
+    # return response
+    return templates.TemplateResponse(
+        request=request,
+        name="post_id.html",
+        context={
+            "request": request,
+            "post": response_json_py,
+            "message": {"detail": "Post not update, need authorization"},
             "user": user,
         },
     )

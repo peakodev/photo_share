@@ -1,6 +1,7 @@
 <div id="post-form-wrapper" class="post-form-wrapper" {% if post %} hidden {% endif %}>
   <h2 id="title-form">{% if post %}Edit post{%else%}Add new post{% endif %}</h2>
-  <form id="form-post" method="post" enctype="multipart/form-data">
+
+  <form id="form-post" method="post" {% if post %} edit {% endif %} enctype="multipart/form-data">
     <div class="mb-3">
       {% if post %}
         <img src="{{ post.photo_url }}" alt="Uploaded Image" style="max-width: 300px;" /><br /><br />
@@ -20,6 +21,8 @@
         name="tags"
         value="{% if post %}{{ post.tags|join(', ') }}{% endif %}" />
     </div>
-    <button type="submit" class="btn btn-primary">{% if post %}Save{%else%}Add{% endif %}</button>
+    <button id="btn-new-post" type="submit" class="btn btn-primary" {% if post %} hidden {% endif %}>Add</button>
+    <button id="btn-edit-post" type="submit" class="btn btn-primary" {% if not post %} hidden {% endif %}>Save</button>
   </form>
+
 </div>

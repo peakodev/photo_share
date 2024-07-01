@@ -23,7 +23,7 @@ const markFormOnSubmit = () => {
                 console.log(`${name}: ${value}`);
             }
             try {
-                const res = await fetch('http://localhost:8000/post_create', {
+                const res = await fetch('http://localhost:8000/post', {
                     method: 'POST',
                     body: formData,
                     headers: headers
@@ -57,17 +57,6 @@ const markFormOnSubmit = () => {
 
         }
 
-        // console.log("markFormOnSubmite: ", e)
-        // console.log("formData=", formData)
-
-
-        // const response = await fetch('/post_create', {
-        //     method: 'POST',
-        //     body: new FormData(e.target)
-        // });
-
-        // const result = await response.json();
-        // console.log(result);
     };
 
 }
