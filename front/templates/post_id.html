@@ -8,18 +8,142 @@
     <section>
       <div class="container-xxl">
         <div class="container-xxl mt-5">
+          user: {{ user.id }}
+          post.user_id: {{ post.user_id }}
+          {% include 'partials/post_service_btn.html' %}
+          {% if user.id == post.user_id %}
+
+          {% endif %}
           <h1>Post detail</h1>
           {% if message %}
             <div class="messages my-4">
-              <span class="text-primary">{{ message.json().detail }}</span>
+              <span class="text-primary">{{ message.detail }}</span>
             </div>
           {% endif %}
           {% if post %}
             {% include 'partials/post_detail.html' %}
             {% include 'partials/post_detail_comments.html' %}
+            {% include 'partials/post_create_form.html' %}
           {% endif %}
         </div>
       </div>
     </section>
+    <script>
+      const redirect_url = "{{ url_for('home_page')}}"
+      const api_login = "{{ url_for('auth_signin') }}"
+    </script>
   </main>
+  <script>
+    const isPost =  {% if post %} true {% else %} false {% endif %} ||  false
+    console.log('isPost: ', isPost)
+    const postUserId = Number('{{ post.user_id }}')
+    const editBtnRef = document.querySelector('#btn-edit-post')
+    console.log('postUserId: ', postUserId, typeof postUserId)
+    
+    const postDetailsRef = document.querySelector('#post-details')
+    const postCommentsRef = document.querySelector('.comments-section')
+    const postFormWrapRef = document.querySelector('#post-form-wrapper')
+    console.log('postDetailsRef: ', postDetailsRef)
+    console.log('postCommentsRef: ', postCommentsRef)
+    console.log('postFormWrapRef: ', postFormWrapRef)
+    
+    userId = Number(localStorage.getItem('user_id'))
+    
+    if (userId === postUserId) {
+      console.log('equal')
+      editBtnRef.removeAttribute('hidden')
+    }
+    
+    console.log(editBtnRef)
+    
+    const editTogglePage = (e) => {
+      console.log(postFormWrapRef)
+      if (postFormWrapRef.hasAttribute('hidden')) {
+        postFormWrapRef.removeAttribute('hidden')
+        editBtnRef.textContent = 'Cancel'
+        postDetailsRef.setAttribute('hidden', true)
+        postCommentsRef.setAttribute('hidden', true)
+      } else {
+        editBtnRef.textContent = 'Edit'
+        postFormWrapRef.setAttribute('hidden', true)
+        postDetailsRef.removeAttribute('hidden')
+        postCommentsRef.removeAttribute('hidden')
+      }
+    }
+
+  editBtnRef.addEventListener('click', editTogglePage)
+  </script>
+
+  <script>
+    const postId = Number({{post.id}})
+    const formRef = document.querySelector('#form-post');
+    console.log("formRef: ", formRef)
+
+    //document.querySelector('form').onsubmit = async e => {
+    formRef.onsubmit = async e => {
+        e.preventDefault();
+        console.log("!!!!!! ")
+        console.log("e: ",e)
+        
+        const token = await localStorage.getItem('access_token');
+        if (token) {
+          const headers = new Headers();
+          headers.append('Authorization', `Bearer ${token}`);
+          const formData = new FormData(e.target);
+          for (let [name, value] of formData.entries()) {
+              console.log(`${name}: ${value}`);
+          }
+
+          let to_path = ""
+          let method_rest = "" 
+          if (e.target.hasAttribute('edit')) {
+            to_path = `/post/${postId}`
+            console.log("to_path: ", to_path)
+            method_rest = "PUT"
+          }else{
+            to_path = "/post"
+            method_rest = "POST"
+          }
+
+          try {
+              const res = await fetch(to_path, {
+                  method: method_rest,
+                  body: formData,
+                  headers: headers
+              });
+              const response_json = await res.json()
+              // console.log("response: ", response)
+              // console.log("response body: ", response_json)
+              if (res.ok) {
+                  console.log("OK")
+                  // const html = await response.text();
+                  // document.open();
+                  // document.write(html);
+                  // document.close();
+                  // console.log("response_json=", response_json)
+                  console.log("redirect_url: ", redirect_url)
+                  red_url = redirect_url + "posts/" + response_json.id
+                  console.log("red_url=", red_url)
+                  window.location.href = red_url;
+              }
+              else {
+                  console.log("Error")
+                  console.log(res)
+                  formMessagesRef.textContent = res.status + ": " + res.statusText
+              }
+
+
+            }
+            catch (error) {
+                console.log(error)
+            }
+
+        }
+  
+      };
+  </script>
+{% endblock %}
+
+{% block scripts %}
+
 {% endblock %}

@@ -1,8 +1,8 @@
-<div class="post-details">
+<div id="post-details" class="post-details">
   <div class="row g-0 mb-3">
     <div class="col-md-4 d-flex align-items-center position-relative">
       <div class="photo-container position-relative" style="width: 100%; padding-top: 100%;">
-        <img src="{{ post.photo_url }}" class="position-absolute top-0 start-0 w-100 h-100" alt="post img" style="object-fit: cover;" />
+        <a href="#" class="rounded-2"><img src="{{ post.photo_url }}" class="rounded-2 position-absolute top-0 start-0 w-100 h-100" alt="post img" style="object-fit: cover;" /></a>
         <div class="position-absolute top-0 end-0 m-2">
           <span class="badge bg-warning text-dark">★ {{ post.rating }}</span>
         </div>

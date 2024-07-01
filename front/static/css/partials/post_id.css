@@ -29,6 +29,9 @@
     background-color: #ffc107;
   }
   
+  .card-img{
+    border-radius: 10px;
+  }
   .text-muted {
     color: #6c757d; /* Bootstrap's text-muted color */
   }

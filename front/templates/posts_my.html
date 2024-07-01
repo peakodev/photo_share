@@ -11,7 +11,7 @@
           <h1>My Posts</h1>
           {% if message %}
             <div class="messages my-4">
-              <span class="text-primary">{{ message.json().detail }}</span>
+              <span class="text-primary">{{ message.detail }}</span>
             </div>
           {% endif %}
           {% if posts %}
