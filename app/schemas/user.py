@@ -40,6 +40,15 @@ class UserDb(BaseModel):
         from_attributes = True
 
 
+class PublicUserResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    avatar: str
+    posts_number: int
+    comments_number: int
+
+
 class UserResponse(BaseModel):
     user: UserDb
     detail: str = "User successfully created"
