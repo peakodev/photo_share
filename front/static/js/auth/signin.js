@@ -1,9 +1,42 @@
 
-const formRef = document.querySelector('form');
+// const formRef = document.querySelector('form');
 
 const markFormOnSubmit = () => {
     document.querySelector('form').onsubmit = async e => {
         e.preventDefault();
+
+        const getUserFromServer = async () => {
+            const token = localStorage.getItem('access_token');
+            console.log("read new token=", token)
+            if (token) {
+                try {
+                    const newHeaders = new Headers();
+                    newHeaders.append('Authorization', `Bearer ${token}`);
+
+                    console.log("___start fetch____")
+                    const res = await fetch('/api/users/', {
+                        method: 'GET',
+                        headers: newHeaders
+                    });
+                    console.log("___finish fetch____")
+                    const res_json = await res.json();
+                    // console.log("res_json=", res_json)
+                    // console.log("new res=", res)
+                    if (res.ok) {
+                        localStorage.setItem('user_id', res_json.id);
+
+                    } else {
+                        console.error('!!!Error:', res.status, res.statusText);
+                    }
+                    return res_json
+
+                } catch (error) {
+                    console.log("_error fetch: ")
+                    console.log('Error:', error);
+                }
+                return None
+            }
+        }
 
         console.log("markFormOnSubmite: ", e)
         const formData = new FormData(e.target);
@@ -12,10 +45,10 @@ const markFormOnSubmit = () => {
             console.log(`${name}: ${value}`);
         }
 
-        const response = await fetch('/api/auth/signin', {
-            method: 'POST',
-            body: new FormData(e.target)
-        });
+        // const response = await fetch('/api/auth/signin', {
+        //     method: 'POST',
+        //     body: new FormData(e.target)
+        // });
         await fetch('/api/auth/login', {
             method: 'POST',
             body: formData
@@ -27,16 +60,19 @@ const markFormOnSubmit = () => {
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
+                // localStorage.setItem('user_id', 13);
+
+                user = await getUserFromServer();
 
                 window.location.href = redirect_url;
             };
         }).catch(async (error) => {
             console.log(error)
+            return
             // Завершился ошибкой
         })
 
-        // const result = await response.json();
-        // console.log(result);
+
     };
 
 }
