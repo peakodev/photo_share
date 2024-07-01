@@ -352,7 +352,7 @@ async def update_post(
         tags = await get_list_of_tags_by_string(tags, db)
         post.tags = tags
     if effect:
-        post.transform_url = transform_photo(post, effect)
+        post.transform_url = await transform_photo(effect, post)
     post.updated_at = datetime.now()
     db.commit()
     db.refresh(post)

@@ -23,6 +23,7 @@ class PostSchema(BaseModel):
 class PostCreateResponse(BaseModel):
     id: int
     photo_url: str | None
+    transform_url: str | None
     user: UserDb
     description: str
     tags: List[TagDB]
