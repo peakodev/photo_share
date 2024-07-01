@@ -278,8 +278,50 @@ async def post_create_post_page(
     )
 
 
+@router.get(
+    "/posts/{post_id}",
+    name="post_id_page",
+)
+async def get_post_page(
+    post_id: int,
+    request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
+):
+    from main import app
+
+    # print(f"{request.headers}")
+    print(f"{post_id=}")
+    api_path = app.url_path_for("get_post_by_id", post_id=post_id)
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=request.headers)
+    except Exception as err:
+        print("!!!!! error", err)
+        return {"err": err}
+
+    if response.status_code != 200:
+        return templates.TemplateResponse(
+            request=request,
+            name="post_id.html",
+            context={"request": request, "message": response},
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="post_id.html",
+        context={
+            "request": request,
+            "post": response.json(),
+            "user": user,
+            "is_user": True if user else False,
+        },
+    )
+
+
 @router.put(
-    "/post/{post_id}",
+    "/posts/{post_id}",
     name="posts_update_page",
     # response_class=HTMLResponse,
 )
@@ -347,50 +389,8 @@ async def post_update_post_page(
     )
 
 
-@router.get(
-    "/posts/{post_id}",
-    name="post_id_page",
-)
-async def get_post_page(
-    post_id: int,
-    request: Request,
-    user: Optional[User] = Depends(get_user_from_request),
-):
-    from main import app
-
-    # print(f"{request.headers}")
-    print(f"{post_id=}")
-    api_path = app.url_path_for("get_post_by_id", post_id=post_id)
-    print(f"{api_path=}")
-    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, headers=request.headers)
-    except Exception as err:
-        print("!!!!! error", err)
-        return {"err": err}
-
-    if response.status_code != 200:
-        return templates.TemplateResponse(
-            request=request,
-            name="post_id.html",
-            context={"request": request, "message": response},
-        )
-
-    return templates.TemplateResponse(
-        request=request,
-        name="post_id.html",
-        context={
-            "request": request,
-            "post": response.json(),
-            "user": user,
-            "is_user": True if user else False,
-        },
-    )
-
-
-@router.get("/signup", name="signup_page")
-async def signup_page(request: Request):
+@router.get("/signup", name="signup_form_page")
+async def signup_form_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signup.html", context={"request": request}
     )
@@ -421,7 +421,7 @@ async def fe_signup(
 
     api_path = app.url_path_for("auth_post_signup")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    api_url = "http://localhost:8000/api/auth/signup"
+    # api_url = "http://localhost:8000/api/auth/signup"
     print(f"{api_url=}")
 
     try:
@@ -452,11 +452,46 @@ async def fe_signup(
     )
 
 
-@router.get("/signin", name="signin_page")
-async def signin_page(request: Request):
+@router.get("/signin", name="signin_form_page")
+async def signin_form_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signin.html", context={"request": request}
     )
+
+
+@router.post("/signin", name="signin_page")
+async def signin_page(
+    request: Request,
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+):
+    from main import app
+
+    form_data = {
+        "username": username,
+        "password": password,
+    }
+    api_path = app.url_path_for("auth_signin")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, data=form_data)
+    print(f"{response=}")
+    if response.status_code != 200:
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/signin.html",
+            context={"request": request, "message": response.json()},
+        )
+    # print("!!!!!!!!!!!!!!!!!!!")
+    response_json = response.json()
+    print(f"{response_json=}")
+    # return templates.TemplateResponse(
+    #     request=request, name="auth/signin.html", context={"request": request}
+    # )
+    return JSONResponse(content=response_json, status_code=status.HTTP_202_ACCEPTED)
 
 
 @router.get("/resend-activation")

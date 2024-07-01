@@ -15,9 +15,14 @@
         <div class="card shadow-sm form-container" style="width: 100%; max-width: 400px;">
           <div class="card-body">
             <h1 class="card-title text-center">Login</h1>
+            {% if message %}
+              <div class="messages my-4">
+                <span class="text-primary">{{ message.detail }}</span>
+              </div>
+            {% endif %}
             <form id="form-login" method="post" class="col-12">
               <div class="mb-3">
-                <label class="form-label">Username</label>
+                <label class="form-label">Email</label>
                 <input type="email" id="username" name="username" class="form-control" required />
               </div>
               <div class="mb-3">
@@ -28,7 +33,7 @@
                 <a href="/reset-password"><i>Forgot Password?</i></a>
               </div>
               <div class="d-grid gap-2">
-                <button type="reset" class="btn btn-secondary">Reset</button>
+                {# <button type="reset" class="btn btn-secondary">Reset</button> #}
                 <button type="submit" class="btn btn-primary">Login</button>
               </div>
             </form>
