@@ -222,7 +222,6 @@ async def post_create_post_page(
     tags: Optional[str] = Form(None),
     photo: UploadFile = File(...),
     user: Optional[User] = Depends(get_user_from_request),
-    # token: Optional[str] = Depends(get_token_optional),
 ):
     print("@@@@@@@ Post CREATE PAGE")
     from main import app
@@ -253,9 +252,9 @@ async def post_create_post_page(
                 api_url, params=params, files=file, headers=headers
             )
 
-        print(f"{response.status_code=}")
+        # print(f"{response.status_code=}")
         response_json_py = response.json()
-        print(f"+++++++++ {response_json_py=}")
+        # print(f"+++++++++ {response_json_py=}")
         if response.status_code != 201:
             print(f"create error:{response.status_code=}")
             return templates.TemplateResponse(
@@ -263,21 +262,17 @@ async def post_create_post_page(
                 name="post_create.html",
                 context={"request": request, "message": response_json_py},
             )
-        # combined_response = {
-        #     **response_json,
-        # }
         print("Return ")
         return JSONResponse(
             content=response_json_py, status_code=status.HTTP_201_CREATED
         )
-    # return response
     return templates.TemplateResponse(
         request=request,
         name="post_id.html",
         context={
             "request": request,
             "post": response_json_py,
-            "message": {"detail": "Post created succesfully"},
+            "message": {"detail": "Not authorized"},
             "user": user,
         },
     )
@@ -338,12 +333,8 @@ async def post_update_post_page(
                 name="post_create.html",
                 context={"request": request, "message": response_json_py},
             )
-        # combined_response = {
-        #     **response_json,
-        # }
         print("Return ")
         return JSONResponse(content=response_json_py, status_code=status.HTTP_200_OK)
-    # return response
     return templates.TemplateResponse(
         request=request,
         name="post_id.html",
@@ -397,22 +388,12 @@ async def get_post_page(
         },
     )
 
-    # return f"{request.headers}"
-
 
 @router.get("/signup", name="signup_page")
 async def signup_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signup.html", context={"request": request}
     )
-
-
-# class UserSignupFormSchema(BaseModel):
-#     # first_name: str = Annotated[str, Form()]
-#     # last_name = (Form(),)
-#     email: Annotated[str, Form()]
-#     # email: str = (Form(),)
-#     # password = (Form(),)
 
 
 @router.post(
@@ -450,28 +431,13 @@ async def fe_signup(
         print("!!!!! error", err)
         return {"err": err}
     print(f"{response=}")
-    # response = requests.post(api_url, json=form_data)
     if response.status_code != 201:
-        # response_json = response.json()
-        print(
-            f"!#F_Route - ERROR - signup user, res: \
-                \n {response.status_code=}\
-                \n {response.reason_phrase=}\
-                \n {response.json()=}\
-                \n {response.content=}\
-                \n {response.text=}\
-                \n {response=}"
-        )
-
         return templates.TemplateResponse(
             request=request,
             name="auth/signup.html",
             context={"request": request, "message": response},
         )
-        # TODO изменить на возврат авторизации с Message
-        raise HTTPException(
-            status_code=response.status_code, detail="Failed to fetch posts"
-        )
+        
     print("@@@@@@@@@@@@@@@@@@@@@@")
     # return {"response": response}
     # redirect_url = request.app.url_path_for("signin_page")
@@ -483,12 +449,6 @@ async def fe_signup(
         request=request,
         name="auth/signup.html",
         context={"request": request, "message": response},
-    )
-
-
-async def signup_post_page(request: Request):
-    return templates.TemplateResponse(
-        request=request, name="auth/signup.html", context={"request": request}
     )
 
 
