@@ -42,10 +42,42 @@ async function loadProtectedPage(page) {
     }
 }
 
-const logoutSite = async () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('token_type');
-    localStorage.removeItem('user_id');
-    window.location.href = '/';
-}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const testAuthNav = document.querySelector('.auth-nav');
+    const navLogoutRef = document.querySelector('.nav-logout');
+    const navSigninRef = document.querySelector('.nav-signin');
+    const navSignupRef = document.querySelector('.nav-signup');
+    const navMyPostRef = document.querySelector('.nav-my-post');
+    const navAddPostRef = document.querySelector('.nav-add-post');
+
+    testAuthNav.classList.remove("d-none");
+
+    let is_user_login = false
+    const iser_id = localStorage.getItem('user_id')
+    console.log("iser_id: ", iser_id)
+
+    if (iser_id) {
+        is_user_login = true
+    }
+    console.log("is_user_login: ", is_user_login)
+    if (is_user_login) {
+        navLogoutRef.classList.remove("d-none");
+        navSigninRef.classList.add("d-none");
+        navSignupRef.classList.add("d-none");
+        navMyPostRef.classList.remove("d-none");
+        navAddPostRef.classList.remove("d-none");
+    } else {
+        navLogoutRef.classList.add("d-none");
+        navSigninRef.classList.remove("d-none");
+        navSignupRef.classList.remove("d-none");
+        navMyPostRef.classList.add("d-none");
+        navAddPostRef.classList.add("d-none");
+    }
+
+    console.log("navLogoutRef: ", navLogoutRef)
+    // const authLogoutRef = document.querySelector('#auth-logout'); 
+
+    console.log("testAuthNav: ", testAuthNav)
+})

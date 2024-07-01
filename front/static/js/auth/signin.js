@@ -1,9 +1,42 @@
 
-const formRef = document.querySelector('form');
+// const formRef = document.querySelector('form');
 
 const markFormOnSubmit = () => {
     document.querySelector('form').onsubmit = async e => {
         e.preventDefault();
+
+        const getUserFromServer = async () => {
+            const token = localStorage.getItem('access_token');
+            console.log("read new token=", token)
+            if (token) {
+                try {
+                    const newHeaders = new Headers();
+                    newHeaders.append('Authorization', `Bearer ${token}`);
+
+                    console.log("___start fetch____")
+                    const res = await fetch('/api/users/', {
+                        method: 'GET',
+                        headers: newHeaders
+                    });
+                    console.log("___finish fetch____")
+                    const res_json = await res.json();
+                    // console.log("res_json=", res_json)
+                    // console.log("new res=", res)
+                    if (res.ok) {
+                        localStorage.setItem('user_id', res_json.id);
+
+                    } else {
+                        console.error('!!!Error:', res.status, res.statusText);
+                    }
+                    return res_json
+
+                } catch (error) {
+                    console.log("_error fetch: ")
+                    console.log('Error:', error);
+                }
+                return None
+            }
+        }
 
         console.log("markFormOnSubmite: ", e)
         const formData = new FormData(e.target);
@@ -29,6 +62,7 @@ const markFormOnSubmit = () => {
                 localStorage.setItem('token_type', data.token_type);
                 // localStorage.setItem('user_id', 13);
 
+                user = await getUserFromServer();
 
                 window.location.href = redirect_url;
             };
@@ -38,36 +72,6 @@ const markFormOnSubmit = () => {
             // Завершился ошибкой
         })
 
-        const token = localStorage.getItem('access_token');
-        console.log("read new token=", token)
-        if (token) {
-            try {
-                const newHeaders = new Headers();
-                newHeaders.append('Authorization', `Bearer ${token}`);
-
-                // const headersLog = {};
-                // newHeaders.forEach((value, key) => {
-                //     headersLog[key] = value;
-                // });
-                // console.log("new headers=", headersLog);
-
-                const res = await fetch('/api/users/', {
-                    method: 'GET',
-                    headers: newHeaders
-                });
-                console.log("new res=", res)
-                if (res.ok) {
-                    const res_json = await res.json();
-                    console.log("res_json=", res_json)
-                    localStorage.setItem('user_id', res_json.id);
-
-                } else {
-                    console.error('!!!Error:', res.status, res.statusText);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
 
     };
 

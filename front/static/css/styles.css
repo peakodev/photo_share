@@ -11,3 +11,7 @@
 .card {
     box-shadow: 6px 6px 10px #696969;;
 }
+
+.hidden{
+    display: none;
+}
