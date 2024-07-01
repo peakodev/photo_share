@@ -32,7 +32,7 @@
           <ul class="auth-nav navbar-nav ms-auto mb-2 mb-lg-0 d-none">
             
               <li class="nav-logout nav-item">
-                <span class="nav-logout-link nav-link" >Logout</span>
+                <span class="nav-logout-link nav-link" onclick="event.preventDefault(); logoutMySite()">Logout</span>
               </li>
               <li class="nav-signin nav-item">
                 <a class="nav-link" href="{{ request.url_for('signin_page') }}">Login</a>
