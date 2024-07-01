@@ -75,6 +75,7 @@ class OrderEnum(str, Enum):
 
 
 class PostFilterSchema(BaseModel):
+    rating: Optional[int] = Field(None, ge=1, le=5)
     tags: Optional[List[str]] = []
     show_date: Optional[date] = None
 

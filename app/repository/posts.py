@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import datetime, date
 
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session, aliased, Query
 from sqlalchemy import and_, or_, func, desc, asc, Date, cast
 from typing import List
 from fastapi import UploadFile
@@ -79,30 +79,67 @@ async def find_posts(find_str: str, user: User, db: Session) -> List[Post]:
 async def search_posts_by_inputs(input: PostSearchSchema, db: Session) -> List[Post]:
     query = db.query(Post)
 
-    # Handle the search query and tags filtering
-    if input.query:
-        tags_queried = await search_tags_by_query(input.query, db)
-        expr_post = Post.description.ilike(f"%{input.query}%")
-        if tags_queried:
-            expr_post = or_(expr_post, Post.tags.any(Tag.id.in_([tag.id for tag in tags_queried])))
-        if input.filter.tags:
-            tags = await get_tags_by_name(input.filter.tags, db)
-            expr_post = and_(expr_post, Post.tags.any(Tag.id.in_([tag.id for tag in tags])))
+    # Initialize expression holder
+    expr_post = None
 
-        query = query.filter(expr_post)
+    # Check if input.query is not empty
+    if input.query and input.query.strip():
+        expr_post = await __build_query_expression(input.query, db)
 
-    # Handle ordering
-    order_func = desc if input.order == OrderEnum.desc else asc
-    if input.order_by == OrderByEnum.rating:
-        query = query.order_by(order_func(Post.rating))
-    elif input.order_by == OrderByEnum.created_at:
-        query = query.order_by(order_func(Post.created_at))
+    # Check if input.filter.tags is not empty or None and apply filtering
+    if input.filter.tags and any(tag.strip() for tag in input.filter.tags):
+        expr_post = await __filter_by_tags(input.filter.tags, expr_post, db)
+
+    # Check if input.filter.rating is not None and apply filtering
+    if input.filter.rating:
+        expr_post = await __filter_by_rating(input.filter.rating, expr_post)
 
     # Filter by show_date if provided
     if input.filter.show_date:
-        query = query.filter(cast(Post.created_at, Date) == input.filter.show_date)
+        expr_post = await __filter_by_show_date(input.filter.show_date, expr_post)
+
+    # Apply the built expression to the query if it exists
+    if expr_post is not None:
+        query = query.filter(expr_post)
+
+    # Handle ordering
+    query = apply_ordering(query, input.order, input.order_by)
 
     return query.all()
+
+
+async def __build_query_expression(query: str, db: Session):
+    tags_queried = await search_tags_by_query(query, db)
+    expr_post = Post.description.ilike(f"%{query}%")
+    if tags_queried:
+        expr_post = or_(expr_post, Post.tags.any(Tag.id.in_([tag.id for tag in tags_queried])))
+    return expr_post
+
+
+async def __filter_by_tags(tag_names: List[str], expr_post, db: Session):
+    tags = await get_tags_by_name(tag_names, db)
+    expr_tags = Post.tags.any(Tag.id.in_([tag.id for tag in tags]))
+    return and_(expr_post, expr_tags) if expr_post is not None else expr_tags
+
+
+async def __filter_by_rating(rating: int, expr_post):
+    # Rating shound be between rating and rating + 1
+    expr_rating = (Post.rating >= rating) & (Post.rating < rating + 1)
+    return and_(expr_post, expr_rating) if expr_post is not None else expr_rating
+
+
+async def __filter_by_show_date(show_date: date, expr_post):
+    expr_show_date = cast(Post.created_at, Date) == show_date
+    return and_(expr_post, expr_show_date) if expr_post is not None else expr_show_date
+
+
+def apply_ordering(query: Query, order: OrderEnum, order_by: OrderByEnum) -> Query:
+    order_func = desc if order == OrderEnum.desc else asc
+    if order_by == OrderByEnum.rating:
+        query = query.order_by(order_func(Post.rating))
+    elif order_by == OrderByEnum.created_at:
+        query = query.order_by(order_func(Post.created_at))
+    return query
 
 
 async def create_post(
