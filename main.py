@@ -1,5 +1,5 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,21 +10,45 @@ from front.routes import home
 
 app = FastAPI()
 
-origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:8000",
-]
+# origins = [
+#     "http://localhost.tiangolo.com",
+#     "https://localhost.tiangolo.com",
+#     "http://localhost",
+#     "http://localhost:8000",
+# ]
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+
+@app.middleware("http")
+async def exception_handling_middleware(request: Request, call_next):
+    try:
+        print("_______________@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!")
+        response = await call_next(request)
+        return response
+    except HTTPException as e:
+        print("!!!!!!!!!@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!")
+        return JSONResponse(
+            status_code=e.status_code,
+            content={"detail": e.detail},
+        )
+    except Exception as e:
+        # Логирование необработанных исключений
+        print(f"Unhandled exception: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error"},
+        )
+
+
 # app.add_middleware(AuthMiddleware)
+
 
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
 

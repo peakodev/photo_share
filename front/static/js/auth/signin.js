@@ -50,7 +50,7 @@ const markFormOnSubmit = () => {
             if (response.status_code != 200) {
                 // console.log("OK")
                 data = await response.json();
-                // console.log(data)
+                console.log(data)
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
