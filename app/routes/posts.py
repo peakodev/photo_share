@@ -290,9 +290,7 @@ async def delete_post(
 @router.post('/rate/{post_id}',response_model=RatingResponce)
 async def rate_post(post_id: int, rating: int, db: Session = Depends(get_db), user: User = Depends(auth_service.get_current_user)):
     """
-    rate_post _summary_
-
-    _extended_summary_
+    Rate post
 
     :param post_id: Database object Post.id to rate.
     :type post_id: int
