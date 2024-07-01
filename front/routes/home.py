@@ -10,10 +10,11 @@ from fastapi import (
     HTTPException,
     Request,
     UploadFile,
+    status,
 )
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from httpx import AsyncClient
 
 from app.middlewares.middlewares import AuthMiddleware
@@ -108,39 +109,41 @@ async def get_my_posts_page(
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
     if token:
         headers = {"Authorization": f"Bearer {token}"}
-    else:
-        headers = request.headers
-
-    print(f"***** /my_posts --- {user.id=} {user.first_name=} {user.email=}")
-    print(f"***** /my_posts --- {api_url=}")
-
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, headers=headers)
-    except Exception as err:
-        print(f"##### Exception {err=}")
-        ...
-
-    if response.status_code != 200:
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(api_url, headers=headers)
+        except Exception as err:
+            print(f"##### Exception {err=}")
+            ...
+        if response.status_code != 200:
+            return templates.TemplateResponse(
+                request=request,
+                name="posts_my.html",
+                context={
+                    "request": request,
+                    "message": response.json(),
+                },
+            )
         return templates.TemplateResponse(
             request=request,
             name="posts_my.html",
             context={
                 "request": request,
-                "message": response,
+                "posts": response.json(),
+                "user": user,
+                "is_user": True if user else False,
             },
         )
-
-    return templates.TemplateResponse(
-        request=request,
-        name="posts_my.html",
-        context={
-            "request": request,
-            "posts": response.json(),
-            "user": user,
-            "is_user": True if user else False,
-        },
-    )
+    else:
+        print("_______ Not user and token")
+        return templates.TemplateResponse(
+            request=request,
+            name="posts_my.html",
+            context={
+                "request": request,
+                "message": {"detail": "Not authorized"},
+            },
+        )
 
 
 @router.get(
@@ -162,9 +165,6 @@ async def get_all_posts_page(
         headers = {"Authorization": f"Bearer {token}"}
     else:
         headers = request.headers
-
-    # print(f"#R-get_my_posts --- Requesting URL: {api_url}")
-    # print(f"#R-get_my_posts --- Headers: {headers}")
 
     try:
         async with httpx.AsyncClient() as client:
@@ -215,7 +215,7 @@ async def get_create_post_page(
 @router.post(
     "/post_create",
     name="posts_create_page",
-    response_class=HTMLResponse,
+    # response_class=HTMLResponse,
 )
 async def post_create_post_page(
     request: Request,
@@ -241,8 +241,8 @@ async def post_create_post_page(
         api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
 
         api_url = str(request.url_for("create_post"))
-        print(f"______ {api_url=}")
-        print(f"______ {str(api_url)=}")
+        # print(f"______ {api_url=}")
+        # print(f"______ {str(api_url)=}")
 
         file_content = await photo.read()
 
@@ -253,20 +253,34 @@ async def post_create_post_page(
             response = await client.post(
                 api_url, params=params, files=file, headers=headers
             )
+
         print(f"{response.status_code=}")
+        response_json_py = response.json()
+        print(f"+++++++++ {response_json_py=}")
         if response.status_code != 201:
             print(f"create error:{response.status_code=}")
             return templates.TemplateResponse(
                 request=request,
                 name="post_create.html",
-                context={"request": request, "message": response},
+                context={"request": request, "message": response_json_py},
             )
-        combined_response = {**response.json(), "detail": "Post created succesfully"}
-
+        # combined_response = {
+        #     **response_json,
+        # }
+        print("Return ")
+        return JSONResponse(
+            content=response_json_py, status_code=status.HTTP_201_CREATED
+        )
+    # return response
     return templates.TemplateResponse(
         request=request,
         name="post_id.html",
-        context={"request": request, "post": combined_response},
+        context={
+            "request": request,
+            "post": response_json_py,
+            "message": {"detail": "Post created succesfully"},
+            "user": user,
+        },
     )
 
 

@@ -1,22 +1,27 @@
-<div id="post-form-wrapper" hidden="true">
-  <h2 id="title-new-post-form">Add new post</h2>
-  <h2 id="title-edit-post-form">Edit post</h2>
+<div id="post-form-wrapper" class="post-form-wrapper" {% if post %} hidden {% endif %}>
+  <h2 id="title-form">{% if post %}Edit post{%else%}Add new post{% endif %}</h2>
   <form id="form-post" method="post" enctype="multipart/form-data">
     <div class="mb-3">
-      {% if post.photo_url %}
+      {% if post %}
         <img src="{{ post.photo_url }}" alt="Uploaded Image" style="max-width: 300px;" /><br /><br />
       {% endif %}
-      <label for="photo" class="form-label">Фото</label>
-      <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required />
+      <label for="photo" class="form-label">Photo</label>
+      <input type="file" class="form-control" id="photo" name="photo" accept="image/*" {% if not post %}required{% endif %} />
     </div>
     <div class="mb-3">
-      <label for="description" class="form-label">Описание</label>
-      <textarea class="form-control" id="description" name="description" rows="4" required autofocus>{{ post.description }}</textarea>
+      <label for="description" class="form-label">Description</label>
+      <textarea class="form-control" id="description" name="description" rows="4" required= autofocus>{% if post %}{{ post.description }}{% endif %}</textarea>
     </div>
     <div class="mb-3">
-      <label for="tags" class="form-label">Теги (через запятую)</label>
-      <input type="text" class="form-control" id="tags" name="tags" value="{{ post.tags|join(', ') }}" />
+      <label for="tags" class="form-label">Tags (separated by commas)</label>
+      <input type="text"
+        class="form-control"
+        id="tags"
+        name="tags"
+        value="{% if post %}
+          {{ post.tags|join(', ') }}
+        {% endif %}" />
     </div>
-    <button type="submit" class="btn btn-primary">Добавить пост</button>
+    <button type="submit" class="btn btn-primary">{% if post %}Save{%else%}Add{% endif %}</button>
   </form>
 </div>

@@ -4,6 +4,7 @@ const formRef = document.querySelector('form');
 const formMessagesRef = document.querySelector('.messages-text');
 
 
+
 console.log("formMessagesRef: ", formMessagesRef)
 console.log("formRef: ", formRef)
 
@@ -22,19 +23,30 @@ const markFormOnSubmit = () => {
                 console.log(`${name}: ${value}`);
             }
             try {
-                const response = await fetch('http://localhost:8000/post_create', {
+                const res = await fetch('http://localhost:8000/post_create', {
                     method: 'POST',
                     body: formData,
                     headers: headers
                 });
-                console.log("response: ", response)
-                if (response.ok) {
-                    window.location.href = redirect_url;
+                const response_json = await res.json()
+                // console.log("response: ", response)
+                // console.log("response body: ", response_json)
+                if (res.ok) {
+                    console.log("OK")
+                    // const html = await response.text();
+                    // document.open();
+                    // document.write(html);
+                    // document.close();
+                    // console.log("response_json=", response_json)
+                    console.log("redirect_url: ", redirect_url)
+                    red_url = redirect_url + "posts/" + response_json.id
+                    console.log("red_url=", red_url)
+                    window.location.href = red_url;
                 }
                 else {
                     console.log("Error")
-                    console.log(response)
-                    formMessagesRef.textContent = response.status + ": " + response.statusText
+                    console.log(res)
+                    formMessagesRef.textContent = res.status + ": " + res.statusText
                 }
 
 

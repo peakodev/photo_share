@@ -9,14 +9,15 @@
       <div class="container-xxl">
         <div class="container-xxl mt-5">
           user: {{ user.id }}
-          post.user_id: {{ post }}
+          post.user_id: {{ post.user_id }}
+          {% include 'partials/post_service_btn.html' %}
           {% if user.id == post.user_id %}
-            {% include 'partials/post_service_btn.html' %}
+
           {% endif %}
           <h1>Post detail</h1>
           {% if message %}
             <div class="messages my-4">
-              <span class="text-primary">{{ message.json().detail }}</span>
+              <span class="text-primary">{{ message.detail }}</span>
             </div>
           {% endif %}
           {% if post %}
@@ -28,4 +29,47 @@
       </div>
     </section>
   </main>
+  <script>
+    const postUserId = Number('{{ post.user_id }}')
+    const editBtnRef = document.querySelector('#btn-edit-post')
+    console.log('postUserId: ', postUserId, typeof postUserId)
+    
+    const postDetailsRef = document.querySelector('#post-details')
+    const postCommentsRef = document.querySelector('.comments-section')
+    const postFormRef = document.querySelector('#post-form-wrapper')
+    console.log('postDetailsRef: ', postDetailsRef)
+    console.log('postCommentsRef: ', postCommentsRef)
+    console.log('postFormRef: ', postFormRef)
+    
+    userId = Number(localStorage.getItem('user_id'))
+    
+    if (userId === postUserId) {
+      console.log('equal')
+      editBtnRef.removeAttribute('hidden')
+    }
+    
+    console.log(editBtnRef)
+    
+    const editTogglePage = (e) => {
+      console.log(postFormRef)
+      if (postFormRef.hasAttribute('hidden')) {
+        postFormRef.removeAttribute('hidden')
+        editBtnRef.textContent = 'Cancel'
+        postDetailsRef.setAttribute('hidden', true)
+        postCommentsRef.setAttribute('hidden', true)
+      } else {
+        editBtnRef.textContent = 'Edit'
+        postFormRef.setAttribute('hidden', true)
+        postDetailsRef.removeAttribute('hidden')
+        postCommentsRef.removeAttribute('hidden')
+      }
+    }
+    
+    editBtnRef.addEventListener('click', editTogglePage)
+    // postFormRef.classList.toggle('hidden');
+  </script>
+{% endblock %}
+
+{% block scripts %}
+
 {% endblock %}

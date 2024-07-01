@@ -12,10 +12,10 @@ const markFormOnSubmit = () => {
             console.log(`${name}: ${value}`);
         }
 
-        const response = await fetch('/api/auth/signin', {
-            method: 'POST',
-            body: new FormData(e.target)
-        });
+        // const response = await fetch('/api/auth/signin', {
+        //     method: 'POST',
+        //     body: new FormData(e.target)
+        // });
         await fetch('/api/auth/login', {
             method: 'POST',
             body: formData
@@ -27,34 +27,48 @@ const markFormOnSubmit = () => {
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
-                localStorage.setItem('user_id', 1);
+                // localStorage.setItem('user_id', 13);
 
 
                 window.location.href = redirect_url;
             };
         }).catch(async (error) => {
             console.log(error)
+            return
             // Завершился ошибкой
         })
 
-        // const response_user = await fetch(`${/}`, {
-        //     headers: {
-        //         'Authorization': `Bearer ${token}`
-        //     }
-        // });
+        const token = localStorage.getItem('access_token');
+        console.log("read new token=", token)
+        if (token) {
+            try {
+                const newHeaders = new Headers();
+                newHeaders.append('Authorization', `Bearer ${token}`);
 
-        // if (response.ok) {
-        //     const html = await response.text();
-        //     document.open();
-        //     document.write(html);
-        //     document.close();
-        //     window.history.pushState({}, '', page);
-        // } else {
-        //     console.error('!!!Error:', response.status, response.statusText);
-        // }
+                // const headersLog = {};
+                // newHeaders.forEach((value, key) => {
+                //     headersLog[key] = value;
+                // });
+                // console.log("new headers=", headersLog);
 
-        // const result = await response.json();
-        // console.log(result);
+                const res = await fetch('/api/users/', {
+                    method: 'GET',
+                    headers: newHeaders
+                });
+                console.log("new res=", res)
+                if (res.ok) {
+                    const res_json = await res.json();
+                    console.log("res_json=", res_json)
+                    localStorage.setItem('user_id', res_json.id);
+
+                } else {
+                    console.error('!!!Error:', res.status, res.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
     };
 
 }
