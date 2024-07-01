@@ -22,7 +22,24 @@ post_m2m_tag = Table(
 )
 
 
-class Post(Base):
+class Post(Base):  
+    """
+    Post 
+
+    Database object Post(id: int\n
+                        photo_url: str,\n
+                        photo_public_id: str,\n
+                        transform_url: str,\n
+                        description: str,\n
+                        created_at: datatime,\n
+                        updated_at: datatime,\n
+                        tags: relationship(list[Tag]),\n
+                        rating: float,\n
+                        user_id: int,\n
+                        user: relationship(User),\n
+                        comments_count: int\n
+                        )
+    """    
     __tablename__ = "posts"
     id = Column(Integer, primary_key=True, index=True)
     photo_url = Column(String(255))

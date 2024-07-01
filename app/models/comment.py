@@ -12,6 +12,20 @@ from app.models import Base
 
 
 class Comment(Base):
+    """
+    Comment 
+
+    Database model Comment(id: int,\n
+                        text: str,\n
+                        create_at: datatime,\n
+                        update_at: datatime,\n
+                        post_id: int,\n
+                        post: relationship(Post)\n
+                        user_id: int\n
+                        user: relationship(User)
+                        )
+    """    
+    
     __tablename__ = "comments"
     id = Column(Integer, primary_key=True, index=True)
     text = Column(String(255), nullable=False)

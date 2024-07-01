@@ -9,6 +9,16 @@ from app.repository.tags import get_list_of_tags_by_string
 
 
 async def delete_post_by_id(post_id: int, db: Session) -> Post | None:
+    """
+    Search post in database by id, if exist delete post.
+
+    :param post_id: Database object Post.id to delete.
+    :type post_id: int
+    :param db: The database session.
+    :type db: Session
+    :return: Database object Post.
+    :rtype: Post | None
+    """    
     post = db.query(Post).filter_by(id=post_id).first()
     if post:
         db.delete(post)
@@ -22,6 +32,26 @@ async def update_post_by_id(post_id: int,
                             description: str = None,
                             tags: str = None,
                             rating: int = None) -> Post | None:
+    """
+    Update post by id.
+
+    Parameters are optional.
+
+    :param post_id: Database object Post.id to update.
+    :type post_id: int
+    :param db: The database session.
+    :type db: Session
+    :param photo: New picture for post.
+    :type photo: UploadFile, optional
+    :param description: New description for post.
+    :type description: str, optional
+    :param tags: New tag\s for post.
+    :type tags: str, optional
+    :param rating: New rating for post.
+    :type rating: int, optional
+    :return: Database object Post.
+    :rtype: Post | None
+    """    
     post = db.query(Post).filter_by(id=post_id).first()
     if post:
         if photo:
