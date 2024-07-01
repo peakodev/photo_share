@@ -196,7 +196,7 @@ async def get_all_posts_page(
 
 @router.get(
     "/post",
-    name="post_create_page",
+    name="post_create_form_page",
     response_class=HTMLResponse,
 )
 async def get_create_post_page(
@@ -437,7 +437,7 @@ async def fe_signup(
             name="auth/signup.html",
             context={"request": request, "message": response},
         )
-        
+
     print("@@@@@@@@@@@@@@@@@@@@@@")
     # return {"response": response}
     # redirect_url = request.app.url_path_for("signin_page")
@@ -456,4 +456,39 @@ async def fe_signup(
 async def signin_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signin.html", context={"request": request}
+    )
+
+
+@router.get("/resend-activation")
+async def resend_activation_form(request: Request):
+    return templates.TemplateResponse(
+        "/auth/resend_activation.html", {"request": request}
+    )
+
+
+@router.post("/resend-activation")
+async def resend_activation(request: Request, email: str = Form(...)):
+    # Логика для отправки активационного письма
+
+    message = "An activation link has been sent to your email address. Please check your inbox."
+    return templates.TemplateResponse(
+        "/auth/resend_activation.html", {"request": request, "message": message}
+    )
+
+
+@router.get("/reset-password", name="reset_password_page")
+async def reset_password_form(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="/auth/reset_password.html", context={"request": request}
+    )
+
+
+@router.post("/reset-password")
+async def reset_password(request: Request, email: str = Form(...)):
+    # Логика для отправки email с ссылкой на сброс пароля
+    # send_reset_email(email)
+
+    message = "A password reset link has been sent to your email address. Please check your inbox."
+    return templates.TemplateResponse(
+        "/auth/reset_password.html", context={"request": request, "message": message}
     )
