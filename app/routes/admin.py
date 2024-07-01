@@ -20,16 +20,16 @@ router = APIRouter(prefix="/admin", tags=["admin"])
 async def admin_delete_post_by_id(post_id: int, db: Session = Depends(get_db)) -> Post | None:
     """
     Deletes a post by id, the function works only for users with administrator rights.
-    Args:
-        post_id (int): id of post to delete.
-        db (Session, optional): The database session.
-    Raises:
-        HTTPException: HTTP_403_FORBIDDEN
-        HTTPException: HTTP_404_NOT_FOUND
-    
-    Returns:
-        Post | None: Database model Post or None
-    """
+
+    :param post_id: Database object Post.id to delete.
+    :type post_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database model Post or None
+    :rtype: Post | None
+    """    
     result = await delete_post_by_id(post_id, db)
     if result is None:
         raise HTTPException(
@@ -45,29 +45,29 @@ async def admin_update_post_by_id(post_id: int,
                                   db: Session = Depends(get_db),
                                   photo: UploadFile = None,
                                   description: str = None,
-                                  created_at: datetime = None,
-                                  updated_at: datetime = None,
                                   tags: str = None,
                                   rating: int = None
                                                         ) -> Post | None:
     """
     Update a post by id, the function works only for users with administrator rights.
 
-    Args:
-        post_id (int): id of post to update.
-        db (Session): The database session.
-        photo (UploadFile, optional): New photo for post.
-        description (str, optional): New description for post.
-        tags (str, optional): New tags for post
-        rating (int, optional): New rating for post
-
-    Raises:
-        HTTPException: HTTP_403_FORBIDDEN,
-        HTTPException: HTTP_404_NOT_FOUND
-
-    Returns:
-        Post | None: Database model Post or None
-    """    
+    :param post_id: Database object Post.id to update.
+    :type post_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :param photo: New photo for post.
+    :type photo: UploadFile , optional
+    :param description: New description for post.
+    :type description: str, optional
+    :param tags: New tags for post
+    :type tags: str, optional
+    :param rating: New rating for post.
+    :type rating: int, optional
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database object Post
+    :rtype: Post | None
+    """
     post = await update_post_by_id(post_id,
                                    db,
                                    photo,
@@ -87,10 +87,28 @@ async def banning_user_by_id(user_id: int, db: Session = Depends(get_db)) -> Use
     """
     Ban a user by id.
 
-    Args:
-        user_id (int): id of user to ban.
-        db (Session): The database session.
-    """
+    UserDb schema {
+                   id: int\n
+                   first_name: str\n
+                   last_name: str\n
+                   email: str\n
+                   created_at: datetime\n
+                   avatar: str\n
+                   role: Role\n
+                   banned: bool\n
+                   posts_number: int\n
+                   comments_number: int\n
+                   }
+    
+    :param user_id: Id of user to ban.
+    :type user_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :return: Schema
+    :rtype: UserDb
+    """    
     user = await get_user_by_id(user_id, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -109,10 +127,28 @@ async def unbanning_user_by_id(user_id: int, db: Session = Depends(get_db)) -> U
     """
     Unban a user by id.
 
-    Args:
-        user_id (int): id of user to unban.
-        db (Session): The database session.
-    """
+    UserDb schema {
+                id: int\n
+                first_name: str\n
+                last_name: str\n
+                email: str\n
+                created_at: datetime\n
+                avatar: str\n
+                role: Role\n
+                banned: bool\n
+                posts_number: int\n
+                comments_number: int\n
+                }
+
+    :param user_id: id of user to unban.
+    :type user_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :return: Schema
+    :rtype: UserDb
+    """    
     user = await get_user_by_id(user_id, db)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

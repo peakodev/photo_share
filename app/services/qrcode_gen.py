@@ -4,6 +4,14 @@ from qrcode.image.svg import SvgImage
 
 
 async def qrcode_generator(url):
+    """
+    Qrcode generator
+
+    :param url: Cloudinary URL
+    :type url: str
+    :return: QR-code picture
+    :rtype: file.xml
+    """    
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,

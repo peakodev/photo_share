@@ -16,6 +16,25 @@ async def create_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    Create comment for post.
+
+    CommentCreate schema {
+                          post_id: int\n
+                          text: str\n
+                          }
+
+    :param body: Schema.
+    :type body: CommentCreate
+    :param db: The database session.
+    :type db: Session, optional
+    :param current_user: Current user
+    :type current_user: User, optional
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database object Comment.
+    :rtype: Comment
+    """    
     query = select(Post).filter_by(id=body.post_id)
     p = db.execute(query)
     db_post = p.scalar_one_or_none()
@@ -29,6 +48,17 @@ async def create_comment(
 
 @router.get("/{comment_id}", response_model=Comment)
 async def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
+    """
+    Get comment by id.
+
+    :param comment_id: Database object Coment.id to search.
+    :type comment_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database object Comment.
+    :rtype: Comment
+    """    
     db_comment = await repository_comments.get_comment_by_id(comment_id, db)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -39,6 +69,22 @@ async def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
 async def get_comments_by_post(
     post_id: int, offset: int = Query(0), limit: int = Query(10), db: Session = Depends(get_db)
 ):
+    """
+    Get comments by post.
+
+    Return all comments for post.
+
+    :param post_id: Database object Post.id to search.
+    :type post_id: int
+    :param offset: Offset, defaults to Query(0)
+    :type offset: int, optional
+    :param limit: Limit, defaults to Query(10)
+    :type limit: int, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :return: Comments for post.
+    :rtype: List[Comment]
+    """    
     comments = await repository_comments.get_comments_by_post(post_id, offset, limit, db)
     return comments
 
@@ -50,6 +96,27 @@ async def update_comment(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    Update comment.
+
+    Only the owner or admin can update a comment.
+
+    CommentUpdate schema (text: Optional[str] = None)
+
+    :param comment_id: Database object Comment.id to update.
+    :type comment_id: int
+    :param comment: Schema.
+    :type comment: CommentUpdate
+    :param db: The database session.
+    :type db: Session, optional
+    :param user: Commentator.
+    :type user: User, optional
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database object Comment.
+    :rtype: Comment
+    """    
     comment_db = await repository_comments.get_comment_by_id(comment_id, db)
     if comment_db is None:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -72,6 +139,22 @@ async def delete_comment(
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
 ):
+    """
+    Delete comment
+
+    Only the owner or admin can delete a comment.
+
+    :param comment_id: Database object Comment.id to delete.
+    :type comment_id: int
+    :param db: The database session.
+    :type db: Session, optional
+    :param user: Current user.
+    :type user: User, optional
+    :raises HTTPException: HTTP_403_FORBIDDEN
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Database object Comment.
+    :rtype: Comment
+    """    
     comment = await repository_comments.get_comment_by_id(comment_id, db)
     if comment is None:
         raise HTTPException(

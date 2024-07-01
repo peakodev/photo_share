@@ -40,6 +40,16 @@ async def upload_avatar(
     img_file: UploadFile,
     user: User,
 ):
+    """
+    Upload user avatar.
+
+    :param img_file: New picture.
+    :type img_file: UploadFile
+    :param user: Database object User
+    :type user: User
+    :return: Cloudinary URL
+    :rtype: str
+    """    
     public_id = f"{CLOUDINARY_FOLDER}/{user.id}/avatar"
 
     try:
@@ -56,6 +66,16 @@ async def upload_avatar(
 
 
 async def delete_avatar(public_id: str):
+    """
+    Delete avatar
+
+    Delete pictute in Cloudinary
+
+    :param public_id: User id
+    :type public_id: str
+    :return: None
+    :rtype: None
+    """    
     try:
         res = await cloudinary.uploader.destroy(public_id)
     except Exception as err:
@@ -67,6 +87,16 @@ def upload_photo(
     img_file: UploadFile,
     post: Post,
 ):
+    """
+    Upload photo to Cloudinary
+
+    :param img_file: Picture.
+    :type img_file: UploadFile
+    :param post: Database object Post.
+    :type post: Post
+    :return: Cloudinary URL, public id
+    :rtype: str, str
+    """    
     public_id = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos/{post.id}"
 
     try:
@@ -84,6 +114,14 @@ def upload_photo(
 
 
 async def delete_photo(public_id: str) -> dict:
+    """
+    Delete photo by public id
+
+    :param public_id: Public id
+    :type public_id: str
+    :return: None
+    :rtype: None
+    """    
     try:
         res = await cloudinary.uploader.destroy(public_id)
     except Exception as err:
@@ -92,6 +130,16 @@ async def delete_photo(public_id: str) -> dict:
 
 
 async def transform_photo(effect: Effect, post: Post) -> str:
+    """
+    Transform photo
+
+    :param effect: Photo effect
+    :type effect: Effect
+    :param post: Database object Post
+    :type post: Post
+    :return: URL
+    :rtype: str
+    """    
     transformation = [{"effect": effect.value}]
     transform_url = cloudinary.CloudinaryImage(post.photo_public_id).build_url(
         transformation=transformation
