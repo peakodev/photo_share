@@ -15,7 +15,14 @@ from fastapi.security import (
 from sqlalchemy.orm import Session
 
 from app.models import get_db
-from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail, ResetPasswordModel
+from app.schemas.user import (
+    ConfirmEmailModel,
+    UserModel,
+    UserResponse,
+    TokenModel,
+    RequestEmail,
+    ResetPasswordModel,
+)
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.services.email import send_email, send_reset_password_email
@@ -98,7 +105,8 @@ async def login(
         )
     if user.banned:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are banned. Please concact admin",
         )
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
@@ -136,7 +144,8 @@ async def refresh_token(
     user = await repository_users.get_user_by_email(email, db)
     if user.banned:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are banned. Please concact admin",
         )
     if user.refresh_token != token:
         await repository_users.update_token(user, None, db)
@@ -171,6 +180,35 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
     :rtype: json
     """
     email = await auth_service.get_email_from_token(token)
+    user = await repository_users.get_user_by_email(email, db)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
+        )
+    if user.confirmed:
+        return {"message": "Your email is already confirmed"}
+    await repository_users.confirmed_email(email, db)
+    return {"message": "Email confirmed"}
+
+
+@router.post(
+    "/confirm_email_post",
+    name="confirm_email_post",
+)
+async def confirmed_email_post(body: ConfirmEmailModel, db: Session = Depends(get_db)):
+    """
+    Confirmed email.
+
+    :param token: Email token
+    :type token: str
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :return: Massage
+    :rtype: json
+    """
+
+    email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
         raise HTTPException(
@@ -266,7 +304,6 @@ async def reset_password(
     body: ResetPasswordModel,
     db: Session = Depends(get_db),
 ):
-
     """
     Reset password.
 

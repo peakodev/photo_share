@@ -17,7 +17,7 @@
             <h1 class="card-title text-center">Login</h1>
             {% if message %}
               <div class="messages my-4">
-                <span class="text-primary">{{ message.detail }}</span>
+                <span class="text-primary">{{ message.detail or message }}</span>
               </div>
             {% endif %}
             <form id="form-login" method="post" class="col-12">

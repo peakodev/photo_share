@@ -26,29 +26,6 @@ app = FastAPI()
 # )
 
 
-# @app.middleware("http")
-# async def exception_handling_middleware(request: Request, call_next):
-#     try:
-#         print("_______________@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!")
-#         response = await call_next(request)
-#         print(f"_____________{ response=}")
-#         return response
-#     except HTTPException as e:
-#         print("!!!!!!!!!@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!")
-#         return JSONResponse(
-#             status_code=e.status_code,
-#             content={"detail": e.detail},
-#         )
-#     except Exception as e:
-#         # Логирование необработанных исключений
-#         print("^^^^^^^^^^^^^@@@@@@@@@@@@@@@@@@@!!!!!!!!!!!!!!!!!!")
-#         print(f"Unhandled exception: {e}")
-#         return JSONResponse(
-#             status_code=500,
-#             content={"detail": "Internal Server Error"},
-#         )
-
-
 # app.add_middleware(AuthMiddleware)
 
 

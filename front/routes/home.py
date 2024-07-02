@@ -502,6 +502,43 @@ async def resend_activation_form(request: Request):
     )
 
 
+@router.get("/confirm-activation/{token}")
+async def confirm_activation_form(request: Request, token: str):
+    from main import app
+
+    print("route get /confirm-activation", token)
+    api_path = app.url_path_for("confirm_email_post")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, json={"token": token})
+    if response.status_code != 200:
+        print(
+            "!!!!!!!!!!!!!!!!!!! Error ",
+            response.status_code,
+            response.json(),
+        )
+        res_json = response.json()
+        message = f"Error activation email.\n{res_json}"
+
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/resend_activation.html",
+            context={"request": request, "message": message},
+        )
+    # TODO проверить повторную активацию, если уже активирована
+    message = "You email has been activated. Please log in."
+    return templates.TemplateResponse(
+        "/auth/signin.html",
+        {"request": request, "message": message, "confirm": True},
+    )
+    return templates.TemplateResponse(
+        "/auth/resend_activation.html", {"request": request}
+    )
+
+
 @router.post("/resend-activation")
 async def resend_activation(request: Request, email: str = Form(...)):
     # Логика для отправки активационного письма

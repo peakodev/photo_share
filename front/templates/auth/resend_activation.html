@@ -15,16 +15,18 @@
             {% else %}
               <div class="alert alert-info my-4" role="alert">Your email is not confirmed, check your mail or enter your email and click "Send Activation Link".</div>
             {% endif %}
-            <form id="form-resend-activation" action="/resend-activation" method="post">
-              <div class="mb-4">
-                <label class="form-label">Email</label>
-                <input type="email" id="email" name="email" class="form-control" required />
-              </div>
-              <div class="d-grid gap-2">
-                {# <button type="reset" class="btn btn-secondary">Reset</button> #}
-                <button type="submit" class="btn btn-primary">Send Activation Link</button>
-              </div>
-            </form>
+            {% if not confirm %}
+              <form id="form-resend-activation" action="/resend-activation" method="post">
+                <div class="mb-4">
+                  <label class="form-label">Email</label>
+                  <input type="email" id="email" name="email" class="form-control" required />
+                </div>
+                <div class="d-grid gap-2">
+                  {# <button type="reset" class="btn btn-secondary">Reset</button> #}
+                  <button type="submit" class="btn btn-primary">Send Activation Link</button>
+                </div>
+              </form>
+            {% endif %}
           </div>
         </div>
       </div>
