@@ -104,7 +104,7 @@ async def update_user_info(
         avatar = await upload_avatar(avatar, current_user)
 
     body = UserUpdateModel(
-        first_name=first_name, last_name=last_name, email=email, avatar=avatar
+        id=current_user.id, first_name=first_name, last_name=last_name, email=email, avatar=avatar
     )
     updated_user = await repository_users.update_user(current_user.id, body, db)
     return updated_user

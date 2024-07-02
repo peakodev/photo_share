@@ -50,8 +50,6 @@ class PublicUserResponse(BaseModel):
     first_name: str
     last_name: str
     avatar: str
-    posts_number: int
-    comments_number: int
 
 
 class UserResponse(BaseModel):

@@ -38,6 +38,7 @@ class PostResponse(PostCreateResponse):
     comments_count: int
     tags: List[str]
     comments: List[Comment]
+    rating: int | None
     user_id: int
     user: PublicUserResponse
 
