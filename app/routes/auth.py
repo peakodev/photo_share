@@ -222,7 +222,7 @@ async def request_email(
     return {"message": "Check your email for confirmation."}
 
 
-@router.post("/forgot_password")
+@router.post("/forgot_password", name="forgot_password")
 async def forgot_password(
     body: RequestEmail,
     background_tasks: BackgroundTasks,
@@ -261,7 +261,7 @@ async def forgot_password(
     return {"message": "Check your email for password reset link."}
 
 
-@router.post("/reset_password")
+@router.post("/reset_password", name="reset_password")
 async def reset_password(
     body: ResetPasswordModel,
     db: Session = Depends(get_db),

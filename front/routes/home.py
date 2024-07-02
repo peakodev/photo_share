@@ -562,22 +562,23 @@ async def reset_password(request: Request, email: str = Form(...)):
     )
 
 
-@router.get("/new_password/{token}", name="new_password_page")
+@router.get("/new-password/{token}", name="new_password_page")
 async def new_password(request: Request, token: str):
     message = "Enter your new password."
     return templates.TemplateResponse(
-        "/auth/new_password.html",
+        name="auth/new_password.html",
         context={"request": request, "token": token, "message": message},
     )
 
 
-@router.post("/new_password/", name="_enter_new_password_page")
+@router.post("/new-password", name="enter_new_password_page")
 async def enter_new_password(
-    request: Request, token: str = Form(), password: str = Form()
+    request: Request, token: str = Form(...), password: str = Form(...)
 ):
+    print("route post /new_password", token, password)
     from main import app
 
-    api_path = app.url_path_for("auth_new_password")
+    api_path = app.url_path_for("reset_password")
     print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
     print(f"{api_url=}")
@@ -590,8 +591,8 @@ async def enter_new_password(
         res_json = response.json()
         message = f"Error set new password.\n{res_json}"
         return templates.TemplateResponse(
-            request=request,
             name="auth/new_password.html",
+            request=request,
             context={"request": request, "token": token, "message": response.json()},
         )
 
