@@ -1,0 +1,9 @@
+.vertical-center {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+.form-container {
+    margin-top: 20px;
+}

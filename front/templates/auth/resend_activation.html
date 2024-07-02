@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block styles_page %}
+  <link rel="stylesheet" href="/static/css/auth/resend_activation.css" />
+{% endblock %}
+{% block content %}
+  <main>
+    <section>
+      <div class="container vertical-center">
+        <div class="card shadow-sm form-container" style="width: 100%; max-width: 600px;">
+          <div class="card-body">
+            <h2 class="card-title text-center">Resend Activation Email</h2>
+            {% if message %}
+              <div class="alert alert-info my-4" role="alert">{{ message }}</div>
+            {% else %}
+              <div class="alert alert-info my-4" role="alert">Your email is not confirmed, check your mail or enter your email and click "Send Activation Link".</div>
+            {% endif %}
+            {% if not confirm %}
+              <form id="form-resend-activation" action="/resend-activation" method="post">
+                <div class="mb-4">
+                  <label class="form-label">Email</label>
+                  <input type="email" id="email" name="email" class="form-control" required />
+                </div>
+                <div class="d-grid gap-2">
+                  {# <button type="reset" class="btn btn-secondary">Reset</button> #}
+                  <button type="submit" class="btn btn-primary">Send Activation Link</button>
+                </div>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}
