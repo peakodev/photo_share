@@ -15,7 +15,7 @@ from fastapi.security import (
 from sqlalchemy.orm import Session
 
 from app.models import get_db
-from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
+from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail, ResetPasswordModel
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.services.email import send_email, send_reset_password_email
@@ -167,13 +167,12 @@ async def forgot_password(
     return {"message": "Check your email for password reset link."}
 
 
-@router.post("/reset_password/{token}")
+@router.post("/reset_password")
 async def reset_password(
-    token: str,
-    body: UserModel,
+    body: ResetPasswordModel,
     db: Session = Depends(get_db),
 ):
-    email = await auth_service.get_email_from_token(token)
+    email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)
 
     if not user:
