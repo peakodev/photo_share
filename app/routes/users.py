@@ -42,7 +42,7 @@ async def get_me(
     return current_user
 
 
-@router.get("/{user_id}/", response_model=PublicUserResponse, name="get_user_by_id")
+@router.get("/{user_id}/", response_model=UserDb, name="get_user_by_id")
 async def get_user_info(
     user_id: Optional[int] = None,
     db: Session = Depends(get_db),
