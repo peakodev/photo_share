@@ -5,6 +5,11 @@ const markFormOnSubmit = () => {
     document.querySelector('form').onsubmit = async e => {
         e.preventDefault();
 
+        const needConfirmEmail = (response) => {
+            window.location.href = "/resend-activation";
+        }
+
+
         const getUserFromServer = async () => {
             const token = localStorage.getItem('access_token');
             // console.log("read new token=", token)
@@ -47,10 +52,20 @@ const markFormOnSubmit = () => {
             method: 'POST',
             body: formData
         }).then(async response => {
-            if (response.status_code != 200) {
-                // console.log("OK")
+            console.log("response: ", response)
+            if (response.status != 200) {
+                console.log("Error: !!!!!!!!!!!!!!!!!!!!!!!!!")
+                res_json = await response.json();
+                console.log(`response: `, response)
+                console.log(`response.detail: ${response.detail}`)
+                console.log(`res_json.detail: ${res_json.detail}`)
+                if (res_json.detail == "Email not confirmed") {
+                    needConfirmEmail(response)
+                }
+            } else {
+                console.log("OK")
                 data = await response.json();
-                console.log(data)
+                console.log("data: ", data)
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
@@ -58,7 +73,8 @@ const markFormOnSubmit = () => {
                 user = await getUserFromServer();
 
                 window.location.href = redirect_url;
-            };
+                ;
+            }
         }).catch(async (error) => {
             console.log(error)
             return

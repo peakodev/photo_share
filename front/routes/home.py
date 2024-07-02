@@ -1,3 +1,4 @@
+from email import message
 from typing import Annotated, Optional
 import httpx
 
@@ -504,7 +505,25 @@ async def resend_activation_form(request: Request):
 @router.post("/resend-activation")
 async def resend_activation(request: Request, email: str = Form(...)):
     # Логика для отправки активационного письма
+    from main import app
 
+    api_path = app.url_path_for("resend_confirm_email")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, json={"email": email})
+    if response.status_code != 200:
+        # print("!!!!!!!!!!!!!!!!!!! Error starus code not 200")
+        res_json = response.json()
+        message = f"Error send activation email.\n{res_json}"
+
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/resend_activation.html",
+            context={"request": request, "message": message},
+        )
     message = "An activation link has been sent to your email address. Please check your inbox."
     return templates.TemplateResponse(
         "/auth/resend_activation.html", {"request": request, "message": message}
@@ -513,17 +532,70 @@ async def resend_activation(request: Request, email: str = Form(...)):
 
 @router.get("/reset-password", name="reset_password_page")
 async def reset_password_form(request: Request):
+
+    message = (
+        "Enter your email address and we will send you a link to reset your password."
+    )
     return templates.TemplateResponse(
-        request=request, name="/auth/reset_password.html", context={"request": request}
+        request=request,
+        name="/auth/reset_password.html",
+        context={"request": request, "message": message},
     )
 
 
 @router.post("/reset-password")
 async def reset_password(request: Request, email: str = Form(...)):
-    # Логика для отправки email с ссылкой на сброс пароля
-    # send_reset_email(email)
+    from main import app
+
+    api_path = app.url_path_for("forgot_password")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, json={"email": email})
+    # TODO add if response.status_code != 200
 
     message = "A password reset link has been sent to your email address. Please check your inbox."
     return templates.TemplateResponse(
         "/auth/reset_password.html", context={"request": request, "message": message}
+    )
+
+
+@router.get("/new_password/{token}", name="new_password_page")
+async def new_password(request: Request, token: str):
+    message = "Enter your new password."
+    return templates.TemplateResponse(
+        "/auth/new_password.html",
+        context={"request": request, "token": token, "message": message},
+    )
+
+
+@router.post("/new_password/", name="_enter_new_password_page")
+async def enter_new_password(
+    request: Request, token: str = Form(), password: str = Form()
+):
+    from main import app
+
+    api_path = app.url_path_for("auth_new_password")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            api_url, json={"token": token, "password": password}
+        )
+    if response.status_code != 200:
+        res_json = response.json()
+        message = f"Error set new password.\n{res_json}"
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/new_password.html",
+            context={"request": request, "token": token, "message": response.json()},
+        )
+
+    message = "Your password has been set. Please log in."
+    return templates.TemplateResponse(
+        "/auth/signin.html", context={"request": request, "message": message}
     )
