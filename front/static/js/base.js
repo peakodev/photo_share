@@ -56,12 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let is_user_login = false
     const iser_id = localStorage.getItem('user_id')
-    console.log("iser_id: ", iser_id)
+    // console.log("iser_id: ", iser_id)
 
     if (iser_id) {
         is_user_login = true
     }
-    console.log("is_user_login: ", is_user_login)
+    // console.log("is_user_login: ", is_user_login)
     if (is_user_login) {
         navLogoutRef.classList.remove("d-none");
         navSigninRef.classList.add("d-none");

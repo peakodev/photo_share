@@ -4,46 +4,67 @@
   <title>SignUp</title>
 {% endblock %}
 
+{% block styles_page %}
+  <link rel="stylesheet" href="/static/css/auth/signin.css" />
+{% endblock %}
+
 {% block content %}
-  <div class="container-xxl">
-    <h2>Register user</h2>
-    {% if message %}
-      <div class="messages my-4">
-        <span class="text-primary">{{ message.json().detail }}</span>
+  <div class="container vertical-center">
+    <div class="card shadow-sm form-container" style="width: 100%; max-width: 600px;">
+      <div class="card-body">
+        <h2 class="card-title text-center">Register User</h2>
+        {% if message %}
+          <div class="messages my-4">
+            <span class="text-primary">{{ message.json().detail }}</span>
+          </div>
+        {% endif %}
+        <form id="form-signup" action="/signup/" method="post">
+          <div class="mb-3">
+            <label for="firstname" class="form-label">First name</label>
+            <input type="text" id="firstname" name="firstname" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="lastname" class="form-label">Last name</label>
+            <input type="text" id="lastname" name="lastname" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required />
+            <div id="password_message" class="form-text"></div>
+          </div>
+          <div class="d-grid gap-2">
+            {# <button type="reset" class="btn btn-secondary">Reset</button> #}
+            <button type="submit" class="btn btn-primary">Create User</button>
+          </div>
+        </form>
       </div>
-    {% endif %}
-    <form id="form-signup" action="/signup/" method="post">
-      <div class="mb-3">
-        <label class="form-label">First name</label>
-        <input type="text" id="firstname" name="firstname" required />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Last name</label>
-        <input type="text" id="lastname" name="lastname" required />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">email</label>
-        <input type="text" id="email" name="email" required />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Password</label>
-        <input type="password" id="password" name="password" required />
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Repeat Password</label>
-        <input type="password" id="repassword" name="repassword" required />
-      </div>
-
-      <button type="reset" class="btn btn-secondary">Reset</button>
-      <button type="submit" class="btn btn-primary">Create User</button>
-    </form>
+    </div>
   </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script>
     const redirect_url = "{{ url_for('home_page') }}"
     const api_signup = "{{ url_for('signup_post_page') }}"
     
     const is_login = True
+  </script>
+  <script>
+    $(document).ready(function () {
+      $('#password, #confirm_password').on('keyup', function () {
+        if ($('#password').val() == $('#confirm_password').val()) {
+          $('#password_message').html('Passwords match').addClass('text-success').removeClass('text-danger')
+        } else {
+          $('#password_message').html('Passwords do not match').addClass('text-danger').removeClass('text-success')
+        }
+      })
+    })
   </script>
 {% endblock %}
 

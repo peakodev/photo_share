@@ -5,26 +5,31 @@ const markFormOnSubmit = () => {
     document.querySelector('form').onsubmit = async e => {
         e.preventDefault();
 
+        const needConfirmEmail = (response) => {
+            window.location.href = "/resend-activation";
+        }
+
+
         const getUserFromServer = async () => {
             const token = localStorage.getItem('access_token');
-            console.log("read new token=", token)
+            // console.log("read new token=", token)
             if (token) {
                 try {
                     const newHeaders = new Headers();
                     newHeaders.append('Authorization', `Bearer ${token}`);
 
-                    console.log("___start fetch____")
+                    // console.log("___start fetch____")
                     const res = await fetch('/api/users/', {
                         method: 'GET',
                         headers: newHeaders
                     });
-                    console.log("___finish fetch____")
+                    // console.log("___finish fetch____")
                     const res_json = await res.json();
                     // console.log("res_json=", res_json)
                     // console.log("new res=", res)
                     if (res.ok) {
                         localStorage.setItem('user_id', res_json.id);
-
+                        localStorage.setItem('user', JSON.stringify(res_json));
                     } else {
                         console.error('!!!Error:', res.status, res.statusText);
                     }
@@ -41,38 +46,40 @@ const markFormOnSubmit = () => {
         console.log("markFormOnSubmite: ", e)
         const formData = new FormData(e.target);
         console.log("formData=", formData)
-        for (let [name, value] of formData.entries()) {
-            console.log(`${name}: ${value}`);
-        }
 
-        // const response = await fetch('/api/auth/signin', {
-        //     method: 'POST',
-        //     body: new FormData(e.target)
-        // });
+        // Заменить на имя роута */
         await fetch('/api/auth/login', {
             method: 'POST',
             body: formData
         }).then(async response => {
-            if (response.ok) {
+            console.log("response: ", response)
+            if (response.status != 200) {
+                console.log("Error: !!!!!!!!!!!!!!!!!!!!!!!!!")
+                res_json = await response.json();
+                console.log(`response: `, response)
+                console.log(`response.detail: ${response.detail}`)
+                console.log(`res_json.detail: ${res_json.detail}`)
+                if (res_json.detail == "Email not confirmed") {
+                    needConfirmEmail(response)
+                }
+            } else {
                 console.log("OK")
                 data = await response.json();
-                console.log(data)
+                console.log("data: ", data)
                 localStorage.setItem('access_token', data.access_token);
                 localStorage.setItem('refresh_token', data.refresh_token);
                 localStorage.setItem('token_type', data.token_type);
-                // localStorage.setItem('user_id', 13);
 
                 user = await getUserFromServer();
 
                 window.location.href = redirect_url;
-            };
+                ;
+            }
         }).catch(async (error) => {
             console.log(error)
             return
             // Завершился ошибкой
         })
-
-
     };
 
 }
@@ -91,82 +98,5 @@ const config = { childList: true, subtree: true, attributes: true };
 // Начало наблюдения за выбранным элементом
 observer.observe(targetNode, config);
 
-// const observer = new MutationObserver((mutations) => {
-//     mutations.forEach((mutation) => {
-//         if (mutation.type === 'childList') {
-//             console.log('DOM изменён');
-//             // Привязка событий после изменения DOM
-//             markFormOnSubmit();
-//         }
-//     });
-// });
 
 
-// document.querySelector('form').onsubmit = async e => {
-//     e.preventDefault();
-//     console.log(e)
-//     const formData = new FormData(e.target);
-//     console.log("formData=", formData)
-//     // const response = await fetch('/api/auth/signin', {
-//     //     method: 'POST',
-//     //     body: new FormData(e.target) 
-//     // });
-//     await fetch('/api/auth/signin', {
-//         method: 'POST',
-//         body: formData
-//     }).then(async response => {
-//         if (response.ok) {
-//             console.log("OK")
-//             data = await response.json();
-//             console.log(data)
-//             localStorage.setItem('access_token', data.access_token);
-//             localStorage.setItem('refresh_token', data.refresh_token);
-//             localStorage.setItem('token_type', data.token_type);
-
-//         };
-//     }).catch(async (error) => {
-//         console.log(error)
-//         // Завершился ошибкой
-//     })
-
-//     const result = await response.json();
-//     console.log(result);
-// };
-
-
-
-
-async function login(e) {
-    // const formData = new FormData(e.target);
-    // console.log(e);
-    // fetch('/api/auth/signin', {
-    //     method: 'POST',
-    //     body: formData
-    // }).then(response => {
-    //     if (response.ok) {
-    //         console.log("OK")
-    //         console.log(response)
-
-    //         localStorage.setItem('access_token', data.access_token);
-    //     }
-    // })
-    // const response = await fetch('/api/auth/signin', {
-    // method: 'POST',
-    // body: formData
-    // });
-    // const data = await response.json();
-    // if (response.ok) {
-    //     console.log(data);
-    //     localStorage.setItem('access_token', data.access_token);
-    //     window.location.href = '/protected';
-    // } else {
-    //     console.log("!!!! error auth", data.detail)
-    //     alert('Login failed: ' + data.detail);
-    // }
-}
-
-
-// form.addEventListener('submit', (e) => {
-//     e.preventDefault();
-//     login(e);
-// })

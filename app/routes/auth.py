@@ -15,7 +15,14 @@ from fastapi.security import (
 from sqlalchemy.orm import Session
 
 from app.models import get_db
-from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
+from app.schemas.user import (
+    ConfirmEmailModel,
+    UserModel,
+    UserResponse,
+    TokenModel,
+    RequestEmail,
+    ResetPasswordModel,
+)
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.services.email import send_email, send_reset_password_email
@@ -36,6 +43,28 @@ async def signup(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Signup user.
+
+    UserModel schema {
+                      first_name: str\n
+                      last_name: str\n
+                      email: str\n
+                      password: str = Field(min_length=6, max_length=25)\n
+                      }
+
+    :param body: Schema
+    :type body: UserModel
+    :param background_tasks: BackgroundTasks
+    :type background_tasks: BackgroundTasks
+    :param request: Request
+    :type request: Request
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_409_CONFLICT
+    :return: massage
+    :rtype: json
+    """
     print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
@@ -52,6 +81,18 @@ async def signup(
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
+    """
+    Login user.
+
+    :param body: Form
+    :type body: OAuth2PasswordRequestForm, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_401_UNAUTHORIZED
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: JWT Tokens
+    :rtype: json
+    """
     print(f"#R_Login - verifying email: {body.username}")
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
@@ -64,7 +105,8 @@ async def login(
         )
     if user.banned:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are banned. Please concact admin",
         )
     if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(
@@ -86,12 +128,24 @@ async def refresh_token(
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: Session = Depends(get_db),
 ):
+    """
+    Refresh token.
+
+    :param credentials: Security
+    :type credentials: HTTPAuthorizationCredentials, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_401_UNAUTHORIZED
+    :return: JWT Tokens
+    :rtype: json
+    """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_email(email, db)
     if user.banned:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="You are banned. Please concact admin"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="You are banned. Please concact admin",
         )
     if user.refresh_token != token:
         await repository_users.update_token(user, None, db)
@@ -114,7 +168,47 @@ async def refresh_token(
     name="confirm_email",
 )
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
+    """
+    Confirmed email.
+
+    :param token: Email token
+    :type token: str
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :return: Massage
+    :rtype: json
+    """
     email = await auth_service.get_email_from_token(token)
+    user = await repository_users.get_user_by_email(email, db)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Verification error"
+        )
+    if user.confirmed:
+        return {"message": "Your email is already confirmed"}
+    await repository_users.confirmed_email(email, db)
+    return {"message": "Email confirmed"}
+
+
+@router.post(
+    "/confirm_email_post",
+    name="confirm_email_post",
+)
+async def confirmed_email_post(body: ConfirmEmailModel, db: Session = Depends(get_db)):
+    """
+    Confirmed email.
+
+    :param token: Email token
+    :type token: str
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :return: Massage
+    :rtype: json
+    """
+
+    email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
         raise HTTPException(
@@ -133,6 +227,25 @@ async def request_email(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Request email.
+
+    RequestEmail schema {
+                        email: EmailStr\n
+                        }
+
+    :param body: Schema
+    :type body: RequestEmail
+    :param background_tasks: BackgroundTasks
+    :type background_tasks: BackgroundTasks
+    :param request: Request
+    :type request: Request
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Massage
+    :rtype: json
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if user is None:
@@ -147,13 +260,32 @@ async def request_email(
     return {"message": "Check your email for confirmation."}
 
 
-@router.post("/forgot_password")
+@router.post("/forgot_password", name="forgot_password")
 async def forgot_password(
     body: RequestEmail,
     background_tasks: BackgroundTasks,
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Forgot password
+
+    RequestEmail schema {
+                        email: EmailStr\n
+                        }
+
+    :param body: Schema
+    :type body: RequestEmail
+    :param background_tasks: BackgroundTasks
+    :type background_tasks: BackgroundTasks
+    :param request: Request
+    :type request: Request
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Massage
+    :rtype: json
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if not user:
@@ -167,13 +299,28 @@ async def forgot_password(
     return {"message": "Check your email for password reset link."}
 
 
-@router.post("/reset_password/{token}")
+@router.post("/reset_password", name="reset_password")
 async def reset_password(
-    token: str,
-    body: UserModel,
+    body: ResetPasswordModel,
     db: Session = Depends(get_db),
 ):
-    email = await auth_service.get_email_from_token(token)
+    """
+    Reset password.
+
+    ResetPasswordModel schema {
+                      token: str\n
+                      password: str = Field(min_length=6, max_length=25)\n
+                      }
+
+    :param body: Schema
+    :type body: UserModel
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Massage
+    :rtype: json
+    """
+    email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)
 
     if not user:

@@ -37,7 +37,7 @@ async def get_comments_by_post(
     :type limit: int
     :param db: The database session.
     :type db: Session
-    :return: Commets for post.
+    :return: Comments for post.
     :rtype: List[Comment] | None
     """    
     query = (
@@ -70,7 +70,6 @@ async def create_comment(
     :rtype: Comment
     """    
     db_comment = Comment(**comment.model_dump(exclude_unset=True), user_id=user_id)
-    print(db_comment.post_id)
     db.add(db_comment)
     db.commit()
     db.refresh(db_comment)

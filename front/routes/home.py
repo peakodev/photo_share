@@ -1,3 +1,4 @@
+from email import message
 from typing import Annotated, Optional
 import httpx
 
@@ -196,7 +197,7 @@ async def get_all_posts_page(
 
 @router.get(
     "/post",
-    name="post_create_page",
+    name="post_create_form_page",
     response_class=HTMLResponse,
 )
 async def get_create_post_page(
@@ -278,8 +279,50 @@ async def post_create_post_page(
     )
 
 
+@router.get(
+    "/posts/{post_id}",
+    name="post_id_page",
+)
+async def get_post_page(
+    post_id: int,
+    request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
+):
+    from main import app
+
+    # print(f"{request.headers}")
+    print(f"{post_id=}")
+    api_path = app.url_path_for("get_post_by_id", post_id=post_id)
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(api_url, headers=request.headers)
+    except Exception as err:
+        print("!!!!! error", err)
+        return {"err": err}
+
+    if response.status_code != 200:
+        return templates.TemplateResponse(
+            request=request,
+            name="post_id.html",
+            context={"request": request, "message": response},
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="post_id.html",
+        context={
+            "request": request,
+            "post": response.json(),
+            "user": user,
+            "is_user": True if user else False,
+        },
+    )
+
+
 @router.put(
-    "/post/{post_id}",
+    "/posts/{post_id}",
     name="posts_update_page",
     # response_class=HTMLResponse,
 )
@@ -347,50 +390,8 @@ async def post_update_post_page(
     )
 
 
-@router.get(
-    "/posts/{post_id}",
-    name="post_id_page",
-)
-async def get_post_page(
-    post_id: int,
-    request: Request,
-    user: Optional[User] = Depends(get_user_from_request),
-):
-    from main import app
-
-    # print(f"{request.headers}")
-    print(f"{post_id=}")
-    api_path = app.url_path_for("get_post_by_id", post_id=post_id)
-    print(f"{api_path=}")
-    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, headers=request.headers)
-    except Exception as err:
-        print("!!!!! error", err)
-        return {"err": err}
-
-    if response.status_code != 200:
-        return templates.TemplateResponse(
-            request=request,
-            name="post_id.html",
-            context={"request": request, "message": response},
-        )
-
-    return templates.TemplateResponse(
-        request=request,
-        name="post_id.html",
-        context={
-            "request": request,
-            "post": response.json(),
-            "user": user,
-            "is_user": True if user else False,
-        },
-    )
-
-
-@router.get("/signup", name="signup_page")
-async def signup_page(request: Request):
+@router.get("/signup", name="signup_form_page")
+async def signup_form_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signup.html", context={"request": request}
     )
@@ -421,7 +422,7 @@ async def fe_signup(
 
     api_path = app.url_path_for("auth_post_signup")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    api_url = "http://localhost:8000/api/auth/signup"
+    # api_url = "http://localhost:8000/api/auth/signup"
     print(f"{api_url=}")
 
     try:
@@ -437,7 +438,7 @@ async def fe_signup(
             name="auth/signup.html",
             context={"request": request, "message": response},
         )
-        
+
     print("@@@@@@@@@@@@@@@@@@@@@@")
     # return {"response": response}
     # redirect_url = request.app.url_path_for("signin_page")
@@ -452,8 +453,187 @@ async def fe_signup(
     )
 
 
-@router.get("/signin", name="signin_page")
-async def signin_page(request: Request):
+@router.get("/signin", name="signin_form_page")
+async def signin_form_page(request: Request):
     return templates.TemplateResponse(
         request=request, name="auth/signin.html", context={"request": request}
+    )
+
+
+@router.post("/signin", name="signin_page")
+async def signin_page(
+    request: Request,
+    username: Annotated[str, Form()],
+    password: Annotated[str, Form()],
+):
+    from main import app
+
+    form_data = {
+        "username": username,
+        "password": password,
+    }
+    api_path = app.url_path_for("auth_signin")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, data=form_data)
+    print(f"{response=}")
+    if response.status_code != 200:
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/signin.html",
+            context={"request": request, "message": response.json()},
+        )
+    # print("!!!!!!!!!!!!!!!!!!!")
+    response_json = response.json()
+    print(f"{response_json=}")
+    # return templates.TemplateResponse(
+    #     request=request, name="auth/signin.html", context={"request": request}
+    # )
+    return JSONResponse(content=response_json, status_code=status.HTTP_202_ACCEPTED)
+
+
+@router.get("/resend-activation")
+async def resend_activation_form(request: Request):
+    return templates.TemplateResponse(
+        "/auth/resend_activation.html", {"request": request}
+    )
+
+
+@router.get("/confirm-activation/{token}")
+async def confirm_activation_form(request: Request, token: str):
+    from main import app
+
+    print("route get /confirm-activation", token)
+    api_path = app.url_path_for("confirm_email_post")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, json={"token": token})
+    if response.status_code != 200:
+        print(
+            "!!!!!!!!!!!!!!!!!!! Error ",
+            response.status_code,
+            response.json(),
+        )
+        res_json = response.json()
+        message = f"Error activation email.\n{res_json}"
+
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/resend_activation.html",
+            context={"request": request, "message": message},
+        )
+    # TODO проверить повторную активацию, если уже активирована
+    message = "You email has been activated. Please log in."
+    return templates.TemplateResponse(
+        "/auth/signin.html",
+        {"request": request, "message": message, "confirm": True},
+    )
+    return templates.TemplateResponse(
+        "/auth/resend_activation.html", {"request": request}
+    )
+
+
+@router.post("/resend-activation")
+async def resend_activation(request: Request, email: str = Form(...)):
+    # Логика для отправки активационного письма
+    from main import app
+
+    api_path = app.url_path_for("resend_confirm_email")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, json={"email": email})
+    if response.status_code != 200:
+        # print("!!!!!!!!!!!!!!!!!!! Error starus code not 200")
+        res_json = response.json()
+        message = f"Error send activation email.\n{res_json}"
+
+        return templates.TemplateResponse(
+            request=request,
+            name="auth/resend_activation.html",
+            context={"request": request, "message": message},
+        )
+    message = "An activation link has been sent to your email address. Please check your inbox."
+    return templates.TemplateResponse(
+        "/auth/resend_activation.html", {"request": request, "message": message}
+    )
+
+
+@router.get("/reset-password", name="reset_password_page")
+async def reset_password_form(request: Request):
+
+    message = (
+        "Enter your email address and we will send you a link to reset your password."
+    )
+    return templates.TemplateResponse(
+        request=request,
+        name="/auth/reset_password.html",
+        context={"request": request, "message": message},
+    )
+
+
+@router.post("/reset-password")
+async def reset_password(request: Request, email: str = Form(...)):
+    from main import app
+
+    api_path = app.url_path_for("forgot_password")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(api_url, json={"email": email})
+    # TODO add if response.status_code != 200
+
+    message = "A password reset link has been sent to your email address. Please check your inbox."
+    return templates.TemplateResponse(
+        "/auth/reset_password.html", context={"request": request, "message": message}
+    )
+
+
+@router.get("/new-password/{token}", name="new_password_page")
+async def new_password(request: Request, token: str):
+    message = "Enter your new password."
+    return templates.TemplateResponse(
+        name="auth/new_password.html",
+        context={"request": request, "token": token, "message": message},
+    )
+
+
+@router.post("/new-password", name="enter_new_password_page")
+async def enter_new_password(
+    request: Request, token: str = Form(...), password: str = Form(...)
+):
+    print("route post /new_password", token, password)
+    from main import app
+
+    api_path = app.url_path_for("reset_password")
+    print(f"{api_path=}")
+    api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+    print(f"{api_url=}")
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            api_url, json={"token": token, "password": password}
+        )
+    if response.status_code != 200:
+        res_json = response.json()
+        message = f"Error set new password.\n{res_json}"
+        return templates.TemplateResponse(
+            name="auth/new_password.html",
+            request=request,
+            context={"request": request, "token": token, "message": response.json()},
+        )
+
+    message = "Your password has been set. Please log in."
+    return templates.TemplateResponse(
+        "/auth/signin.html", context={"request": request, "message": message}
     )

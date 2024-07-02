@@ -10,6 +10,13 @@ class UserModel(BaseModel):
     password: str = Field(min_length=6, max_length=25)
 
 
+class ResetPasswordModel(BaseModel):
+    token: str
+    password: str = Field(min_length=6, max_length=25)
+
+class ConfirmEmailModel(BaseModel):
+    token: str
+
 class UserUpdateModel(BaseModel):
     id: int
     first_name: str | None
@@ -45,8 +52,6 @@ class PublicUserResponse(BaseModel):
     first_name: str
     last_name: str
     avatar: str
-    posts_number: int
-    comments_number: int
 
 
 class UserResponse(BaseModel):
