@@ -4,7 +4,8 @@
 const markFormOnSubmit = () => {
     document.querySelector('form').onsubmit = async e => {
         e.preventDefault();
-
+        const messagesRef = document.querySelector('.messages span')
+        console.log(`messagesRef: `, messagesRef)
         const needConfirmEmail = (response) => {
             window.location.href = "/resend-activation";
         }
@@ -62,6 +63,7 @@ const markFormOnSubmit = () => {
                 if (res_json.detail == "Email not confirmed") {
                     needConfirmEmail(response)
                 }
+                messagesRef.innerHTML = res_json.detail
             } else {
                 console.log("OK")
                 data = await response.json();
@@ -79,6 +81,8 @@ const markFormOnSubmit = () => {
             console.log(error)
             return
             // Завершился ошибкой
+        }).finally(async (response) => {
+
         })
     };
 

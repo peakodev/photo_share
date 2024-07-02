@@ -1,38 +1,31 @@
-from email import message
 from typing import Annotated, Optional
 import httpx
 
 from fastapi import (
     APIRouter,
     Depends,
-    FastAPI,
     File,
     Form,
-    HTTPException,
     Request,
     UploadFile,
     status,
 )
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from httpx import AsyncClient
 
-from app.middlewares.middlewares import AuthMiddleware
 from app.models.user import User
-from app.schemas.post import PostResponse
-from app.schemas.user import TokenModel
-from app.services.auth import auth_service
 
-from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
+from app.schemas.user import UserResponse
 
 # app = FastAPI()
 
 router = APIRouter()
+
 templates = Jinja2Templates(directory="front/templates")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-# oauth2_scheme = OAuth2PasswordBearer()
 
 
 async def get_token_optional(request: Request) -> Optional[str]:
@@ -56,8 +49,8 @@ async def get_user_from_request(request: Request) -> Optional[User]:
             api_path = app.url_path_for("get_user")
             api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
 
-            print(f'"!!!!!!!!!!  {request.headers=}"')
-            print(f'"!!!!!!!!!!  {headers=}"')
+            # print(f'"!!!!!!!!!!  {request.headers=}"')
+            # print(f'"!!!!!!!!!!  {headers=}"')
 
             async with AsyncClient() as client:
                 response = await client.get(api_url, headers=headers)
@@ -68,16 +61,14 @@ async def get_user_from_request(request: Request) -> Optional[User]:
     return user
 
 
-async def log_response(response):
-    print(
-        f"!#F_Route - ERROR - signup user, res: \
-        \n {response.status_code=}\
-        \n {response.reason_phrase=}\
-        \n {response.json()=}\
-        \n {response.content=}\
-        \n {response.text=}\
-        \n {response=}"
-    )
+async def add_user_to_request(request: Request, call_next):
+    user = await get_user_from_request(request)
+    request.state.user = user
+    response = await call_next(request)
+    return response
+
+
+# router.middleware_stack.add()  ("http")(add_user_to_request)
 
 
 @router.get(
@@ -86,11 +77,12 @@ async def log_response(response):
 )
 def get_home(
     request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     return templates.TemplateResponse(
         request=request,
         name="home.html",
-        context={},
+        context={"user": user, "is_user": True if user else False},
     )
 
 
@@ -123,6 +115,8 @@ async def get_my_posts_page(
                 context={
                     "request": request,
                     "message": response.json(),
+                    "user": user,
+                    "is_user": True if user else False,
                 },
             )
         return templates.TemplateResponse(
@@ -143,6 +137,8 @@ async def get_my_posts_page(
             context={
                 "request": request,
                 "message": {"detail": "Not authorized"},
+                "user": user,
+                "is_user": True if user else False,
             },
         )
 
@@ -187,11 +183,15 @@ async def get_all_posts_page(
             },
         )
 
-    # await log_response(response)
     return templates.TemplateResponse(
         request=request,
         name="posts.html",
-        context={"request": request, "posts": response.json()},
+        context={
+            "request": request,
+            "posts": response.json(),
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
@@ -208,7 +208,7 @@ async def get_create_post_page(
     return templates.TemplateResponse(
         request=request,
         name="post_create.html",
-        context={"request": request, "user": user},
+        context={"request": request, "user": user, "is_user": True if user else False},
     )
 
 
@@ -253,7 +253,12 @@ async def post_create_post_page(
             return templates.TemplateResponse(
                 request=request,
                 name="post_create.html",
-                context={"request": request, "message": response_json_py},
+                context={
+                    "request": request,
+                    "message": response_json_py,
+                    "user": user,
+                    "is_user": True if user else False,
+                },
             )
         print("Return ")
         return JSONResponse(
@@ -267,6 +272,7 @@ async def post_create_post_page(
             "post": response_json_py,
             "message": {"detail": "Not authorized"},
             "user": user,
+            "is_user": True if user else False,
         },
     )
 
@@ -294,7 +300,12 @@ async def get_post_page(
         return templates.TemplateResponse(
             request=request,
             name="post_id.html",
-            context={"request": request, "message": response},
+            context={
+                "request": request,
+                "message": response,
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
 
     return templates.TemplateResponse(
@@ -352,7 +363,12 @@ async def post_update_post_page(
             return templates.TemplateResponse(
                 request=request,
                 name="post_create.html",
-                context={"request": request, "message": response_json_py},
+                context={
+                    "request": request,
+                    "message": response_json_py,
+                    "user": user,
+                    "is_user": True if user else False,
+                },
             )
         return JSONResponse(content=response_json_py, status_code=status.HTTP_200_OK)
     return templates.TemplateResponse(
@@ -363,14 +379,24 @@ async def post_update_post_page(
             "post": response_json_py,
             "message": {"detail": "Post not update, need authorization"},
             "user": user,
+            "is_user": True if user else False,
         },
     )
 
 
 @router.get("/signup", name="signup_form_page")
-async def signup_form_page(request: Request):
+async def signup_form_page(
+    request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
+):
     return templates.TemplateResponse(
-        request=request, name="auth/signup.html", context={"request": request}
+        request=request,
+        name="auth/signup.html",
+        context={
+            "request": request,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
@@ -385,6 +411,7 @@ async def fe_signup(
     lastname: Annotated[str, Form()],
     email: Annotated[str, Form()],
     password: Annotated[str, Form()],
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     from main import app
 
@@ -407,7 +434,12 @@ async def fe_signup(
         return templates.TemplateResponse(
             request=request,
             name="auth/signup.html",
-            context={"request": request, "message": response},
+            context={
+                "request": request,
+                "message": response,
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
 
     # redirect_url = request.app.url_path_for("home_page")
@@ -415,14 +447,28 @@ async def fe_signup(
     return templates.TemplateResponse(
         request=request,
         name="auth/signin.html",
-        context={"request": request, "message": message},
+        context={
+            "request": request,
+            "message": message,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.get("/signin", name="signin_form_page")
-async def signin_form_page(request: Request):
+async def signin_form_page(
+    request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
+):
     return templates.TemplateResponse(
-        request=request, name="auth/signin.html", context={"request": request}
+        request=request,
+        name="auth/signin.html",
+        context={
+            "request": request,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
@@ -431,6 +477,7 @@ async def signin_page(
     request: Request,
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     from main import app
 
@@ -444,24 +491,54 @@ async def signin_page(
     async with httpx.AsyncClient() as client:
         response = await client.post(api_url, data=form_data)
     if response.status_code != 200:
+        res_json = response.json()
+        if response.status_code == 401 and res_json.get("detail") == "Email not confirmed":
+            return templates.TemplateResponse(
+                request=request,
+                name="auth/signin.html",
+                context={
+                    "request": request,
+                    "message": res_json,
+                    "user": user,
+                    "is_user": True if user else False,
+                }
+            )
+        print(f"create error:{response.status_code=}")
         return templates.TemplateResponse(
             request=request,
             name="auth/signin.html",
-            context={"request": request, "message": response.json()},
+            context={
+                "request": request,
+                "message": response.json(),
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
     response_json = response.json()
-    return JSONResponse(content=response_json, status_code=status.HTTP_202_ACCEPTED)
+    return JSONResponse(content=response_json, status_code=status.HTTP_200_OK)
 
 
 @router.get("/resend-activation")
-async def resend_activation_form(request: Request):
+async def resend_activation_form(
+    request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
+):
     return templates.TemplateResponse(
-        "/auth/resend_activation.html", {"request": request}
+        "/auth/resend_activation.html",
+        {
+            "request": request,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.get("/confirm-activation/{token}")
-async def confirm_activation_form(request: Request, token: str):
+async def confirm_activation_form(
+    request: Request,
+    token: str,
+    user: Optional[User] = Depends(get_user_from_request),
+):
     from main import app
 
     api_path = app.url_path_for("confirm_email_post")
@@ -480,18 +557,33 @@ async def confirm_activation_form(request: Request, token: str):
         return templates.TemplateResponse(
             request=request,
             name="auth/resend_activation.html",
-            context={"request": request, "message": message},
+            context={
+                "request": request,
+                "message": message,
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
     # TODO проверить повторную активацию, если уже активирована
     message = "You email has been activated. Please log in."
     return templates.TemplateResponse(
         "/auth/signin.html",
-        {"request": request, "message": message, "confirm": True},
+        {
+            "request": request,
+            "message": message,
+            "confirm": True,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.post("/resend-activation")
-async def resend_activation(request: Request, email: str = Form(...)):
+async def resend_activation(
+    request: Request,
+    email: str = Form(...),
+    user: Optional[User] = Depends(get_user_from_request),
+):
     # Логика для отправки активационного письма
     from main import app
 
@@ -510,16 +602,30 @@ async def resend_activation(request: Request, email: str = Form(...)):
         return templates.TemplateResponse(
             request=request,
             name="auth/resend_activation.html",
-            context={"request": request, "message": message},
+            context={
+                "request": request,
+                "message": message,
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
     message = "An activation link has been sent to your email address. Please check your inbox."
     return templates.TemplateResponse(
-        "/auth/resend_activation.html", {"request": request, "message": message}
+        "/auth/resend_activation.html",
+        {
+            "request": request,
+            "message": message,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.get("/reset-password", name="reset_password_page")
-async def reset_password_form(request: Request):
+async def reset_password_form(
+    request: Request,
+    user: Optional[User] = Depends(get_user_from_request),
+):
 
     message = (
         "Enter your email address and we will send you a link to reset your password."
@@ -527,12 +633,21 @@ async def reset_password_form(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="/auth/reset_password.html",
-        context={"request": request, "message": message},
+        context={
+            "request": request,
+            "message": message,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.post("/reset-password")
-async def reset_password(request: Request, email: str = Form(...)):
+async def reset_password(
+    request: Request,
+    email: str = Form(...),
+    user: Optional[User] = Depends(get_user_from_request),
+):
     from main import app
 
     api_path = app.url_path_for("forgot_password")
@@ -546,22 +661,41 @@ async def reset_password(request: Request, email: str = Form(...)):
 
     message = "A password reset link has been sent to your email address. Please check your inbox."
     return templates.TemplateResponse(
-        "/auth/reset_password.html", context={"request": request, "message": message}
+        "/auth/reset_password.html",
+        context={
+            "request": request,
+            "message": message,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.get("/new-password/{token}", name="new_password_page")
-async def new_password(request: Request, token: str):
+async def new_password(
+    request: Request,
+    token: str,
+    user: Optional[User] = Depends(get_user_from_request),
+):
     message = "Enter your new password."
     return templates.TemplateResponse(
         name="auth/new_password.html",
-        context={"request": request, "token": token, "message": message},
+        context={
+            "request": request,
+            "token": token,
+            "message": message,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
 @router.post("/new-password", name="enter_new_password_page")
 async def enter_new_password(
-    request: Request, token: str = Form(...), password: str = Form(...)
+    request: Request,
+    token: str = Form(...),
+    password: str = Form(...),
+    user: Optional[User] = Depends(get_user_from_request),
 ):
     print("route post /new_password", token, password)
     from main import app
@@ -581,10 +715,22 @@ async def enter_new_password(
         return templates.TemplateResponse(
             name="auth/new_password.html",
             request=request,
-            context={"request": request, "token": token, "message": response.json()},
+            context={
+                "request": request,
+                "token": token,
+                "message": response.json(),
+                "user": user,
+                "is_user": True if user else False,
+            },
         )
 
     message = "Your password has been set. Please log in."
     return templates.TemplateResponse(
-        "/auth/signin.html", context={"request": request, "message": message}
+        "/auth/signin.html",
+        context={
+            "request": request,
+            "message": message,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )

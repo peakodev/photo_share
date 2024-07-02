@@ -10,6 +10,8 @@ from front.routes import home
 
 app = FastAPI()
 
+home.router.app = app
+
 # origins = [
 #     "http://localhost.tiangolo.com",
 #     "https://localhost.tiangolo.com",
