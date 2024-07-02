@@ -10,6 +10,11 @@ class UserModel(BaseModel):
     password: str = Field(min_length=6, max_length=25)
 
 
+class ResetPasswordModel(BaseModel):
+    token: str
+    password: str = Field(min_length=6, max_length=25)
+
+
 class UserUpdateModel(BaseModel):
     id: int
     first_name: str | None
