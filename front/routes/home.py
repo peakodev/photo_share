@@ -224,10 +224,8 @@ async def post_create_post_page(
     photo: UploadFile = File(...),
     user: Optional[User] = Depends(get_user_from_request),
 ):
-    print("@@@@@@@ Post CREATE PAGE")
     from main import app
 
-    print(f"{request.headers}")
     headers = {}
     is_token = False
     if "authorization" in request.headers:
@@ -235,13 +233,9 @@ async def post_create_post_page(
         is_token = True
 
     if is_token:
-        print(f'request.url_for("create_post"): {request.url_for("create_post")}')
         api_path = app.url_path_for("create_post")
         api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-
         api_url = str(request.url_for("create_post"))
-        # print(f"______ {api_url=}")
-        print(f"______ {str(api_url)=}")
 
         file_content = await photo.read()
 
@@ -253,9 +247,7 @@ async def post_create_post_page(
                 api_url, params=params, files=file, headers=headers
             )
 
-        # print(f"{response.status_code=}")
         response_json_py = response.json()
-        # print(f"+++++++++ {response_json_py=}")
         if response.status_code != 201:
             print(f"create error:{response.status_code=}")
             return templates.TemplateResponse(
@@ -290,16 +282,12 @@ async def get_post_page(
 ):
     from main import app
 
-    # print(f"{request.headers}")
-    print(f"{post_id=}")
     api_path = app.url_path_for("get_post_by_id", post_id=post_id)
-    print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(api_url, headers=request.headers)
     except Exception as err:
-        print("!!!!! error", err)
         return {"err": err}
 
     if response.status_code != 200:
@@ -334,10 +322,8 @@ async def post_update_post_page(
     photo: UploadFile = File(default=None),
     user: Optional[User] = Depends(get_user_from_request),
 ):
-    print("@@@@@@@ Post UPDATE PAGE")
     from main import app
 
-    print(f"{request.headers}")
     headers = {}
     is_token = False
     if "authorization" in request.headers:
@@ -345,17 +331,11 @@ async def post_update_post_page(
         is_token = True
 
     if is_token:
-        print(
-            f'request.url_for("update_post"): {request.url_for("update_post", post_id=post_id)}'
-        )
+
         api_path = app.url_path_for("update_post", post_id=post_id)
         api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-
         api_url = str(request.url_for("update_post", post_id=post_id))
-        # print(f"______ {api_url=}")
-        # print(f"______ {str(api_url)=}")
 
-        # if photo is None and photo.filename:
         if True:
             print(f"############# file {photo}")
             file_content = await photo.read()
@@ -366,9 +346,7 @@ async def post_update_post_page(
                     api_url, params=params, files=file, headers=headers
                 )
 
-        print(f"{response.status_code=}")
         response_json_py = response.json()
-        print(f"+++++++++ {response_json_py=}")
         if response.status_code != 200:
             print(f"create error:{response.status_code=}")
             return templates.TemplateResponse(
@@ -376,7 +354,6 @@ async def post_update_post_page(
                 name="post_create.html",
                 context={"request": request, "message": response_json_py},
             )
-        print("Return ")
         return JSONResponse(content=response_json_py, status_code=status.HTTP_200_OK)
     return templates.TemplateResponse(
         request=request,
@@ -417,13 +394,8 @@ async def fe_signup(
         "email": email,
         "password": password,
     }
-    # print("!!!!!!! formdata", email)
-    print("!!!!!!! formdata", form_data)
-
     api_path = app.url_path_for("auth_post_signup")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    # api_url = "http://localhost:8000/api/auth/signup"
-    print(f"{api_url=}")
 
     try:
         async with httpx.AsyncClient() as client:
@@ -431,7 +403,6 @@ async def fe_signup(
     except Exception as err:
         print("!!!!! error", err)
         return {"err": err}
-    print(f"{response=}")
     if response.status_code != 201:
         return templates.TemplateResponse(
             request=request,
@@ -439,17 +410,12 @@ async def fe_signup(
             context={"request": request, "message": response},
         )
 
-    print("@@@@@@@@@@@@@@@@@@@@@@")
-    # return {"response": response}
-    # redirect_url = request.app.url_path_for("signin_page")
-    redirect_url = request.app.url_path_for("home_page")
-    # return RedirectResponse(url=redirect_url, status_code=303)
-    # return {"user": new_user, "detail": "User successfully created"}
-    # return {"user": response.user, "detail": response.detail}
+    # redirect_url = request.app.url_path_for("home_page")
+    message = "Please confirm your email, your email has been sent."
     return templates.TemplateResponse(
         request=request,
-        name="auth/signup.html",
-        context={"request": request, "message": response},
+        name="auth/signin.html",
+        context={"request": request, "message": message},
     )
 
 
@@ -473,25 +439,17 @@ async def signin_page(
         "password": password,
     }
     api_path = app.url_path_for("auth_signin")
-    print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    print(f"{api_url=}")
 
     async with httpx.AsyncClient() as client:
         response = await client.post(api_url, data=form_data)
-    print(f"{response=}")
     if response.status_code != 200:
         return templates.TemplateResponse(
             request=request,
             name="auth/signin.html",
             context={"request": request, "message": response.json()},
         )
-    # print("!!!!!!!!!!!!!!!!!!!")
     response_json = response.json()
-    print(f"{response_json=}")
-    # return templates.TemplateResponse(
-    #     request=request, name="auth/signin.html", context={"request": request}
-    # )
     return JSONResponse(content=response_json, status_code=status.HTTP_202_ACCEPTED)
 
 
@@ -506,17 +464,13 @@ async def resend_activation_form(request: Request):
 async def confirm_activation_form(request: Request, token: str):
     from main import app
 
-    print("route get /confirm-activation", token)
     api_path = app.url_path_for("confirm_email_post")
-    print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    print(f"{api_url=}")
 
     async with httpx.AsyncClient() as client:
         response = await client.post(api_url, json={"token": token})
     if response.status_code != 200:
         print(
-            "!!!!!!!!!!!!!!!!!!! Error ",
             response.status_code,
             response.json(),
         )
@@ -534,9 +488,6 @@ async def confirm_activation_form(request: Request, token: str):
         "/auth/signin.html",
         {"request": request, "message": message, "confirm": True},
     )
-    return templates.TemplateResponse(
-        "/auth/resend_activation.html", {"request": request}
-    )
 
 
 @router.post("/resend-activation")
@@ -545,9 +496,9 @@ async def resend_activation(request: Request, email: str = Form(...)):
     from main import app
 
     api_path = app.url_path_for("resend_confirm_email")
-    print(f"{api_path=}")
+    # print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    print(f"{api_url=}")
+    # print(f"{api_url=}")
 
     async with httpx.AsyncClient() as client:
         response = await client.post(api_url, json={"email": email})
@@ -585,9 +536,9 @@ async def reset_password(request: Request, email: str = Form(...)):
     from main import app
 
     api_path = app.url_path_for("forgot_password")
-    print(f"{api_path=}")
+    # print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    print(f"{api_url=}")
+    # print(f"{api_url=}")
 
     async with httpx.AsyncClient() as client:
         response = await client.post(api_url, json={"email": email})
@@ -616,9 +567,9 @@ async def enter_new_password(
     from main import app
 
     api_path = app.url_path_for("reset_password")
-    print(f"{api_path=}")
+    # print(f"{api_path=}")
     api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
-    print(f"{api_url=}")
+    # print(f"{api_url=}")
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
