@@ -45,7 +45,7 @@ async def update_post_by_id(post_id: int,
     :type photo: UploadFile, optional
     :param description: New description for post.
     :type description: str, optional
-    :param tags: New tag\s for post.
+    :param tags: New tag\\s for post.
     :type tags: str, optional
     :param rating: New rating for post.
     :type rating: int, optional

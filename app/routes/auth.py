@@ -36,6 +36,28 @@ async def signup(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Signup user.
+
+    UserModel schema {
+                      first_name: str\n
+                      last_name: str\n
+                      email: str\n
+                      password: str = Field(min_length=6, max_length=25)\n
+                      }
+
+    :param body: Schema
+    :type body: UserModel
+    :param background_tasks: BackgroundTasks
+    :type background_tasks: BackgroundTasks
+    :param request: Request
+    :type request: Request
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_409_CONFLICT
+    :return: massage
+    :rtype: json
+    """
     print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
@@ -52,6 +74,18 @@ async def signup(
 async def login(
     body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
+    """
+    Login user.
+
+    :param body: Form
+    :type body: OAuth2PasswordRequestForm, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_401_UNAUTHORIZED
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: JWT Tokens
+    :rtype: json
+    """
     print(f"#R_Login - verifying email: {body.username}")
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
@@ -86,6 +120,17 @@ async def refresh_token(
     credentials: HTTPAuthorizationCredentials = Security(security),
     db: Session = Depends(get_db),
 ):
+    """
+    Refresh token.
+
+    :param credentials: Security
+    :type credentials: HTTPAuthorizationCredentials, optional
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_401_UNAUTHORIZED
+    :return: JWT Tokens
+    :rtype: json
+    """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_email(email, db)
@@ -114,6 +159,17 @@ async def refresh_token(
     name="confirm_email",
 )
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
+    """
+    Confirmed email.
+
+    :param token: Email token
+    :type token: str
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_400_BAD_REQUEST
+    :return: Massage
+    :rtype: json
+    """
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
@@ -133,6 +189,25 @@ async def request_email(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Request email.
+
+    RequestEmail schema {
+                        email: EmailStr\n
+                        }
+
+    :param body: Schema
+    :type body: RequestEmail
+    :param background_tasks: BackgroundTasks
+    :type background_tasks: BackgroundTasks
+    :param request: Request
+    :type request: Request
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Massage
+    :rtype: json
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if user is None:
@@ -154,6 +229,25 @@ async def forgot_password(
     request: Request,
     db: Session = Depends(get_db),
 ):
+    """
+    Forgot password
+
+    RequestEmail schema {
+                        email: EmailStr\n
+                        }
+
+    :param body: Schema
+    :type body: RequestEmail
+    :param background_tasks: BackgroundTasks
+    :type background_tasks: BackgroundTasks
+    :param request: Request
+    :type request: Request
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Massage
+    :rtype: json
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if not user:
@@ -172,6 +266,23 @@ async def reset_password(
     body: ResetPasswordModel,
     db: Session = Depends(get_db),
 ):
+
+    """
+    Reset password.
+
+    ResetPasswordModel schema {
+                      token: str\n
+                      password: str = Field(min_length=6, max_length=25)\n
+                      }
+
+    :param body: Schema
+    :type body: UserModel
+    :param db: The database session.
+    :type db: Session, optional
+    :raises HTTPException: HTTP_404_NOT_FOUND
+    :return: Massage
+    :rtype: json
+    """
     email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)
 
