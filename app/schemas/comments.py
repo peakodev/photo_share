@@ -1,4 +1,5 @@
-from pydantic import BaseModel, field_validator
+from fastapi import HTTPException
+from pydantic import BaseModel, field_validator, model_validator
 from typing import Optional
 from datetime import datetime
 
@@ -42,5 +43,3 @@ class Comment(CommentInDBBase):
     text: str
     post_id: int
     user: PublicUserResponse
-
-

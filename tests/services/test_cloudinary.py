@@ -88,12 +88,13 @@ async def test_delete_photo(mock_destroy):
 
 
 @pytest.mark.asyncio
-@patch("app.services.cloudinary.cloudinary.CloudinaryImage.build_url", new_callable=AsyncMock)
+@patch("app.services.cloudinary.cloudinary.CloudinaryImage.build_url")
 async def test_transform_photo(mock_build_url, post):
     mock_build_url.return_value = "http://example.com/transformed_photo.jpg"
 
     effect = Effect.sepia
     result = await transform_photo(effect, post)
+    print(result)
 
     assert result == "http://example.com/transformed_photo.jpg"
     mock_build_url.assert_called_once_with(transformation=[{"effect": effect.value}])
