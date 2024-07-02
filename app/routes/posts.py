@@ -211,7 +211,7 @@ async def update_post(
         HTTPException:  HTTP_404_NOT_FOUND
     Returns:
         Post:  Updated database object Post.
-    """    
+    """
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
@@ -292,15 +292,24 @@ async def rate_post(post_id: int, rating: int, db: Session = Depends(get_db), us
     Returns:
         json:  {post_id: int, rating: float}
     """
-    if rating not in range(1,6):
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Rating values in range 1-5")
+
+    if rating not in range(1, 6):
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Rating values in range 1-5",
+        )
     post = db.query(Post).filter_by(id=post_id).first()
     if not post:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
+        )
     if post.user == user:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Owner can't rate his post")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Owner can't rate his post"
+        )
     if db.query(Rating).filter(Rating.post == post, Rating.user == user).first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Post already rated")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Post already rated"
+        )
     result = await add_rate_to_post(user=user, post=post, rating=rating, db=db)
     return result
-
