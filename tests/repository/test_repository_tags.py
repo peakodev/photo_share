@@ -15,7 +15,8 @@ from app.repository.tags import (get_list_of_tags_by_string,
                                  get_tags,
                                  create_tag_in_db)
 
-class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
+
+class TestTagsRepository(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.session = AsyncMock(spec=Session)
         
@@ -34,11 +35,13 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         Сhecking whether 5 tag models will be created
         """    
         test_string = "new, test, tag, help, ok, nok"
-        expected_result = [Tag(id=1, text="new"),
-                            Tag(id=2, text="test"),
-                            Tag(id=3, text="tag"),
-                            Tag(id=4, text="help"),
-                            Tag(id=5, text="ok")]
+        expected_result = [
+            Tag(id=1, text="new"),
+            Tag(id=2, text="test"),
+            Tag(id=3, text="tag"),
+            Tag(id=4, text="help"),
+            Tag(id=5, text="ok")
+        ]
         self.session.query().filter().first.return_value = None
         result = await get_list_of_tags_by_string(test_string, self.session)
         self.assertEqual(result[0].text, expected_result[0].text)
@@ -55,8 +58,10 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         Checking whether an empty tag will be created and whitespace trimming
         """  
         test_string = "   , ok       , stop"
-        expected_result = [Tag(text="ok"),
-                            Tag(text="stop")]
+        expected_result = [
+            Tag(text="ok"),
+            Tag(text="stop")
+        ]
         self.session.query().filter().first.return_value = None
         result = await get_list_of_tags_by_string(test_string, self.session)
         self.assertEqual(result[0].text, expected_result[0].text)
@@ -96,11 +101,13 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(result)
 
     async def test_get_tags(self):
-        expected_result = [Tag(id=1, text="new"),
-                            Tag(id=2, text="test"),
-                            Tag(id=3, text="tag"),
-                            Tag(id=4, text="help"),
-                            Tag(id=5, text="ok")]
+        expected_result = [
+            Tag(id=1, text="new"),
+            Tag(id=2, text="test"),
+            Tag(id=3, text="tag"),
+            Tag(id=4, text="help"),
+            Tag(id=5, text="ok")
+        ]
         self.session.query().offset().limit().all.return_value = expected_result
         result = await get_tags(self.session)
         self.assertEqual(expected_result, result)
@@ -127,5 +134,6 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         result = await get_tag_by_text("test string", self.session)
         self.assertIsNone(result)
     
+
 if __name__ == "__main__":
     unittest.main()

@@ -209,7 +209,7 @@ async def update_post(
     :type post_id: int
     :param description: New description for post. 
     :type description: str, optional
-    :param tags: New tag\s for post.
+    :param tags: New tag\\s for post.
     :type tags: str, optional
     :param effect: New effect to picture in Post.
     :type effect: Effect, optional
@@ -307,15 +307,23 @@ async def rate_post(post_id: int, rating: int, db: Session = Depends(get_db), us
     :return: {post_id: int, rating: float}
     :rtype: json
     """
-    if rating not in range(1,6):
-           raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Rating values in range 1-5")
+    if rating not in range(1, 6):
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Rating values in range 1-5",
+        )
     post = db.query(Post).filter_by(id=post_id).first()
     if not post:
-          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
+        )
     if post.user == user:
-          raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Owner can't rate his post")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Owner can't rate his post"
+        )
     if db.query(Rating).filter(Rating.post == post, Rating.user == user).first():
-          raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Post already rated")
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Post already rated"
+        )
     result = await add_rate_to_post(user=user, post=post, rating=rating, db=db)
     return result
-

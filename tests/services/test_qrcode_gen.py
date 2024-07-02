@@ -6,9 +6,9 @@ from app.services.qrcode_gen import qrcode_generator
 
 
 class TestQRCodeGenerator(unittest.TestCase):
-    def test_qrcode_generator(self):
+    async def test_qrcode_generator(self):
         test_url = "https://example.com"
-        qr_code_bytes = qrcode_generator(test_url)
+        qr_code_bytes = await qrcode_generator(test_url)
 
         # Testing return type
         self.assertIsInstance(qr_code_bytes, bytes)

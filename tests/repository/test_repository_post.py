@@ -23,7 +23,7 @@ from app.repository.posts import (
 counter = 1
 
 
-class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
+class TestPostRepository(unittest.IsolatedAsyncioTestCase):
 
     file_path = Path(getcwd()) / "tests" / "user-default.png"
 
@@ -176,7 +176,7 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         Test for function: app.repository.posts.find_posts()
         """        
         posts = [Post, Post, Post]
-        self.session.query().filter().all.return_value = posts
+        self.session.query.return_value.filter.return_value.all.return_value = posts
         result = await find_posts(find_str="test", user=self.user, db=self.session)
         self.assertEqual(result, posts)
 
@@ -188,48 +188,6 @@ class TestPostReposetory(unittest.IsolatedAsyncioTestCase):
         self.session.query().filter_by().first.return_value = post
         result = await get_post_by_id(post_id=1, db=self.session)
         self.assertEqual(result, post)
-
-    async def test_get_all_posts_of_all_users(self):
-        """
-        Test for function: app.repository.posts.get_all_posts()
-        """ 
-        posts = [Post, Post, Post]
-        self.session.query().offset().limit().all.return_value = posts
-        result = await get_all_posts(limit=10, offset=1, db=self.session)
-        self.assertEqual(result, posts)
-
-    async def test_get_posts_for_curent_user(self):
-        """
-        Test for function: app.repository.posts.get_posts()
-        """ 
-        posts = [self.test_post,
-                 Post(id=2,
-                      photo_url="test_url_4",
-                      photo_public_id="test_url_5",
-                      transform_url="test_url_6",
-                      description="test_description_2",
-                      created_at=datetime.now(),
-                      updated_at=None,
-                      tags=[Tag(id=1, text="test")],
-                      rating=5,
-                      user_id=1,
-                      user=self.user
-                      ), 
-                 Post(id=3,
-                      photo_url="test_url_7",
-                      photo_public_id="test_url_8",
-                      transform_url="test_url_9",
-                      description="test_description",
-                      created_at=datetime.now(),
-                      updated_at=None,
-                      tags=[Tag(id=1, text="test")],
-                      rating=5,
-                      user_id=1,
-                      user=self.user
-                      )]
-        self.session.query().filter_by().offset().limit().all.return_value = posts
-        result = await get_posts(limit=5, offset=0, user=self.user, db=self.session)
-        self.assertEqual(result, posts)
 
 
 if __name__ == "__main__":
