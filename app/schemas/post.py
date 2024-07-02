@@ -4,7 +4,7 @@ from typing import List, Optional
 from enum import Enum
 
 
-from app.schemas.user import UserDb, UserUpdateModel
+from app.schemas.user import UserDb, PublicUserResponse
 from app.models import Tag
 
 from app.schemas.comments import Comment
@@ -23,6 +23,7 @@ class PostSchema(BaseModel):
 class PostCreateResponse(BaseModel):
     id: int
     photo_url: str | None
+    transform_url: str | None
     user: UserDb
     description: str
     tags: List[TagDB]
@@ -38,7 +39,7 @@ class PostResponse(PostCreateResponse):
     tags: List[str]
     comments: List[Comment]
     user_id: int
-    user: UserUpdateModel
+    user: PublicUserResponse
 
     @field_validator("created_at", mode="before")
     def parse_created_at(cls, value: datetime):

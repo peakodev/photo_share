@@ -7,7 +7,7 @@ from app.models import User, get_db
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.services.cloudinary import upload_avatar
-from app.schemas.user import UserDb, UserUpdateModel
+from app.schemas.user import UserDb, UserUpdateModel, PublicUserResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -42,7 +42,7 @@ async def get_me(
     return current_user
 
 
-@router.get("/{user_id}/", response_model=UserDb, name="get_user_by_id")
+@router.get("/{user_id}/", response_model=PublicUserResponse, name="get_user_by_id")
 async def get_user_info(
     user_id: Optional[int] = None,
     db: Session = Depends(get_db),

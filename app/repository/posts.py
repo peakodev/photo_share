@@ -334,7 +334,7 @@ async def update_post(
     :type db: Session
     :param description: New description for post. 
     :type description: str, optional
-    :param tags: New tag\s for post.
+    :param tags: New tag\\s for post.
     :type tags: str, optional
     :param effect: New effect to picture in Post.
     :type effect: str, optional
@@ -342,8 +342,7 @@ async def update_post(
     :type file: UploadFile, optional
     :return: Updated database object Post.
     :rtype: Post
-    """    
-
+    """
     post = db.query(Post).filter_by(id=post_id).first()
     if description:
         post.description = description
@@ -353,7 +352,7 @@ async def update_post(
         tags = await get_list_of_tags_by_string(tags, db)
         post.tags = tags
     if effect:
-        post.transform_url = transform_photo(post, effect)
+        post.transform_url = await transform_photo(effect, post)
     post.updated_at = datetime.now()
     db.commit()
     db.refresh(post)

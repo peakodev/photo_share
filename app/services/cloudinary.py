@@ -141,7 +141,7 @@ async def transform_photo(effect: Effect, post: Post) -> str:
     :rtype: str
     """    
     transformation = [{"effect": effect.value}]
-    transform_url = await cloudinary.CloudinaryImage(post.photo_public_id).build_url(
+    transform_url = cloudinary.CloudinaryImage(post.photo_public_id).build_url(
         transformation=transformation
     )
     return transform_url

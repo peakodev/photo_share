@@ -2,7 +2,7 @@ from pydantic import BaseModel, field_validator
 from typing import Optional
 from datetime import datetime
 
-from app.schemas.user import UserDb
+from app.schemas.user import PublicUserResponse
 
 
 class CommentBase(BaseModel):
@@ -41,6 +41,6 @@ class CommentInDBBase(CommentBase):
 class Comment(CommentInDBBase):
     text: str
     post_id: int
-    user: UserDb
+    user: PublicUserResponse
 
 

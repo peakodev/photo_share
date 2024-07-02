@@ -15,7 +15,7 @@ from fastapi.security import (
 from sqlalchemy.orm import Session
 
 from app.models import get_db
-from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail
+from app.schemas.user import UserModel, UserResponse, TokenModel, RequestEmail, ResetPasswordModel
 from app.repository import users as repository_users
 from app.services.auth import auth_service
 from app.services.email import send_email, send_reset_password_email
@@ -57,7 +57,7 @@ async def signup(
     :raises HTTPException: HTTP_409_CONFLICT
     :return: massage
     :rtype: json
-    """    
+    """
     print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
     if exist_user:
@@ -85,7 +85,7 @@ async def login(
     :raises HTTPException: HTTP_404_NOT_FOUND
     :return: JWT Tokens
     :rtype: json
-    """    
+    """
     print(f"#R_Login - verifying email: {body.username}")
     user = await repository_users.get_user_by_email(body.username, db)
     if user is None:
@@ -130,7 +130,7 @@ async def refresh_token(
     :raises HTTPException: HTTP_401_UNAUTHORIZED
     :return: JWT Tokens
     :rtype: json
-    """    
+    """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
     user = await repository_users.get_user_by_email(email, db)
@@ -169,7 +169,7 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
     :raises HTTPException: HTTP_400_BAD_REQUEST
     :return: Massage
     :rtype: json
-    """    
+    """
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
     if user is None:
@@ -207,7 +207,7 @@ async def request_email(
     :raises HTTPException: HTTP_404_NOT_FOUND
     :return: Massage
     :rtype: json
-    """    
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if user is None:
@@ -247,7 +247,7 @@ async def forgot_password(
     :raises HTTPException: HTTP_404_NOT_FOUND
     :return: Massage
     :rtype: json
-    """    
+    """
     user = await repository_users.get_user_by_email(body.email, db)
 
     if not user:
@@ -261,24 +261,20 @@ async def forgot_password(
     return {"message": "Check your email for password reset link."}
 
 
-@router.post("/reset_password/{token}")
+@router.post("/reset_password")
 async def reset_password(
-    token: str,
-    body: UserModel,
+    body: ResetPasswordModel,
     db: Session = Depends(get_db),
 ):
+
     """
     Reset password.
 
-    UserModel schema {
-                      first_name: str\n
-                      last_name: str\n
-                      email: str\n
+    ResetPasswordModel schema {
+                      token: str\n
                       password: str = Field(min_length=6, max_length=25)\n
                       }
 
-    :param token: Reset password token.
-    :type token: str
     :param body: Schema
     :type body: UserModel
     :param db: The database session.
@@ -286,8 +282,8 @@ async def reset_password(
     :raises HTTPException: HTTP_404_NOT_FOUND
     :return: Massage
     :rtype: json
-    """    
-    email = await auth_service.get_email_from_token(token)
+    """
+    email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)
 
     if not user:

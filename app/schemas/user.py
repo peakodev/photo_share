@@ -10,6 +10,11 @@ class UserModel(BaseModel):
     password: str = Field(min_length=6, max_length=25)
 
 
+class ResetPasswordModel(BaseModel):
+    token: str
+    password: str = Field(min_length=6, max_length=25)
+
+
 class UserUpdateModel(BaseModel):
     id: int
     first_name: str | None
@@ -38,6 +43,15 @@ class UserDb(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PublicUserResponse(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    avatar: str
+    posts_number: int
+    comments_number: int
 
 
 class UserResponse(BaseModel):
