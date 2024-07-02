@@ -4,13 +4,15 @@ async function loadProtectedPage(page) {
 
     const token = localStorage.getItem('access_token');
 
+
+
     console.log("token: ", token)
     // console.log("Start loadProtectedPage...")
     if (token) {
         try {
             const headers = new Headers();
             headers.append('Authorization', `Bearer ${token}`);
-
+            headers.append('Host', baseNetloc)
             // console.log("!!!headers: ", headers)
             // const headersLog = {};
             // headers.forEach((value, key) => {
