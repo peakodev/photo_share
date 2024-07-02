@@ -2,6 +2,7 @@
 
 {% block styles_page %}
   <link rel="stylesheet" href="/static/css/partials/post_id.css" />
+  <link rel="stylesheet" href="/static/css/partials/post_detail_add_comments.css" />
 {% endblock %}
 {% block content %}
   <main>
@@ -22,6 +23,7 @@
           {% endif %}
           {% if post %}
             {% include 'partials/post_detail.html' %}
+            {% include 'partials/post_detail_add_comments.html' %}
             {% include 'partials/post_detail_comments.html' %}
             {% include 'partials/post_create_form.html' %}
           {% endif %}
@@ -73,11 +75,19 @@
 
   editBtnRef.addEventListener('click', editTogglePage)
   </script>
+  <script>
+    const toggleFormButton = document.getElementById('toggle-form');
+    const commentForm = document.getElementById('comment-form');
+
+    toggleFormButton.addEventListener('click', function() {
+      commentForm.classList.toggle("hidden");
+  });
+  </script>
 
   <script>
     const postId = Number({{post.id}})
     const formRef = document.querySelector('#form-post');
-    console.log("formRef: ", formRef)
+    //console.log("formRef: ", formRef)
 
     //document.querySelector('form').onsubmit = async e => {
     formRef.onsubmit = async e => {

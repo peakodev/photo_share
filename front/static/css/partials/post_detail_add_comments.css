@@ -1,0 +1,10 @@
+.comments-section {
+    max-width: 600px;
+    margin: auto;
+}
+.comment-box {
+    margin-bottom: 20px;
+}
+.comment-form {
+    /* display: none; */
+}
