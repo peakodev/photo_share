@@ -43,12 +43,11 @@ async def upload_avatar(
     """
     Upload user avatar.
 
-    :param img_file: New picture.
-    :type img_file: UploadFile
-    :param user: Database object User
-    :type user: User
-    :return: Cloudinary URL
-    :rtype: str
+    Args:
+        img_file (UploadFile):  New picture.
+        user (User):  Database object User
+    Returns:
+        str:  Cloudinary URL
     """    
     public_id = f"{CLOUDINARY_FOLDER}/{user.id}/avatar"
 
@@ -71,10 +70,10 @@ async def delete_avatar(public_id: str):
 
     Delete pictute in Cloudinary
 
-    :param public_id: User id
-    :type public_id: str
-    :return: None
-    :rtype: None
+    Args:
+        public_id (str):  User id
+    Returns:
+        None:  None
     """    
     try:
         res = await cloudinary.uploader.destroy(public_id)
@@ -90,12 +89,11 @@ def upload_photo(
     """
     Upload photo to Cloudinary
 
-    :param img_file: Picture.
-    :type img_file: UploadFile
-    :param post: Database object Post.
-    :type post: Post
-    :return: Cloudinary URL, public id
-    :rtype: str, str
+    Args:
+        img_file (UploadFile):  Picture.
+        post (Post):  Database object Post.
+    Returns:
+        str, str:  Cloudinary URL, public id
     """    
     public_id = f"{CLOUDINARY_FOLDER}/{post.user_id}/photos/{post.id}"
 
@@ -117,10 +115,10 @@ async def delete_photo(public_id: str) -> dict:
     """
     Delete photo by public id
 
-    :param public_id: Public id
-    :type public_id: str
-    :return: None
-    :rtype: None
+    Args:
+        public_id (str):  Public id.
+    Returns:
+        None:  None
     """    
     try:
         res = await cloudinary.uploader.destroy(public_id)
@@ -133,12 +131,11 @@ async def transform_photo(effect: Effect, post: Post) -> str:
     """
     Transform photo
 
-    :param effect: Photo effect
-    :type effect: Effect
-    :param post: Database object Post
-    :type post: Post
-    :return: URL
-    :rtype: str
+    Args:
+        effect (Effect):  Photo effect.
+        post (Post):  Database object Post.
+    Returns:
+        str:  URL
     """    
     transformation = [{"effect": effect.value}]
     transform_url = cloudinary.CloudinaryImage(post.photo_public_id).build_url(

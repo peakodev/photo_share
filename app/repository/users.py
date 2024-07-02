@@ -10,12 +10,11 @@ async def get_user_by_email(email: str, db: Session) -> User | None:
     """
     Get a user by email.
 
-    :param email: The email of the user to get.
-    :type email: str
-    :param db: The database session.
-    :type db: Session
-    :return: The User, or None if the user does not exist.
-    :rtype: User | None
+    Args:
+        email (str):  The email of the user to get.
+        db (Session):  The database session.
+    Returns:
+        User | None:  The User, or None if the user does not exist.
     """
     return db.query(User).filter(User.email == email).first()
 
@@ -24,12 +23,11 @@ async def get_user_by_id(id: str, db: Session) -> User:
     """
     Get a user by id.
 
-    :param id: The id of the user to get.
-    :type id: str
-    :param db: The database session.
-    :type db: Session
-    :return: User: The user, or None if the user does not exist.
-    :rtype: User
+    Args:
+        id (str):  The id of the user to get.
+        db (Session):  The database session.
+    Returns:
+        User:  The user, or None if the user does not exist.
     """    
     return db.query(User).filter(User.id == id).first()
 
@@ -48,18 +46,17 @@ async def create_user(body: UserModel, db: Session) -> User:
     Create a new user.
 
     UserModel schema {
-                      first_name: str\n
-                      last_name: str\n
-                      email: str\n
-                      password: str = Field(min_length=6, max_length=25)\n
+                      first_name: str,
+                      last_name: str,
+                      email: str,
+                      password: str = Field(min_length=6, max_length=25)
                      }
 
-    :param body: Schema
-    :type body: UserModel
-    :param db: The database session.
-    :type db: Session
-    :return: The created user.
-    :rtype: User
+    Args:
+        body (UserModel):  Schema
+        db (Session):  The database session.
+    Returns:
+        User:  The created user.
     """    
     avatar = None
     try:
@@ -78,20 +75,18 @@ async def update_user(user_id: int, body: UserUpdateModel, db: Session) -> User:
     Update user parametrs.
 
     UserUpdateModel schema {
-                            first_name: str | None\n
-                            last_name: str | None\n
-                            email: str | None\n
-                            avatar: str | None\n
+                            first_name: str | None,
+                            last_name: str | None,
+                            email: str | None,
+                            avatar: str | None
                             }
     
-    :param user_id: Database object User.id to update.
-    :type user_id: int
-    :param body: Schema.
-    :type body: UserUpdateModel
-    :param db: The database session.
-    :type db: Session
-    :return: Database object User.
-    :rtype: User
+    Args:
+        user_id (int):  Database object User.id to update.
+        body (UserUpdateModel):  Schema.
+        db (Session):  The database session.
+    Returns:
+        User:  Database object User.
     """    
     user = db.query(User).filter_by(id=user_id).first()
     for key, value in body.model_dump(exclude_none=True).items():
@@ -105,12 +100,10 @@ async def update_token(user: User, token: str | None, db: Session) -> None:
     """
     Update the refresh token for a user.
 
-    :param user: The user to update the token for.
-    :type user: User
-    :param token: The new token, or None to remove the token.
-    :type token: str | None
-    :param db: The database session.
-    :type db: Session
+    Args:
+        user (User):  The user to update the token for.
+        token (str | None):  The new token, or None to remove the token.
+        db (Session):  The database session.
     """    
     user.refresh_token = token
     db.commit()
@@ -120,10 +113,9 @@ async def confirmed_email(email: str, db: Session) -> None:
     """
     Confirm the email of a user.
 
-    :param email: The email of the user to confirm.
-    :type email: str
-    :param db: The database session.
-    :type db: Session
+    Args:
+        email (str):  The email of the user to confirm.
+        db (Session):  The database session.
     """    
     user = await get_user_by_email(email, db)
     user.confirmed = True
@@ -134,14 +126,12 @@ async def update_avatar(email: str, url: str, db: Session) -> User:
     """
     Update the avatar of a user.
 
-    :param email: The email of the user to update the avatar for.
-    :type email: str
-    :param url: The URL of the new avatar.
-    :type url: str
-    :param db: The database session.
-    :type db: Session
-    :return: The updated user.
-    :rtype: User
+    Args:
+        email (str):  The email of the user to update the avatar for.
+        url (str):  The URL of the new avatar.
+        db (Session):  The database session.
+    Returns:
+        User:  The updated user.
     """    
     user = await get_user_by_email(email, db)
     user.avatar = url
@@ -153,12 +143,11 @@ async def update_password(user: User, password: str, db: Session) -> None:
     """
     Update the password of a user.
 
-    :param user: The user to update the password for.
-    :type user: User
-    :param password: The new password.
-    :type password: str
-    :param db: The database session.
-    :type db: Session
+    Args:
+        user (User):  The user to update the password for.
+        password (str):  The new password.
+        db (Session):  The database session.
+
     """    
     user.password = password
     db.commit()
@@ -169,23 +158,14 @@ async def ban_user(user_id: int, is_ban: bool, db: Session) -> None:
     """
     Ban or unban a user.
 
-    _extended_summary_
-
-    :param user_id: The id of the user to ban or unban.
-    :type user_id: int
-    :param is_ban: True to ban the user, False to unban the user.
-    :type is_ban: bool
-    :param db: The database session.
-    :type db: Session
-    :rtype: None
-    """    
-    """
-    Ban or unban a user.
-
     Args:
         user_id (int): The id of the user to ban or unban.
         is_ban (bool): True to ban the user, False to unban the user.
-        db (Session): The database session.
+        db (Session): The database session.    Args:
+        user_id (int):  The id of the user to ban or unban.
+        is_ban (bool):  True to ban the user, False to unban the user.
+        db (Session):  The database session.
+        None: 
     """
     user = db.query(User).filter_by(id=user_id).first()
     user.banned = is_ban
