@@ -30,15 +30,18 @@
               </li>
           </ul>
           <ul class="auth-nav navbar-nav ms-auto mb-2 mb-lg-0 d-none">
-              <li class="nav-logout nav-item d-none">
-                <span class="nav-logout-link nav-link" onclick="event.preventDefault(); logoutMySite()">Logout</span>
-              </li>
-              <li class="nav-signin nav-item">
-                <a class="nav-link" href="{{ request.url_for('signin_form_page') }}">Login</a>
-              </li>
-              <li class="nav-signup nav-item">
-                <a class="nav-link" href="{{ request.url_for('signup_form_page') }}">Register</a>
-              </li>
+            <li class="nav-signin nav-item">
+              <a class="nav-link" href="{{ request.url_for('signin_form_page') }}">Login</a>
+            </li>
+            <li class="nav-signup nav-item">
+              <a class="nav-link" href="{{ request.url_for('signup_form_page') }}">Register</a>
+            </li>
+            <li class="nav-logout nav-item d-none">
+              <span class="nav-logout-link nav-link" onclick="event.preventDefault(); logoutMySite()">Logout</span>
+            </li>
+            <li class="nav-avatar nav-item ms-4">
+              <img src="{{ user.avatar or "/static/images/avatar.svg" }}" alt="Avatar" class=" card-user-avatar rounded-circle" style="width: 40px; height: 40px; object-fit: cover; margin-right: 15px;" />
+            </li>
           </ul>
         </div>
       </nav>
