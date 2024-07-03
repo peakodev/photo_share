@@ -19,6 +19,8 @@ cd /app/docs && poetry run make html && cd ..
 
 chmod -R 755 /app/docs
 
+mkdir htmlcov
+
 # Run the tests and prepare allure report
 poetry run pytest --alluredir allure-results --cov=app --cov-report=html tests/
 
