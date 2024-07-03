@@ -10,13 +10,17 @@ from app.repository import comments as repository_comments
 router = APIRouter(prefix="/comments", tags=["comments"])
 
 
-@router.post("/create", response_model=Comment, status_code=status.HTTP_201_CREATED,)
+@router.post(
+    "/create",
+    response_model=Comment,
+    status_code=status.HTTP_201_CREATED,
+    name="create_comments",
+)
 async def create_comment(
     body: CommentCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(auth_service.get_current_user),
 ):
-    
     """
     Create comment for post.
 
@@ -24,7 +28,7 @@ async def create_comment(
                           post_id: int
                           text: str
                           }
-                          
+
     Args:
         body (CommentCreate):  Schema.
         db (Session, optional):  The database session.
@@ -36,12 +40,15 @@ async def create_comment(
     Returns:
 
         Comment:  Database object Comment.
-    """    
+    """
+    print(f"api create comments {body=}")
     query = select(Post).filter_by(id=body.post_id)
     p = db.execute(query)
     db_post = p.scalar_one_or_none()
     if not body.text.strip():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Comment can't be empty")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Comment can't be empty"
+        )
     if db_post is None:
         raise HTTPException(status_code=404, detail="Post not found")
     db_comment = await repository_comments.create_comment(body, current_user.id, db)
@@ -61,7 +68,7 @@ async def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
     Returns:
         Comment:  Database object Comment.
 
-    """    
+    """
     db_comment = await repository_comments.get_comment_by_id(comment_id, db)
     if db_comment is None:
         raise HTTPException(status_code=404, detail="Comment not found")
@@ -70,7 +77,10 @@ async def get_comment_by_id(comment_id: int, db: Session = Depends(get_db)):
 
 @router.get("/post/{post_id}", response_model=list[Comment])
 async def get_comments_by_post(
-    post_id: int, offset: int = Query(0), limit: int = Query(10), db: Session = Depends(get_db)
+    post_id: int,
+    offset: int = Query(0),
+    limit: int = Query(10),
+    db: Session = Depends(get_db),
 ):
     """
     Get comment by id
@@ -83,8 +93,10 @@ async def get_comments_by_post(
     Returns:
         Comment:  Database object Comment.
 
-    """    
-    comments = await repository_comments.get_comments_by_post(post_id, offset, limit, db)
+    """
+    comments = await repository_comments.get_comments_by_post(
+        post_id, offset, limit, db
+    )
     return comments
 
 
@@ -113,20 +125,22 @@ async def update_comment(
         HTTPException:  HTTP_404_NOT_FOUND.
     Returns:
         Comment:  Database object Comment.
-    """    
+    """
     comment_db = await repository_comments.get_comment_by_id(comment_id, db)
     if comment_db is None:
         raise HTTPException(status_code=404, detail="Comment not found")
     if not comment.text.strip():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Comment can't be empty")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Comment can't be empty"
+        )
     if user.id == comment_db.user_id:
         comment = await repository_comments.update_comment(comment_id, comment, db)
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You can't update  comment of user {comment_db.user.email}"
+            detail=f"You can't update  comment of user {comment_db.user.email}",
         )
-    
+
     return comment
 
 
@@ -150,7 +164,7 @@ async def delete_comment(
         HTTPException:  HTTP_404_NOT_FOUND.
     Returns:
         Comment:  Database object Comment.
-    """    
+    """
     comment = await repository_comments.get_comment_by_id(comment_id, db)
     if comment is None:
         raise HTTPException(
@@ -161,8 +175,7 @@ async def delete_comment(
         comment = await repository_comments.delete_comment(comment_id, db)
     else:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't delete comments"
+            status_code=status.HTTP_403_FORBIDDEN, detail="You can't delete comments"
         )
-    
+
     return comment
