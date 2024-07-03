@@ -34,7 +34,7 @@ router = APIRouter(prefix="/posts", tags=["posts"])
     name="get_posts",
 )
 async def get_posts(
-    limit: int = Query(10),
+    limit: int = Query(50),
     offset: int = Query(0),
     db: Session = Depends(get_db),
     user: User = Depends(auth_service.get_current_user),
@@ -274,7 +274,8 @@ async def delete_post(
 
     return post
 
-@router.post('/rate/{post_id}',response_model=RatingResponce)
+
+@router.post('/rate/{post_id}', response_model=RatingResponce)
 async def rate_post(post_id: int, rating: int, db: Session = Depends(get_db), user: User = Depends(auth_service.get_current_user)):
     """
     Rate post
