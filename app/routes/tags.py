@@ -20,10 +20,10 @@ async def get_all_tags(db: Session = Depends(get_db)) -> list[Tag]:
     """
     Return all tags from db
 
-    :param db: The database session
-    :type db: Session, optional
-    :return: List of Database objects Tag
-    :rtype: list[Tag]
+    Args:
+        db (Session, optional):  The database session
+    Returns:
+        list[Tag]:  List of Database objects Tag
     """    
     return await get_tags(db=db)
 
@@ -33,13 +33,13 @@ async def search_tag_by_text(text:str, db: Session = Depends(get_db)) -> Tag | N
     """
     Search tag in db by value.
 
-    :param text: Text for search.
-    :type text: str
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Database object Tag
-    :rtype: Tag | None
+    Args:
+        text (str):  Text for search.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND
+    Returns:
+        Tag | None:  Database object Tag
     """    
     result = await get_tag_by_text(text=text, db=db)
     if not result:
@@ -52,12 +52,11 @@ async def create_new_tag_in_db(text: str, db: Session = Depends(get_db)) -> Tag:
     """
     Create new tag in db.
 
-    :param text: Value.
-    :type text: str
-    :param db: The database session.
-    :type db: Session, optional
-    :return: Database object Tag.
-    :rtype: Tag
+    Args:
+        text (str):  Value.
+        db (Session, optional):  The database session.
+    Returns:
+        Tag:  Database object Tag.
     """    
     return await create_tag_in_db(TagModel(text=text),db=db)
 
@@ -67,24 +66,14 @@ async def search_tag_by_id(tag_id: int, db: Session = Depends(get_db)) -> Tag | 
     """
     Search ted by id.
 
-    :param tag_id: Database object Tag id to search.
-    :type tag_id: int
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Database object Tag.
-    :rtype: Tag | None
-    """    
-    """
-    Search ted by id.
     Args:
-        tag_id (int): tag id
-        db (Session, optional): The database session. Defaults to Depends(get_db).
+        tag_id (int):  Database object Tag id to search.
+        db (Session, optional):  The database session.
     Raises:
-        HTTPException: HTTP_404_NOT_FOUND
+        HTTPException:  HTTP_404_NOT_FOUND.
     Returns:
-        Tag | None: Database object.
-    """
+        Tag | None:  Database object Tag.
+    """ 
     result = await get_tag_by_id(tag_id=tag_id, db=db)
     if not result:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Tag not found')
@@ -99,12 +88,11 @@ async def create_tags_by_string(string: str, db: Session = Depends(get_db)) -> l
 
     _extended_summary_
 
-    :param string: String with tags.
-    :type string: str
-    :param db: The database session
-    :type db: Session, optional
-    :return: List[Database objects Tag]
-    :rtype: list[Tag]
+    Args:
+        string (str):  String with tags.
+        db (Session, optional):  The database session.
+    Returns:
+        list[Tag]:  List[Database objects Tag]
     """    
     result = await get_list_of_tags_by_string(string=string, db=db)
     return result

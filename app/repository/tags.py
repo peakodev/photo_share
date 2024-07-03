@@ -11,14 +11,12 @@ async def get_tags(db: Session, skip: int = 0, limit: int = 100) -> List[Tag]:
     """
     Get all tags.
 
-    :param db: The database session.
-    :type db: Session
-    :param skip: Skip, defaults to 0.
-    :type skip: int, optional
-    :param limit: Limit, defaults to 100.
-    :type limit: int, optional
-    :return: List[Database objects Tag]
-    :rtype: List[Tag]
+    Args:
+        db (Session):  The database session.
+        skip (int, optional):  Skip, defaults to 0.
+        limit (int, optional):  Limit, defaults to 100.
+    Returns:
+        List[Tag]:  List[Database objects Tag]
     """    
     return db.query(Tag).offset(skip).limit(limit).all()
 
@@ -29,12 +27,11 @@ async def create_tag_in_db(body: TagModel, db: Session) -> Tag:
 
     TagModel schema {tag: str}
 
-    :param body: Schema.
-    :type body: TagModel
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Tag.
-    :rtype: Tag
+    Args:
+        body (TagModel):  Schema.
+        db (Session):  The database session.
+    Returns:
+        Tag:  Database object Tag.
     """    
     _tag = Tag(text=body.text)
     db.add(_tag)
@@ -47,12 +44,11 @@ async def get_tag_by_id(tag_id: int, db: Session) -> Tag | None:
     """
     Get tag by id.
 
-    :param tag_id: Database object Tag id to search.
-    :type tag_id: int
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Tag.
-    :rtype: Tag | None
+    Args:
+        tag_id (int):  Database object Tag id to search.
+        db (Session):  The database session.
+    Returns:
+        Tag | None:  Database object Tag.
     """    
     return db.query(Tag).filter(Tag.id == tag_id).first()
 
@@ -61,12 +57,11 @@ async def get_tag_by_text(text: str, db: Session) -> Tag | None:
     """
     Search database object Tag by text.
 
-    :param text: Database object Tag.text to search.
-    :type text: str
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Tag.
-    :rtype: Tag | None
+    Args:
+        text (str):  Database object Tag.text to search.
+        db (Session):  The database session.
+    Returns:
+        Tag | None:  Database object Tag.
     """    
     return db.query(Tag).filter(Tag.text == text).first()
 
@@ -77,12 +72,11 @@ async def get_list_of_tags_by_string(string: str | None, db: Session) -> list[Ta
 
     Searches for or creates a new tag if one does not exist yet.
 
-    :param string: String with tags.
-    :type string: str | None
-    :param db: The database session.
-    :type db: Session
-    :return: List[Database objects Tag]
-    :rtype: list[Tag]
+    Args:
+        string (str | None):  String with tags.
+        db (Session):  The database session.
+    Returns:
+        list[Tag]:  List[Database objects Tag]
     """    
     if not string:
         return []
@@ -109,12 +103,11 @@ async def search_tags_by_query(query: str, db: Session) -> List[Tag]:
 
     _extended_summary_
 
-    :param query: Search query.
-    :type query: str
-    :param db: The database session.
-    :type db: Session
-    :return: List[Database objects Tag]
-    :rtype: List[Tag]
+    Args:
+        query (str):  Search query.
+        db (Session):  The database session.
+    Returns:
+        List[Tag]:  List[Database objects Tag]
     """    
     return db.query(Tag).filter(Tag.text.ilike(f"%{query}%")).all()
 
@@ -123,11 +116,10 @@ async def get_tags_by_name(tags: List[str], db: Session) -> List[Tag]:
     """
     Search tags by name.
 
-    :param tags: List of tags
-    :type tags: List[str]
-    :param db: The database session.
-    :type db: Session
-    :return: List[Database objects Tag]
-    :rtype: List[Tag]
+    Args:
+        tags (List[str]):  List of tags
+        db (Session):  The database session.
+    Returns:
+        List[Tag]:  List[Database objects Tag]
     """    
     return db.query(Tag).filter(Tag.text.in_(tags)).all()

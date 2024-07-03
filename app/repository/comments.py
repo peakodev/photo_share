@@ -9,12 +9,11 @@ async def get_comment_by_id(comment_id: int, db: Session) -> Comment | None:
     """
     Get comment by id.
 
-    :param comment_id: Database object Comment.id to search.
-    :type comment_id: int
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Comment.
-    :rtype: Comment | None
+    Args:
+        comment_id (int):  Database object Comment.id to search.
+        db (Session):  The database session.
+    Returns:
+        Comment | None:  Database object Comment.
     """    
     query = select(Comment).filter_by(id=comment_id)
     comment = db.execute(query)
@@ -29,16 +28,13 @@ async def get_comments_by_post(
 
     Return all comments for post.
 
-    :param post_id: Database object Post.id to search.
-    :type post_id: int
-    :param offset: Offset.
-    :type offset: int
-    :param limit: Limit.
-    :type limit: int
-    :param db: The database session.
-    :type db: Session
-    :return: Comments for post.
-    :rtype: List[Comment] | None
+    Args:
+        post_id (int):  Database object Post.id to search.
+        offset (int):  Offset.
+        limit (int):  Limit.
+        db (Session):  The database session.
+    Returns:
+        List[Comment] | None:  Comments for post.
     """    
     query = (
         select(Comment)
@@ -57,17 +53,15 @@ async def create_comment(
     """
     Create comment.
 
-    CommentCreate schema (post_id: int\n
+    CommentCreate schema (post_id: int
                           text: str)
 
-    :param comment: Schema.
-    :type comment: CommentCreate
-    :param user_id: Owner id.
-    :type user_id: int
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Comment.
-    :rtype: Comment
+    Args:
+        comment (CommentCreate):  Schema.
+        user_id (int):  Owner id.
+        db (Session):  The database session.
+    Returns:
+        Comment:  Database object Comment.
     """    
     db_comment = Comment(**comment.model_dump(exclude_unset=True), user_id=user_id)
     db.add(db_comment)
@@ -84,14 +78,12 @@ async def update_comment(
 
     CommentUpdate schema (text: Optional[str] = None)
 
-    :param comment_id: Database object Comment.id to update.
-    :type comment_id: int
-    :param comment: Schema.
-    :type comment: CommentUpdate
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Comment.
-    :rtype: Comment
+    Args:
+        comment_id (int):  Database object Comment.id to update.
+        comment (CommentUpdate):  Schema.
+        db (Session):  The database session.
+    Returns:
+        Comment:  Database object Comment.
     """    
     db_comment = db.query(Comment).filter_by(id=comment_id).first()
     for key, value in comment.model_dump(exclude_unset=True).items():
@@ -105,12 +97,11 @@ async def delete_comment(comment_id: int, db: Session) -> Comment:
     """
     Delete comment
 
-    :param comment_id: Database object Comment.id to delete.
-    :type comment_id: int
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Comment.
-    :rtype: Comment
+    Args:
+        comment_id (int):  Database object Comment.id to delete.
+        db (Session):  The database session.
+    Returns:
+        Comment:  Database object Comment.
     """    
     comment = db.query(Comment).filter_by(id=comment_id).first()
     db.delete(comment)

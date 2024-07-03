@@ -20,7 +20,7 @@ FROM python:3.12-slim as development
 WORKDIR /app
 
 # Install necessary dependencies
-RUN apt-get update && apt-get install -y postgresql-client
+RUN apt-get update && apt-get install -y postgresql-client make
 
 # Install Poetry
 RUN pip install poetry

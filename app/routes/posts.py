@@ -55,14 +55,12 @@ async def get_all_posts(
     """
     Get all posts.
 
-    :param limit: Limit, defaults to Query(10)
-    :type limit: int, optional
-    :param offset: Offset, defaults to Query(0)
-    :type offset: int, optional
-    :param db: The database session.
-    :type db: Session, optional
-    :return: List of Database objects Post.
-    :rtype: List[Post]
+    Args:
+        limit (int, optional):  Limit, defaults to Query(10)
+        offset (int, optional):  Offset, defaults to Query(0)
+        db (Session, optional):  The database session.
+    Returns:
+        List[Post]:  List of Database objects Post.
     """    
 
     posts = await repository_posts.get_all_posts(limit, offset, db)
@@ -81,13 +79,13 @@ async def get_post(
     """
     Get post by id.
 
-    :param post_id: Database object Post.id to search.
-    :type post_id: int
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Database object Post.
-    :rtype: Post | None
+    Args:
+        post_id (int):  Database object Post.id to search.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND
+    Returns:
+        Post | None:  Database object Post.
     """    
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
@@ -110,19 +108,19 @@ async def search_posts(
     Search posts by inputs.
 
     PostSearchSchema schema {
-                            query: Optional[str] = Field(None)\n
-                            limit: int = 20\n
-                            offset: int = 0\n
-                            order: Optional[OrderEnum] = OrderEnum.desc\n
-                            order_by: Optional[OrderByEnum] = OrderByEnum.created_at\n
-                            filter: Optional[PostFilterSchema]\n
+                            query: Optional[str] = Field(None)
+                            limit: int = 20
+                            offset: int = 0
+                            order: Optional[OrderEnum] = OrderEnum.desc
+                            order_by: Optional[OrderByEnum] = OrderByEnum.created_at
+                            filter: Optional[PostFilterSchema]
                             }
     OrderByEnum schema {
-                        created_at = "created_at"\n
-                        rating = "rating"\n
+                        created_at = "created_at"
+                        rating = "rating"
                         }
     OrderEnum schema {
-                      asc = "asc"\n
+                      asc = "asc"
                       desc = "desc"
                       }
     PostFilterSchema schema {
@@ -131,12 +129,11 @@ async def search_posts(
                             show_date: Optional[date] = None
                             }
 
-    :param input: Schema.
-    :type input: PostSearchSchema
-    :param db: The database session.
-    :type db: Session
-    :return: List of Database objects Post.
-    :rtype: List[Post]
+    Args:
+        input (PostSearchSchema):  Schema.
+        db (Session):  The database session.
+    Returns:
+        List[Post]:  List of Database objects Post.
     """    
     return await repository_posts.search_posts_by_inputs(search_schema, db)
 
@@ -158,21 +155,17 @@ async def create_post(
     """
     Create new post
 
-    :param description: Description for Post.
-    :type description: str
-    :param tags: Tags for Post.
-    :type tags: str, optional
-    :param user_email: Admin can create a post for a specified user. 
-    :type user_email: str, optional
-    :param file: Photo for Post.
-    :type file: UploadFile, optional
-    :param db: The database session.
-    :type db: Session, optional
-    :param user: Current user.
-    :type user: User, optional
-    :raises HTTPException: HTTP_403_FORBIDDEN
-    :return: Database object Post.
-    :rtype: Post
+    Args:
+        description (str):  Description for Post.
+        tags (str, optional):  Tags for Post.
+        user_email (str, optional):  Admin can create a post for a specified user. 
+        file (UploadFile, optional):  Photo for Post.
+        db (Session, optional):  The database session.
+        user (User, optional):  Current user.
+    Raises:
+        HTTPException:  HTTP_403_FORBIDDEN
+    Returns:
+        Post:  Database object Post.
     """    
 
     if user_email and user.role != Role.admin:
@@ -205,25 +198,20 @@ async def update_post(
 
     Parameters are optional.
 
-    :param post_id: Database object Post.id to update.
-    :type post_id: int
-    :param description: New description for post. 
-    :type description: str, optional
-    :param tags: New tag\\s for post.
-    :type tags: str, optional
-    :param effect: New effect to picture in Post.
-    :type effect: Effect, optional
-    :param file: New picture for post.
-    :type file: UploadFile, optional
-    :param db: he database session.
-    :type db: Session, optional
-    :param user: Current user.
-    :type user: User, optional
-    :raises HTTPException: HTTP_403_FORBIDDEN
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Updated database object Post.
-    :rtype: Post
-    """    
+    Args:
+        post_id (int):  Database object Post.id to update.
+        description (str, optional):  New description for post. 
+        tags (str, optional):  New tag\s for post.
+        effect (Effect, optional):  New effect to picture in Post.
+        file (UploadFile, optional):  New picture for post.
+        db (Session, optional):  he database session.
+        user (User, optional):  Current user.
+    Raises:
+        HTTPException:  HTTP_403_FORBIDDEN
+        HTTPException:  HTTP_404_NOT_FOUND
+    Returns:
+        Post:  Updated database object Post.
+    """
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
         raise HTTPException(
@@ -260,16 +248,15 @@ async def delete_post(
     """
     Delete post by id.
 
-    :param post_id: Database object Post.id to delete.
-    :type post_id: int
-    :param db: The database session.
-    :type db: Session, optional
-    :param user: Current user.
-    :type user: User, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :raises HTTPException: HTTP_403_FORBIDDEN
-    :return: Database object Post.
-    :rtype: Post
+    Args:
+        post_id (int):  Database object Post.id to delete.
+        db (Session, optional):  The database session.
+        user (User, optional):  Current user.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND
+        HTTPException:  HTTP_403_FORBIDDEN
+    Returns:
+        Post:  Database object Post.
     """    
     post = await repository_posts.get_post_by_id(post_id, db)
     if post is None:
@@ -277,7 +264,7 @@ async def delete_post(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
 
-    if post.user_id == user.id or user.role == Role.admin:
+    if post.user_id == user.id:
         post = await repository_posts.delete_post(post_id, user, db)
     else:
         raise HTTPException(
@@ -292,21 +279,20 @@ async def rate_post(post_id: int, rating: int, db: Session = Depends(get_db), us
     """
     Rate post
 
-    :param post_id: Database object Post.id to rate.
-    :type post_id: int
-    :param rating: Score from 1 to 5
-    :type rating: int
-    :param db: The database session.
-    :type db: Session, optional
-    :param user: Current user
-    :type user: User, optional
-    :raises HTTPException: HTTP_403_FORBIDDEN
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :raises HTTPException: HTTP_406_NOT_ACCEPTABLE
-    :raises HTTPException: HTTP_409_CONFLICT
-    :return: {post_id: int, rating: float}
-    :rtype: json
+    Args:
+        post_id (int):  Database object Post.id to rate.
+        rating (int):  Score from 1 to 5.
+        db (Session, optional):  The database session.
+        user (User, optional):  Current user.
+    Raises:
+        HTTPException:  HTTP_403_FORBIDDEN.
+        HTTPException:  HTTP_404_NOT_FOUND.
+        HTTPException:  HTTP_406_NOT_ACCEPTABLE.
+        HTTPException:  HTTP_409_CONFLICT.
+    Returns:
+        json:  {post_id: int, rating: float}
     """
+
     if rating not in range(1, 6):
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,

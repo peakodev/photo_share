@@ -21,13 +21,13 @@ async def get_me(
     """
     Me
 
-    :param current_user: Current user.
-    :type current_user: User, optional
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Database object User.
-    :rtype: User
+    Args:
+        current_user (User, optional):  Current user.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND
+    Returns:
+        User:  Database object User.
     """    
 
     if not current_user:
@@ -50,13 +50,13 @@ async def get_user_info(
     """
     User info
 
-    :param user_id: Database object User.id to search.
-    :type user_id: Optional[int], optional
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Database object User.
-    :rtype: User
+    Args:
+        user_id (Optional[int], optional):  Database object User.id to search.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND.
+    Returns:
+        User:  Database object User.
     """    
     user = await repository_users.get_user_by_id(user_id, db)
     if not user:
@@ -85,20 +85,15 @@ async def update_user_info(
 
     Parameters are optional.
 
-    :param first_name: New first name for user.
-    :type first_name: str, optional
-    :param last_name: New last name for user.
-    :type last_name: str, optional
-    :param email: New email for user.
-    :type email: str, optional
-    :param avatar: New avatar for user.
-    :type avatar: UploadFile, optional
-    :param current_user: Current user
-    :type current_user: User, optional
-    :param db: The database session.
-    :type db: Session, optional
-    :return: Database object User.
-    :rtype: User
+    Args:
+        first_name (str, optional):  New first name for user.
+        last_name (str, optional):  New last name for user.
+        email (str, optional):  New email for user.
+        avatar (UploadFile, optional):  New avatar for user.
+        current_user (User, optional):  Current user
+        db (Session, optional):  The database session.
+    Returns:
+        User:  Database object User.
     """    
     if avatar:
         avatar = await upload_avatar(avatar, current_user)

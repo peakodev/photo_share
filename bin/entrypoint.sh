@@ -14,6 +14,11 @@ done
 # Run Alembic migrations
 poetry run alembic upgrade head
 
+# Navigate to the docs directory and run `make html`
+cd /app/docs && poetry run make html && cd ..
+
+chmod -R 755 /app/docs
+
 # Start the FastAPI application
 exec poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
