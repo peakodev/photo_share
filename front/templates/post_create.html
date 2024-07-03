@@ -26,14 +26,12 @@
     </section>
   </main>
   <script>
-    const redirect_url_create_post = "{{ url_for('home_page')}}"
+    let redirect_url_create_post = "{{ url_for('home_page')}}"
     //const api_login_create_post = "{{ url_for('auth_signin') }}"
     //const is_login = True
-    const api_create_url = "{{ url_for('post_create_page') }}"
+    let api_create_url = "{{ url_for('post_create_page') }}"
   </script>
-  <script>
-    
-  </script>
+  <script></script>
 {% endblock %}
 
 {% block scripts %}

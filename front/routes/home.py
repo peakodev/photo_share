@@ -743,3 +743,13 @@ async def enter_new_password(
             "is_user": True if user else False,
         },
     )
+
+
+@router.post("/posts/{post_id}/comments", name="comment_add_page")
+async def comments_add_page(
+    request: Request,
+    post_id: int,
+    comment: str = Form(...),
+    user: Optional[User] = Depends(get_user_from_request),
+):
+    print("route post /posts/{post_id}/comments", post_id, comment)

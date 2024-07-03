@@ -5,7 +5,7 @@ const formMessagesRef = document.querySelector('.messages-text')
 console.log('formMessagesRef: ', formMessagesRef)
 console.log('formNewPostRef: ', formNewPostRef)
 
-const formCreatePostHandler = async (event) => {
+async function formCreatePostHandler(event) {
     event.preventDefault()
     // console.log('!!!!!! ')
     // console.log(event)
