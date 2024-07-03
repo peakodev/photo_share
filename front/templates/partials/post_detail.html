@@ -14,6 +14,8 @@
             api-url="/api/posts/{{ post.id }}"
             style="object-fit: cover;" />
         </a>
+        <a href="#" class="qrcode-img imgrounded-2 rounded-2"><img src="/api/generate_qr/?url={{ post.transform_url or post.photo_url }}" class="rounded-2 position-absolute top-0 start-0 w-100 h-100" alt="qrcode img" style="object-fit: cover;" /></a>
+
         <div class="position-absolute top-0 end-0 m-2">
           <span class="badge bg-warning text-dark">★ {{ post.rating or 0 }}</span>
         </div>

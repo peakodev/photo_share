@@ -180,13 +180,34 @@
       const hiddenButtons = document.getElementById('hidden-buttons');
       const mainImgRef = document.querySelector(".main-img");
       const transformImgReg = document.querySelector(".transform-img");
-      console.log(`transformBtn: `, transformBtn)
+      const qrBtnRef = document.querySelector("#qrcode-btn");
+      const qrImgRef= document.querySelector(".qrcode-img");
+      const qrImgUrlRef= document.querySelector(".qrcode-img img");
+      const photoContainerRef = document.querySelector(".photo-container");
+
+
       transformBtn.addEventListener('click', function() {
           console.log('transformBtn clicked');
           //hiddenButtons.style.display = hiddenButtons.style.display === 'none' ? 'block' : 'none';
           hiddenButtons.classList.toggle('hidden');
           mainImgRef.classList.toggle('active');
           transformImgReg.classList.toggle('active');
+
+      });
+
+      qrBtnRef.addEventListener('click', function() {
+        //const currentUrl = window.location.href;
+        //const url = new URL(currentUrl);
+        //let baseUrl = url.protocol + '//' + url.host;
+     
+        //const url_current = document.querySelector(".photo-container .img-prev.active img").src
+        
+        //const url_current = photoContainerRef.querySelector(".img-prev.active").src
+        //const bs  = getBaseNetloc()
+        //const new_qrcode = `${bs}/api/generate_qr/?url=${url=url_current}` 
+        //const new_qrcode = `${baseUrl}/api/generate_qr/?url=${url=url_current}` 
+        //qrImgUrlRef.src = new_qrcode
+        qrImgRef.classList.toggle('active');
 
       });
 
