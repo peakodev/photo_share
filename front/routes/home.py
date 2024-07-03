@@ -752,6 +752,53 @@ async def comments_add_page(
     comment: str = Form(...),
     user: Optional[User] = Depends(get_user_from_request),
 ):
+    from main import app
+
     print("route post /posts/{post_id}/comments", post_id, comment)
-    print(f"post_id = {post_id}, comment = {comment}")
-    
+    print(f"post_id = {post_id} {type(post_id)}, comment = {comment}")
+
+    headers = {}
+    is_token = False
+    if "authorization" in request.headers:
+        headers["Authorization"] = request.headers["Authorization"]
+        is_token = True
+    print(f"/post create token = {is_token}")
+    if is_token:
+        api_path = app.url_path_for("create_comments")
+        api_url = f"{request.url.scheme}://{request.url.netloc}{api_path}"
+        api_url = str(request.url_for("create_post"))
+
+        params = {"post_id": post_id, "text": comment}
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(api_url, json=params, headers=headers)
+
+        response_json_py = response.json()
+        if response.status_code != 201:
+            print(f"create error:{response.status_code=}")
+            return templates.TemplateResponse(
+                request=request,
+                name="post_id.html",
+                context={
+                    "request": request,
+                    "message": response_json_py,
+                    "post": None,
+                    "user": user,
+                    "is_user": True if user else False,
+                },
+            )
+        print("Return ")
+        return JSONResponse(
+            content=response_json_py, status_code=status.HTTP_201_CREATED
+        )
+    return templates.TemplateResponse(
+        request=request,
+        name="post_id.html",
+        context={
+            "request": request,
+            "post": None,
+            "message": {"detail": "Not authorized"},
+            "user": user,
+            "is_user": True if user else False,
+        },
+    )
