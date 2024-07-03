@@ -208,7 +208,13 @@ async def get_create_post_page(
     return templates.TemplateResponse(
         request=request,
         name="post_create.html",
-        context={"request": request, "user": user, "is_user": True if user else False},
+        # name="post_id.html",
+        context={
+            "request": request,
+            "post": None,
+            "user": user,
+            "is_user": True if user else False,
+        },
     )
 
 
@@ -492,7 +498,10 @@ async def signin_page(
         response = await client.post(api_url, data=form_data)
     if response.status_code != 200:
         res_json = response.json()
-        if response.status_code == 401 and res_json.get("detail") == "Email not confirmed":
+        if (
+            response.status_code == 401
+            and res_json.get("detail") == "Email not confirmed"
+        ):
             return templates.TemplateResponse(
                 request=request,
                 name="auth/signin.html",
@@ -501,7 +510,7 @@ async def signin_page(
                     "message": res_json,
                     "user": user,
                     "is_user": True if user else False,
-                }
+                },
             )
         print(f"create error:{response.status_code=}")
         return templates.TemplateResponse(

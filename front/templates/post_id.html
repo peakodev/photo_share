@@ -15,7 +15,7 @@
           {% if user.id == post.user_id %}
 
           {% endif %}
-          <h1>Post detail</h1>
+          {# <h1>Post detail</h1> #}
           {% if message %}
             <div class="messages my-4">
               <span class="text-primary">{{ message.detail }}</span>
@@ -45,9 +45,8 @@
     const postDetailsRef = document.querySelector('#post-details')
     const postCommentsRef = document.querySelector('.comments-section')
     const postFormWrapRef = document.querySelector('#post-form-wrapper')
-    console.log('postDetailsRef: ', postDetailsRef)
-    console.log('postCommentsRef: ', postCommentsRef)
-    console.log('postFormWrapRef: ', postFormWrapRef)
+    const postNewCommentsRef = document.querySelector('.post-new-comments')
+    
     
     userId = Number(localStorage.getItem('user_id'))
     
@@ -65,11 +64,13 @@
         editBtnRef.textContent = 'Cancel'
         postDetailsRef.setAttribute('hidden', true)
         postCommentsRef.setAttribute('hidden', true)
+        postNewCommentsRef.setAttribute('hidden', true)
       } else {
         editBtnRef.textContent = 'Edit'
         postFormWrapRef.setAttribute('hidden', true)
         postDetailsRef.removeAttribute('hidden')
         postCommentsRef.removeAttribute('hidden')
+        postNewCommentsRef.removeAttribute('hidden')
       }
     }
 
@@ -77,14 +78,25 @@
   </script>
   <script>
     const toggleFormButton = document.getElementById('toggle-form');
-    const commentForm = document.getElementById('comment-form');
+    const commentFormRef = document.getElementById('comment-form');
+    const addCommentBtnRef = document.getElementById('comment-add-btn');
 
     toggleFormButton.addEventListener('click', function() {
-      commentForm.classList.toggle("hidden");
+      commentFormRef.classList.toggle("hidden");
+      postNewCommentsRef.classList.toggle("shadow-lg");
+
+    /*addCommentBtnRef.addEventListener('click', e  => {
+      const postId = Number(commentFormRef.getAttribute('data-post-id'));
+      e.
+      
+      console.log("postId: ", postId) 
+
+    })*/
   });
   </script>
 
   <script>
+    //script for add/edit post
     const postId = Number({{post.id}})
     const formRef = document.querySelector('#form-post');
     //console.log("formRef: ", formRef)
@@ -112,6 +124,7 @@
             method_rest = "PUT"
           }else{
             to_path = "/post"
+            console.log("to_path: ", to_path)
             method_rest = "POST"
           }
 

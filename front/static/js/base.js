@@ -11,14 +11,6 @@ async function loadProtectedPage(page) {
             const headers = new Headers();
             headers.append('Authorization', `Bearer ${token}`);
 
-            // console.log("!!!headers: ", headers)
-            // const headersLog = {};
-            // headers.forEach((value, key) => {
-            //     headersLog[key] = value;
-            // });
-            // console.log("new headers=", headersLog);
-
-
             const response = await fetch(`${page}`, {
                 headers: headers
             });
