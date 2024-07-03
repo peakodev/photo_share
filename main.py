@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -22,6 +23,15 @@ app.add_middleware(HTTPSRedirectMiddleware)
 home.router.app = app
 
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
+
+# Serve Sphinx documentation
+app.mount("/sphinx-docs", StaticFiles(directory="docs/build/html"), name="sphinx-docs")
+
+
+# Redirect from root to Sphinx documentation
+@app.get("/help")
+async def redirect_to_docs():
+    return RedirectResponse(url="/sphinx-docs/index.html")
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
