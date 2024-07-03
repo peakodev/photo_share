@@ -19,14 +19,12 @@ async def get_all_posts(limit: int, offset: int, db: Session) -> List[Post]:
     """
     Get all posts.
 
-    :param limit: Limit.
-    :type limit: int
-    :param offset: Offset.
-    :type offset: int
-    :param db: The database session.
-    :type db: Session
-    :return: List of Database objects Post.
-    :rtype: List[Post]
+    Args:
+        limit (int):  Limit.
+        offset (int):  Offset.
+        db (Session):  The database session.
+    Returns:
+        List[Post]:  List of Database objects Post.
     """    
     # Query to get post id and its corresponding comment count
     comments_count_subquery = db.query(
@@ -53,16 +51,13 @@ async def get_posts(limit: int, offset: int, user: User, db: Session) -> List[Po
     """
     Get posts of user.
 
-    :param limit: Limit.
-    :type limit: int
-    :param offset: Offset.
-    :type offset: int
-    :param user: Database object User.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :return: Posts of user.
-    :rtype: List[Post]
+    Args:
+        limit (int):  Limit.
+        offset (int):  Offset.
+        user (User):  Database object User.
+        db (Session):  The database session.
+    Returns:
+        List[Post]:  Posts of user.
     """    
     # Query to get post id and its corresponding comment count
     comments_count_subquery = db.query(
@@ -90,12 +85,11 @@ async def get_post_by_id(post_id: int, db: Session) -> Post | None:
     """
     Get post by id.
 
-    :param post_id: Database object Post.id to search.
-    :type post_id: int
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Post.
-    :rtype: Post | None
+    Args:
+        post_id (int):  Database object Post.id to search.
+        db (Session):  The database session.
+    Returns:
+        Post | None:  Database object Post.
     """    
     post = db.query(Post).filter_by(id=post_id).first()
     if post:
@@ -108,14 +102,12 @@ async def find_posts(find_str: str, user: User, db: Session) -> List[Post]:
     """
     Find posts of user by text in description.
 
-    :param find_str: Text in Post.description to search.
-    :type find_str: str
-    :param user: Database object User.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :return: Posts of user.
-    :rtype: List[Post]
+    Args:
+        find_str (str):  Text in Post.description to search.
+        user (User):  Database object User.
+        db (Session):  The database session.
+    Returns:
+        List[Post]:  Posts of user.
     """    
     return (
         db.query(Post)
@@ -129,33 +121,32 @@ async def search_posts_by_inputs(input: PostSearchSchema, db: Session) -> List[P
     Search posts by inputs.
 
     PostSearchSchema schema {
-                            query: Optional[str] = Field(None)\n
-                            limit: int = 20\n
-                            offset: int = 0\n
-                            order: Optional[OrderEnum] = OrderEnum.desc\n
-                            order_by: Optional[OrderByEnum] = OrderByEnum.created_at\n
-                            filter: Optional[PostFilterSchema]\n
+                            query: Optional[str] = Field(None),
+                            limit: int = 20,
+                            offset: int = 0,
+                            order: Optional[OrderEnum] = OrderEnum.desc,
+                            order_by: Optional[OrderByEnum] = OrderByEnum.created_at,
+                            filter: Optional[PostFilterSchema]
                             }
     OrderByEnum schema {
-                        created_at = "created_at"\n
-                        rating = "rating"\n
+                        created_at = "created_at",
+                        rating = "rating",
                         }
     OrderEnum schema {
-                      asc = "asc"\n
+                      asc = "asc",
                       desc = "desc"
                       }
     PostFilterSchema schema {
-                            rating: Optional[int] = Field(None, ge=1, le=5)
-                            tags: Optional[List[str]] = []
+                            rating: Optional[int] = Field(None, ge=1, le=5),
+                            tags: Optional[List[str]] = [],
                             show_date: Optional[date] = None
                             }
 
-    :param input: Schema.
-    :type input: PostSearchSchema
-    :param db: The database session.
-    :type db: Session
-    :return: List of Database objects Post.
-    :rtype: List[Post]
+    Args:
+        input (PostSearchSchema):  Schema.
+        db (Session):  The database session.
+    Returns:
+        List[Post]:  List of Database objects Post.
     """    
     query = db.query(Post)
 
@@ -194,11 +185,12 @@ async def __build_query_expression(query: str, db: Session):
 
     Check if input.query is not empty
 
-    :type query: str
-    :param db: The database session.
-    :type db: Session
-    :return:  Query to database
-    :rtype: Query
+    Args:
+        query (str): query
+        db (Session): The database session.
+
+    Returns:
+        Query: Query to database
     """    
     tags_queried = await search_tags_by_query(query, db)
     expr_post = Post.description.ilike(f"%{query}%")
@@ -213,14 +205,12 @@ async def __filter_by_tags(tag_names: List[str], expr_post, db: Session):
 
     Check if input.filter.tags is not empty or None and apply filtering
 
-    :param tag_names: List of tags text.
-    :type tag_names: List[str]
-    :param expr_post: Query to database.
-    :type expr_post: Query
-    :param db: The database session.
-    :type db: Session
-    :return: Query to database.
-    :rtype: Query
+    Args:
+        tag_names (List[str]):  List of tags text.
+        expr_post (Query):  Query to database.
+        db (Session):  The database session.
+    Returns:
+        Query:  Query to database.
     """    
     tags = await get_tags_by_name(tag_names, db)
     expr_tags = Post.tags.any(Tag.id.in_([tag.id for tag in tags]))
@@ -233,12 +223,11 @@ async def __filter_by_rating(rating: int, expr_post):
 
     Check if input.filter.rating is not None and apply filtering
 
-    :param rating: Rating of Post.
-    :type rating: int
-    :param expr_post: Query to database.
-    :type expr_post: Query
-    :return: Query to database.
-    :rtype: Query
+    Args:
+        rating (int):  Rating of Post.
+        expr_post (Query):  Query to database.
+    Returns:
+        Query:  Query to database.
     """    
     # Rating shound be between rating and rating + 1
     expr_rating = (Post.rating >= rating) & (Post.rating < rating + 1)
@@ -251,12 +240,11 @@ async def __filter_by_show_date(show_date: date, expr_post):
 
     Filter by show_date if provided
 
-    :param show_date: Date of create Post
-    :type show_date: date
-    :param expr_post: Filter results.
-    :type expr_post: List[Post] | None
-    :return: List of Database objects Post.
-    :rtype: List[Post] | None
+    Args:
+        show_date (date):  Date of create Post.
+        expr_post (List[Post] | None):  Filter results.
+    Returns:
+        List[Post] | None:  List of Database objects Post.
     """    
     expr_show_date = cast(Post.created_at, Date) == show_date
     return and_(expr_post, expr_show_date) if expr_post is not None else expr_show_date
@@ -269,8 +257,8 @@ def apply_ordering(query: Query, order: OrderEnum, order_by: OrderByEnum) -> Que
 
     Handle ordering
 
-    :return: Query to database.
-    :rtype: Query
+    Returns:
+        Query:  Query to database.
     """
     order_func = desc if order == OrderEnum.desc else asc
     if order_by == OrderByEnum.rating:
@@ -286,18 +274,14 @@ async def create_post(
     """
     Create new post
 
-    :param description: Description for Post.
-    :type description: str
-    :param tags: Tags for Post.
-    :type tags: str
-    :param file: Photo for Post.
-    :type file: UploadFile
-    :param user: Owner.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Post.
-    :rtype: Post
+    Args:
+        description (str):  Description for Post.
+        tags (str):  Tags for Post.
+        file (UploadFile):  Photo for Post.
+        user (User):  Owner.
+        db (Session):  The database session.
+    Returns:
+        Post:  Database object Post.
     """    
 
     tags = await get_list_of_tags_by_string(tags, db)
@@ -330,22 +314,16 @@ async def update_post(
 
     Parameters are optional.
 
-    :param post_id: Database object Post.id to update.
-    :type post_id: int
-    :param user: Owner.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :param description: New description for post. 
-    :type description: str, optional
-    :param tags: New tag\\s for post.
-    :type tags: str, optional
-    :param effect: New effect to picture in Post.
-    :type effect: str, optional
-    :param file: New picture for post.
-    :type file: UploadFile, optional
-    :return: Updated database object Post.
-    :rtype: Post
+    Args:
+        post_id (int):  Database object Post.id to update.
+        user (User):  Owner.
+        db (Session):  The database session.
+        description (str, optional):  New description for post. 
+        tags (str, optional):  New tag\\s for post.
+        effect (str, optional):  New effect to picture in Post.
+        file (UploadFile, optional):  New picture for post.
+    Returns:
+        Post:  Updated database object Post.
     """
     post = db.query(Post).filter_by(id=post_id).first()
     if description:
@@ -367,14 +345,12 @@ async def delete_post(post_id: int, user: User, db: Session) -> Post:
     """
     Delete post by id. 
 
-    :param post_id: Database object Post.id to delete.
-    :type post_id: int
-    :param user: Owner.
-    :type user: User
-    :param db: The database session.
-    :type db: Session
-    :return: Database object Post.
-    :rtype: Post
+    Args:
+        post_id (int):  Database object Post.id to delete.
+        user (User):  Owner.
+        db (Session):  The database session.
+    Returns:
+        Post:  Database object Post.
     """    
     post = db.query(Post).filter_by(id=post_id).first()
     db.delete(post)

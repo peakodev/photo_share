@@ -46,17 +46,22 @@ async def signup(
     """
     Create new user.
 
+    UserModel schema {
+                      first_name: str,
+                      last_name: str,
+                      email: str,
+                      password: str = Field(min_length=6, max_length=25)
+                      }
+
     Args:
-        body (UserModel): _description_
-        background_tasks (BackgroundTasks): _description_
-        request (Request): 
-        db (Session, optional): _description_. Defaults to Depends(get_db).
-
+        body (UserModel):  Schema.
+        background_tasks (BackgroundTasks):  BackgroundTasks.
+        request (Request):  Request.
+        db (Session, optional):  The database session.
     Raises:
-        HTTPException: _description_
-
+        HTTPException:  HTTP_409_CONFLICT.
     Returns:
-        _type_: _description_
+        json:  massage
     """
     print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
@@ -77,14 +82,14 @@ async def login(
     """
     Login user.
 
-    :param body: Form
-    :type body: OAuth2PasswordRequestForm, optional
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_401_UNAUTHORIZED
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: JWT Tokens
-    :rtype: json
+    Args:
+        body (OAuth2PasswordRequestForm, optional):  Form.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_401_UNAUTHORIZED.
+        HTTPException:  HTTP_404_NOT_FOUND.
+    Returns:
+        json:  JWT Tokens
     """
     print(f"#R_Login - verifying email: {body.username}")
     user = await repository_users.get_user_by_email(body.username, db)
@@ -124,13 +129,13 @@ async def refresh_token(
     """
     Refresh token.
 
-    :param credentials: Security
-    :type credentials: HTTPAuthorizationCredentials, optional
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_401_UNAUTHORIZED
-    :return: JWT Tokens
-    :rtype: json
+    Args:
+        credentials (HTTPAuthorizationCredentials, optional):  Security.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_401_UNAUTHORIZED.
+    Returns:
+        json:  JWT Tokens
     """
     token = credentials.credentials
     email = await auth_service.decode_refresh_token(token)
@@ -164,13 +169,13 @@ async def confirmed_email(token: str, db: Session = Depends(get_db)):
     """
     Confirmed email.
 
-    :param token: Email token
-    :type token: str
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_400_BAD_REQUEST
-    :return: Massage
-    :rtype: json
+    Args:
+        token (str):  Email token.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_400_BAD_REQUEST.
+    Returns:
+        json:  Massage
     """
     email = await auth_service.get_email_from_token(token)
     user = await repository_users.get_user_by_email(email, db)
@@ -192,13 +197,13 @@ async def confirmed_email_post(body: ConfirmEmailModel, db: Session = Depends(ge
     """
     Confirmed email.
 
-    :param token: Email token
-    :type token: str
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_400_BAD_REQUEST
-    :return: Massage
-    :rtype: json
+    Args:
+        token (str):  Email token.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_400_BAD_REQUEST.
+    Returns:
+        json:  Massage
     """
 
     email = await auth_service.get_email_from_token(body.token)
@@ -224,20 +229,18 @@ async def request_email(
     Request email.
 
     RequestEmail schema {
-                        email: EmailStr\n
+                        email: EmailStr
                         }
 
-    :param body: Schema
-    :type body: RequestEmail
-    :param background_tasks: BackgroundTasks
-    :type background_tasks: BackgroundTasks
-    :param request: Request
-    :type request: Request
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Massage
-    :rtype: json
+    Args:
+        body (RequestEmail):  Schema.
+        background_tasks (BackgroundTasks):  BackgroundTasks.
+        request (Request):  Request.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND.
+    Returns:
+        json:  Massage
     """
     user = await repository_users.get_user_by_email(body.email, db)
 
@@ -264,20 +267,18 @@ async def forgot_password(
     Forgot password
 
     RequestEmail schema {
-                        email: EmailStr\n
+                        email: EmailStr
                         }
 
-    :param body: Schema
-    :type body: RequestEmail
-    :param background_tasks: BackgroundTasks
-    :type background_tasks: BackgroundTasks
-    :param request: Request
-    :type request: Request
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Massage
-    :rtype: json
+    Args:
+        body (RequestEmail):  Schema.
+        background_tasks (BackgroundTasks):  BackgroundTasks.
+        request (Request):  Request.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND.
+    Returns:
+        json:  Massage
     """
     user = await repository_users.get_user_by_email(body.email, db)
 
@@ -301,17 +302,17 @@ async def reset_password(
     Reset password.
 
     ResetPasswordModel schema {
-                      token: str\n
-                      password: str = Field(min_length=6, max_length=25)\n
+                      token: str,
+                      password: str = Field(min_length=6, max_length=25)
                       }
 
-    :param body: Schema
-    :type body: UserModel
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_404_NOT_FOUND
-    :return: Massage
-    :rtype: json
+    Args:
+        body (UserModel):  Schema.
+        db (Session, optional):  The database session.
+    Raises:
+        HTTPException:  HTTP_404_NOT_FOUND.
+    Returns:
+        json:  Massage
     """
     email = await auth_service.get_email_from_token(body.token)
     user = await repository_users.get_user_by_email(email, db)

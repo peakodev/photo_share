@@ -10,10 +10,10 @@ async def generate_qr(url: str):
     """
     Generate QR-code
 
-    :param url: String to QR-code.
-    :type url: str
-    :return: Picture.
-    :rtype: media_type="image/svg+xml"
+    Args:
+        url (str):  String to QR-code.
+    Returns:
+        media_type="image/svg+xml":  Picture.
     """    
     qr = await qrcode_generator(url)
     return Response(content=qr, media_type="image/svg+xml")

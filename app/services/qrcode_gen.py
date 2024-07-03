@@ -7,10 +7,10 @@ async def qrcode_generator(url):
     """
     Qrcode generator
 
-    :param url: Cloudinary URL
-    :type url: str
-    :return: QR-code picture
-    :rtype: file.xml
+    Args:
+        url (str):  Cloudinary URL
+    Returns:
+        file.xml:  QR-code picture
     """    
     qr = qrcode.QRCode(
         version=1,
