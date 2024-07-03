@@ -75,7 +75,7 @@ async def add_user_to_request(request: Request, call_next):
     "/",
     name="home_page",
 )
-def get_home(
+async def get_home(
     request: Request,
     user: Optional[User] = Depends(get_user_from_request),
 ):
