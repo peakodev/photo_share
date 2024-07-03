@@ -1,3 +1,25 @@
+function getBaseNetloc() {
+    const currentUrl = window.location.href;
+    const url = new URL(currentUrl);
+    const netloc = url.host;
+    // console.log('global get netloc: ', netloc)
+    return netloc
+}
+
+
+
+function getBaseHeaders() {
+    const baseNetloc = getBaseNetloc()
+
+    const headers = new Headers();
+    const token = localStorage.getItem('access_token');
+    console.log('global get token: ', token)
+    headers.append('Host', baseNetloc)
+    // headers.append('Host', baseNetloc)
+    headers.append('Authorization', `Bearer ${token}`)
+    return headers
+}
+
 async function loadProtectedPage(page) {
     // e.preventDefault();
     // print(e, page);
@@ -9,6 +31,7 @@ async function loadProtectedPage(page) {
     console.log("token: ", token)
     // console.log("Start loadProtectedPage...")
     if (token) {
+        const baseNetloc = getBaseNetloc()
         try {
             const headers = new Headers();
             headers.append('Authorization', `Bearer ${token}`);

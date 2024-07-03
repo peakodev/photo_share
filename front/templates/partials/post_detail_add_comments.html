@@ -1,0 +1,13 @@
+<div class="post-new-comments card comment-box shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title">Add a Comment</h5>
+    <button id="toggle-form" class="btn btn-link">Add a Comment</button>
+    <form id="comment-form" data-post-id="{{ post.id }}" onsubmit="addCommentHandler(event)" data-url-add="{{ url_for('comment_add_page', post_id=post.id) }}" class="comment-form hidden">
+      <div class="mb-3">
+        <label for="comment-text" class="form-label">Comment</label>
+        <textarea id="comment-text" class="form-control" rows="3" required></textarea>
+      </div>
+      <button id="comment-add-btn" type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+  </div>
+</div>

@@ -29,7 +29,7 @@ app.mount("/sphinx-docs", StaticFiles(directory="docs/build/html"), name="sphinx
 
 
 # Redirect from root to Sphinx documentation
-@app.get("/help")
+@app.get("/help", include_in_schema=False)
 async def redirect_to_docs():
     return RedirectResponse(url="/sphinx-docs/index.html")
 
@@ -40,7 +40,7 @@ app.include_router(comments.router, prefix="/api")
 app.include_router(tags.router, prefix="/api")
 app.include_router(qrcode.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
-app.include_router(home.router)
+app.include_router(home.router, include_in_schema=False)
 
 
 @app.get("/test")

@@ -4,7 +4,7 @@
       <a href="/posts/{{ post.id }}" class="photo-container position-relative" style="width: 100%; padding-top: 100%;">
         <img src="{{ post.photo_url }}" class="card-img position-absolute top-0 start-0 w-100 h-100" alt="post img" style="object-fit: cover;" />
         <div class="card-rating position-absolute top-0 end-0 m-2">
-          <span class="badge bg-warning text-dark">★ 4.8</span>
+          <span class="badge bg-warning text-dark">★ {{ post.rating or 0 }}</span>
         </div>
       </a>
     </div>
