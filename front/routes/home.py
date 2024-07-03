@@ -753,3 +753,5 @@ async def comments_add_page(
     user: Optional[User] = Depends(get_user_from_request),
 ):
     print("route post /posts/{post_id}/comments", post_id, comment)
+    print(f"post_id = {post_id}, comment = {comment}")
+    

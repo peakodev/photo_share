@@ -94,12 +94,13 @@
       headers = getBaseHeaders()
       console.log("headers: ", headers)
       form_data = new FormData(e.target);
+      console.log('e.target: ', e.target)
       const api_url = e.target.getAttribute('data-url-add')
 
       try {
         headers = getBaseHeaders()
 
-        response = await fetch(api_url,{method:"POST", body:Lform_data} )
+        response = await fetch(api_url,{method:"POST", body:form_data} )
       }catch (error) {
         console.log(error)
       }
