@@ -22,7 +22,7 @@ async function formCreatePostHandler(event) {
             console.log(`${name}: ${value}`)
         }
         try {
-            const res = await fetch('http://localhost:8000/post', {
+            const res = await fetch(api_create_url, {
                 method: 'POST',
                 body: formData,
                 headers: headers
