@@ -57,7 +57,7 @@
     
     console.log(editBtnRef)
     
-    function editTogglePage (e)  {
+    const editTogglePage = (e) => {
       console.log(postFormWrapRef)
       if (postFormWrapRef.hasAttribute('hidden')) {
         postFormWrapRef.removeAttribute('hidden')
@@ -84,22 +84,17 @@
     toggleFormButton.addEventListener('click', function() {
       commentFormRef.classList.toggle("hidden");
       postNewCommentsRef.classList.toggle("shadow-lg");
-    });
-
-    async function addCommentHandler(e) {
-      e.preventDefault();
-      console.log("!!!!! addCommentHandler: " );
+    }
+    
+    function  addCommentHandler (e) {
+      e.preventDefault();  
       const postId = Number(commentFormRef.getAttribute('data-post-id'));
-      const url_path = `/posts/${postId}/comments`;
-      headers = getBaseHeaders()
-      console.log("headers: ", headers)
       form_data = new FormData(e.target);
-      const api_url = e.target.getAttribute('data-url-add')
 
       try {
         headers = getBaseHeaders()
 
-        response = await fetch(api_url,{method:"POST", body:Lform_data} )
+        response = await 
       }catch (error) {
         console.log(error)
       }
@@ -111,18 +106,18 @@
       console.log("postId: ", postId) 
 
     })*/
-    };
+  });
   </script>
 
   <script>
     //script for add/edit post
     const postId = Number({{post.id}})
-    //const formRef = document.querySelector('#form-post');
+    const formRef = document.querySelector('#form-post');
     //console.log("formRef: ", formRef)
 
     //document.querySelector('form').onsubmit = async e => {
-    async function formCreatePostHandler(e) {
-      e.preventDefault();
+    formRef.onsubmit = async e => {
+        e.preventDefault();
         console.log("!!!!!! ")
         console.log("e: ",e)
         
@@ -174,8 +169,8 @@
             }
 
         }
-    }
-   
+  
+      };
   </script>
 {% endblock %}
 
