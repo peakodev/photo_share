@@ -201,7 +201,7 @@ async def update_post(
     Args:
         post_id (int):  Database object Post.id to update.
         description (str, optional):  New description for post. 
-        tags (str, optional):  New tag\s for post.
+        tags (str, optional):  New tag\'s for post.
         effect (Effect, optional):  New effect to picture in Post.
         file (UploadFile, optional):  New picture for post.
         db (Session, optional):  he database session.

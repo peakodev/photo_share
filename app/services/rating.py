@@ -7,6 +7,7 @@ from app.models.post import Post
 from app.models.user import User
 from app.models.rating import Rating
 
+
 async def add_rate_to_post(user: User,
                            post: Post,
                            rating: int,
@@ -23,15 +24,16 @@ async def add_rate_to_post(user: User,
         dict:  {"post_id": int, "rating": float}
     """    
     
-    result = Rating(post_id = post.id,
-                    user_id = user.id,
-                    rate = rating,
-                    create_at = datetime.now())
+    result = Rating(post_id=post.id,
+                    user_id=user.id,
+                    rate=rating,
+                    create_at=datetime.now())
     db.add(result)
     db.commit()
     db.refresh(result)
     rating = await calculate_avarage_rating(post, db)
     return {"post_id": post.id, "rating": rating}
+
 
 async def calculate_avarage_rating(post: Post, db: Session):
     """

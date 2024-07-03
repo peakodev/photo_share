@@ -27,11 +27,19 @@ app.mount("/static", StaticFiles(directory="front/static"), name="static")
 # Serve Sphinx documentation
 app.mount("/sphinx-docs", StaticFiles(directory="docs/build/html"), name="sphinx-docs")
 
+# Code covarage
+app.mount("/htmlcov", StaticFiles(directory="htmlcov"), name="htmlcov")
+
 
 # Redirect from root to Sphinx documentation
 @app.get("/help", include_in_schema=False)
 async def redirect_to_docs():
     return RedirectResponse(url="/sphinx-docs/index.html")
+
+
+@app.get("/cov", include_in_schema=False)
+async def redirect_to_htmlcov():
+    return RedirectResponse(url="/htmlcov/index.html")
 
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api")
