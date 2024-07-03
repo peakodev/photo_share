@@ -6,3 +6,39 @@
 .comment-form {
     /* display: none; */
 }
+
+.transform-buttons {
+    position: relative;
+}
+.transform-buttons .btn {
+    margin: 5px;
+}
+.hidden-buttons {
+}
+.icon-btn {
+    background: none;
+    border: none;
+}
+
+.img-prev{
+    opacity: 0;
+}
+
+.img-prev.active{
+    opacity: 1;
+    transition: all 0.5s linear;
+}
+
+.qrcode-img{
+    opacity: 0;
+}
+
+.qrcode-img.active{
+    opacity: 1;
+    transition: all 0.5s linear;
+}
+
+
+.qrcode-img img{
+    background-color: #aaefdf;
+}

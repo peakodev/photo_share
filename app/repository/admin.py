@@ -41,7 +41,7 @@ async def update_post_by_id(post_id: int,
         db (Session):  The database session.
         photo (UploadFile, optional):  New picture for post.
         description (str, optional):  New description for post.
-        tags (str, optional):  New tag\\s for post.
+        tags (str, optional):  New tag\'s for post.
         rating (int, optional):  New rating for post.
     Returns:
         Post | None:  Database object Post.
