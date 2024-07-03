@@ -44,26 +44,19 @@ async def signup(
     db: Session = Depends(get_db),
 ):
     """
-    Signup user.
+    Create new user.
 
-    UserModel schema {
-                      first_name: str\n
-                      last_name: str\n
-                      email: str\n
-                      password: str = Field(min_length=6, max_length=25)\n
-                      }
+    Args:
+        body (UserModel): _description_
+        background_tasks (BackgroundTasks): _description_
+        request (Request): 
+        db (Session, optional): _description_. Defaults to Depends(get_db).
 
-    :param body: Schema
-    :type body: UserModel
-    :param background_tasks: BackgroundTasks
-    :type background_tasks: BackgroundTasks
-    :param request: Request
-    :type request: Request
-    :param db: The database session.
-    :type db: Session, optional
-    :raises HTTPException: HTTP_409_CONFLICT
-    :return: massage
-    :rtype: json
+    Raises:
+        HTTPException: _description_
+
+    Returns:
+        _type_: _description_
     """
     print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
