@@ -319,7 +319,7 @@ async def update_post(
         user (User):  Owner.
         db (Session):  The database session.
         description (str, optional):  New description for post. 
-        tags (str, optional):  New tag\\s for post.
+        tags (str, optional):  New tag\'s for post.
         effect (str, optional):  New effect to picture in Post.
         file (UploadFile, optional):  New picture for post.
     Returns:
