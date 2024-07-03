@@ -19,7 +19,16 @@ cd /app/docs && poetry run make html && cd ..
 
 chmod -R 755 /app/docs
 
-mkdir htmlcov
+# mkdir htmlcov
+HTMLCOV_DIR="htmlcov"
+
+# Create the directory if it does not exist
+if [ ! -d "$HTMLCOV_DIR" ]; then
+  mkdir -p "$HTMLCOV_DIR"
+  echo "Directory $HTMLCOV_DIR created."
+else
+  echo "Directory $HTMLCOV_DIR already exists."
+fi
 
 # Run the tests and prepare allure report
 poetry run pytest --alluredir allure-results --cov=app --cov-report=html tests/
