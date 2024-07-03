@@ -277,7 +277,7 @@ async def delete_post(
             status_code=status.HTTP_404_NOT_FOUND, detail="Post not found"
         )
 
-    if post.user_id == user.id or user.role == Role.admin:
+    if post.user_id == user.id:
         post = await repository_posts.delete_post(post_id, user, db)
     else:
         raise HTTPException(
