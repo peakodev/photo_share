@@ -19,6 +19,11 @@ cd /app/docs && poetry run make html && cd ..
 
 chmod -R 755 /app/docs
 
+# Run the tests and prepare allure report
+poetry run pytest --alluredir allure-results
+
+chmod -R 755 /app/allure-results
+
 # Start the FastAPI application
 exec poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 

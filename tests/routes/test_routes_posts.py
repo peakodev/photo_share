@@ -5,14 +5,19 @@ from os import getcwd
 import pytest
 from urllib.request import urlopen
 from urllib.parse import quote_plus
+from unittest.mock import patch
 
 from app.repository.users import get_user_by_email
 from app.models import User
 
 file_path = Path(getcwd()) / "tests" / "user-default.png"
 
-
-def test_create_post_with_tags(client, token, user):
+@patch("app.services.cloudinary.cloudinary.uploader.upload")
+def test_create_post_with_tags(mock_uploader_upload, client, token, user, ):
+    mock_uploader_upload.return_value ={
+        "secure_url": "http://test_photo.com/photo.jpg",
+        "public_id": "public_id"
+    }
     test_description = "new post"
     test_tags = "new, post"
     test_file_bstring = str
@@ -31,11 +36,15 @@ def test_create_post_with_tags(client, token, user):
     assert data["user"]["email"] == user["email"]
     assert data["tags"][0]["text"] == "new"
     assert data["tags"][1]["text"] == "post"
-    post_picture_bstring = urlopen(data["photo_url"]).read()
-    assert post_picture_bstring == test_file_bstring
+    assert data["photo_url"] is not None
+    mock_uploader_upload.assert_called_once()
 
-
-def test_create_post_without_tags(client, token, user):
+@patch("app.services.cloudinary.cloudinary.uploader.upload")
+def test_create_post_without_tags(mock_uploader_upload, client, token, user):
+    mock_uploader_upload.return_value = {
+        "secure_url": "http://test_photo_1.com/photo.jpg",
+        "public_id": "public_id"
+    }
     test_description = "new post"
     test_file_bstring = str
     headers = {"Authorization": f"Bearer {token}"}
@@ -52,8 +61,8 @@ def test_create_post_without_tags(client, token, user):
     assert data["user"]["email"] == user["email"]
     assert data["description"] == test_description
     assert data["tags"] == []
-    post_picture_bstring = urlopen(data["photo_url"]).read()
-    assert post_picture_bstring == test_file_bstring
+    assert data["photo_url"] is not None
+    mock_uploader_upload.assert_called_once()
 
 
 def test_get_posts(client, token):
@@ -140,8 +149,12 @@ def test_update_post_owner_authorized_update_tags(client, token):
     with pytest.raises(IndexError):
         data["tags"][2]
 
-
-def test_update_post_owner_authorized_update_file(client, token):
+@patch("app.services.cloudinary.cloudinary.uploader.upload")
+def test_update_post_owner_authorized_update_file(mock_uploader_upload, client, token):
+    mock_uploader_upload.return_value = {
+        "secure_url": "http://test_photo_999.com/photo.jpg",
+        "public_id": "public_id//test"
+    }
     post_id = 1
     test_file_bstring = str
     with file_path.open("rb") as file:
@@ -151,6 +164,7 @@ def test_update_post_owner_authorized_update_file(client, token):
 
     response = client.put(f"api/posts/{post_id}", headers=headers, files=test_file)
     assert response.status_code == 200
+    mock_uploader_upload.assert_called_once()
 
 
 def test_delete_post_user_owner(client, token):

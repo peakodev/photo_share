@@ -167,3 +167,6 @@ postgres-data/
 *.db
 
 .vscode/
+
+allure-results/
+allure-reports/
