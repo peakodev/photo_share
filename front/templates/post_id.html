@@ -9,8 +9,6 @@
     <section>
       <div class="container-xxl">
         <div class="container-xxl mt-5">
-          user: {{ user.id }}
-          post.user_id: {{ post.user_id }}
           {% include 'partials/post_service_btn.html' %}
           {% if user.id == post.user_id %}
 
@@ -31,22 +29,20 @@
       </div>
     </section>
     <script>
-      const redirect_url = "{{ url_for('home_page')}}"
-      const api_login = "{{ url_for('auth_signin') }}"
+      //let api_login = "{{ url_for('auth_signin') }}"
     </script>
   </main>
   <script>
-    const isPost =  {% if post %} true {% else %} false {% endif %} ||  false
-    console.log('isPost: ', isPost)
-    const postUserId = Number('{{ post.user_id }}')
-    const editBtnRef = document.querySelector('#btn-edit-post')
+    //let isPost =  {% if post %} true {% else %} false {% endif %} ||  false
+    //console.log('isPost: ', isPost)
+    let postUserId = Number('{{ post.user_id }}')
+    let editBtnRef = document.querySelector('#btn-edit-post')
     console.log('postUserId: ', postUserId, typeof postUserId)
     
     const postDetailsRef = document.querySelector('#post-details')
     const postCommentsRef = document.querySelector('.comments-section')
     const postFormWrapRef = document.querySelector('#post-form-wrapper')
     const postNewCommentsRef = document.querySelector('.post-new-comments')
-    
     
     userId = Number(localStorage.getItem('user_id'))
     
@@ -57,7 +53,7 @@
     
     console.log(editBtnRef)
     
-    function editTogglePage (e)  {
+    function editTogglePage(e) {
       console.log(postFormWrapRef)
       if (postFormWrapRef.hasAttribute('hidden')) {
         postFormWrapRef.removeAttribute('hidden')
@@ -73,46 +69,43 @@
         postNewCommentsRef.removeAttribute('hidden')
       }
     }
-
-  editBtnRef.addEventListener('click', editTogglePage)
+    
+    editBtnRef.addEventListener('click', editTogglePage)
   </script>
   <script>
-    const toggleFormButton = document.getElementById('toggle-form');
-    const commentFormRef = document.getElementById('comment-form');
-    const addCommentBtnRef = document.getElementById('comment-add-btn');
-
-    toggleFormButton.addEventListener('click', function() {
-      commentFormRef.classList.toggle("hidden");
-      postNewCommentsRef.classList.toggle("shadow-lg");
-    });
-
+    const toggleFormButton = document.getElementById('toggle-form')
+    const commentFormRef = document.getElementById('comment-form')
+    const addCommentBtnRef = document.getElementById('comment-add-btn')
+    
+    toggleFormButton.addEventListener('click', function () {
+      commentFormRef.classList.toggle('hidden')
+      postNewCommentsRef.classList.toggle('shadow-lg')
+    })
+    
     async function addCommentHandler(e) {
-      e.preventDefault();
-      console.log("!!!!! addCommentHandler: " );
-      const postId = Number(commentFormRef.getAttribute('data-post-id'));
-      const url_path = `/posts/${postId}/comments`;
+      e.preventDefault()
+      console.log('!!!!! addCommentHandler: ')
+      const postId = Number(commentFormRef.getAttribute('data-post-id'))
+      const url_path = `/posts/${postId}/comments`
       headers = getBaseHeaders()
-      console.log("headers: ", headers)
-      form_data = new FormData(e.target);
+      console.log(`headers Authorization: `, headers.get('Authorization'))
+      console.log('headers: ', headers)
+      form_data = new FormData(e.target)
       console.log('e.target: ', e.target)
       const api_url = e.target.getAttribute('data-url-add')
-
+    
       try {
-        headers = getBaseHeaders()
-
-        response = await fetch(api_url,{method:"POST", body:form_data} )
-      }catch (error) {
+        response = await fetch(api_url, { method: 'POST', body: form_data, headers: headers })
+        if (!response.ok) {
+          console.log('Error create comment', response.textContent)
+        } else {
+          const currentUrl = window.location.href
+          loadProtectedPage(currentUrl)
+        }
+      } catch (error) {
         console.log(error)
       }
-
-      /*addCommentBtnRef.addEventListener('click', e  => {
-      const postId = Number(commentFormRef.getAttribute('data-post-id'));
-      e.
-      
-      console.log("postId: ", postId) 
-
-    })*/
-    };
+    }
   </script>
 
   <script>
@@ -124,8 +117,10 @@
     //document.querySelector('form').onsubmit = async e => {
     async function formCreatePostHandler(e) {
       e.preventDefault();
-        console.log("!!!!!! ")
-        console.log("e: ",e)
+      console.log("!!!!!! ")
+      console.log("e: ",e)
+      let redirect_url = "{{ url_for('home_page')}}"
+
         
         const token = await localStorage.getItem('access_token');
         if (token) {
