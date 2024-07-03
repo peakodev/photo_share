@@ -48,7 +48,7 @@ async def get_posts(
     name="get_all_posts",
 )
 async def get_all_posts(
-    limit: int = Query(10),
+    limit: int = Query(50),
     offset: int = Query(0),
     db: Session = Depends(get_db),
 ):
