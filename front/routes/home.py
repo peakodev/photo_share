@@ -165,7 +165,7 @@ async def get_all_posts_page(
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, headers=headers, params={"limit": 100})
+            response = await client.get(api_url, headers=headers)
     except Exception as err:
         print("!!!!! error", err)
         return {"err": err}
