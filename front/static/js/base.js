@@ -1,3 +1,13 @@
+const getBaseHeaders = () => {
+    const headers = new Headers();
+    const token = localStorage.getItem('access_token');
+
+    headers.append('Host', baseNetloc)
+    headers.append('Authorization', `Bearer ${token}`)
+    return headers
+}
+
+
 async function loadProtectedPage(page) {
     // e.preventDefault();
     // print(e, page);
