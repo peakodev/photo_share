@@ -2,7 +2,18 @@
   <div class="row g-0 mb-3">
     <div class="col-md-4 d-flex align-items-center position-relative">
       <div class="photo-container position-relative" style="width: 100%; padding-top: 100%;">
-        <a href="#" class="rounded-2"><img src="{{ post.photo_url }}" class="rounded-2 position-absolute top-0 start-0 w-100 h-100" alt="post img" style="object-fit: cover;" /></a>
+        <a href="#" class="main-img img-prev rounded-2 active"><img src="{{ post.photo_url }}" class="rounded-2 position-absolute top-0 start-0 w-100 h-100" alt="post img" style="object-fit: cover;" /></a>
+        <a href="#" class="transform-img img-prev rounded-2">
+          <img src="{% if post.transform_url %}
+              {{ post.transform_url }}
+            {% else %}
+              {{ post.photo_url }}
+            {% endif %}"
+            class="rounded-2 position-absolute top-0 start-0 w-100 h-100"
+            alt="post img"
+            api-url="/api/posts/{{ post.id }}"
+            style="object-fit: cover;" />
+        </a>
         <div class="position-absolute top-0 end-0 m-2">
           <span class="badge bg-warning text-dark">★ {{ post.rating or 0 }}</span>
         </div>
@@ -26,7 +37,16 @@
         <p class="mb-3">{{ post.description }}</p>
       </div>
       <div class="d-flex align-items-end mt-auto">
-        <a href="/posts" class="btn btn-primary">Return</a>
+        {# <a href="/posts" class="btn btn-primary">Return</a> #}
+        <div class="transform-buttons">
+          <div id="hidden-buttons" class="hidden-buttons hidden">
+            <button id="sepia-btn" class="btn icon-btn"><i class="fas fa-adjust"></i> Sepia</button>
+            <button id="greyscale-btn" class="btn icon-btn"><i class="fas fa-adjust"></i> Greyscale</button>
+          </div>
+          <button id="transform-btn" class="btn btn-primary"><i class="fas fa-wrench"></i> Transform</button>
+          <button id="qrcode-btn" class="btn btn-secondary"><i class="fas fa-qrcode"></i></button>
+          <button id="save-btn" class="btn btn-success"><i class="fas fa-save"></i> Save</button>
+        </div>
         <p class="ms-auto card-user-created-post text-muted mb-0 fs-6">
           {% if post.updated_at %}
             Updated: {{ post.updated_at }}

@@ -173,6 +173,34 @@
     }
    
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const transformBtn = document.getElementById('transform-btn');
+      const hiddenButtons = document.getElementById('hidden-buttons');
+      const mainImgRef = document.querySelector(".main-img");
+      const transformImgReg = document.querySelector(".transform-img");
+      console.log(`transformBtn: `, transformBtn)
+      transformBtn.addEventListener('click', function() {
+          console.log('transformBtn clicked');
+          //hiddenButtons.style.display = hiddenButtons.style.display === 'none' ? 'block' : 'none';
+          hiddenButtons.classList.toggle('hidden');
+          mainImgRef.classList.toggle('active');
+          transformImgReg.classList.toggle('active');
+
+      });
+
+      document.getElementById('sepia-btn').addEventListener('click', function() {
+          alert('Sepia effect applied!');
+          // Add your sepia effect logic here
+      });
+
+      document.getElementById('greyscale-btn').addEventListener('click', function() {
+          alert('Greyscale effect applied!');
+          // Add your greyscale effect logic here
+      });
+  });
+  </script>
 {% endblock %}
 
 {% block scripts %}
