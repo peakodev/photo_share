@@ -44,7 +44,7 @@ async def signup(
     db: Session = Depends(get_db),
 ):
     """
-    Signup user.
+    Create new user.
 
     UserModel schema {
                       first_name: str,
@@ -62,7 +62,6 @@ async def signup(
         HTTPException:  HTTP_409_CONFLICT.
     Returns:
         json:  massage
-
     """
     print(f"#b_R - body.email: {body.email}")
     exist_user = await repository_users.get_user_by_email(body.email, db)
