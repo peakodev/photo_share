@@ -75,7 +75,7 @@ async def add_user_to_request(request: Request, call_next):
     "/",
     name="home_page",
 )
-def get_home(
+async def get_home(
     request: Request,
     user: Optional[User] = Depends(get_user_from_request),
 ):
@@ -165,7 +165,7 @@ async def get_all_posts_page(
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(api_url, headers=headers, params={"limit": 100})
+            response = await client.get(api_url, headers=headers)
     except Exception as err:
         print("!!!!! error", err)
         return {"err": err}
