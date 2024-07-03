@@ -1,35 +1,25 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.middlewares.middlewares import AuthMiddleware
+
 from app.routes import auth, users, posts, comments, tags, qrcode, admin
 from front.routes import home
 
 app = FastAPI()
 
+
+class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if 'X-Forwarded-Proto' in request.headers and request.headers['X-Forwarded-Proto'] == 'https':
+            request.scope['scheme'] = 'https'
+        response = await call_next(request)
+        return response
+
+
+app.add_middleware(HTTPSRedirectMiddleware)
+
 home.router.app = app
-
-# origins = [
-#     "http://localhost.tiangolo.com",
-#     "https://localhost.tiangolo.com",
-#     "http://localhost",
-#     "http://localhost:8000",
-# ]
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-
-# app.add_middleware(AuthMiddleware)
-
 
 app.mount("/static", StaticFiles(directory="front/static"), name="static")
 
